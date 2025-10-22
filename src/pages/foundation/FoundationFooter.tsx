@@ -62,7 +62,7 @@ export const Footer: FC<FooterProps> = props => {
         { label: t('ckb_eco_fund'), url: 'https://ckbeco.fund/' },
         { label: t('tunnel_vision_labs'), url: 'https://tunnelvisionlabs.xyz/' },
         { label: t('.bit'), url: 'https://www.did.id/' },
-        { label: t('magickbase'), url: 'https://github.com/Magickbase/' },
+        { label: t('app5labs'), url: 'https://www.app5.org/' },
       ],
     },
     {

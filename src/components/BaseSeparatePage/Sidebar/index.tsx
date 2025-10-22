@@ -22,7 +22,7 @@ export const Sidebar: FC<FunctionsType> = ({ className, editLink }) => {
       <div className={clsx(styles.sidebar, className)}>
         <Link
           className={clsx(styles.editPageButton)}
-          href={editLink ?? 'https://github.com/Magickbase/nervos-official-website'}
+          href={editLink ?? 'https://github.com/appfi5/nervos-official-website'}
           target="_blank"
           rel="noopener noreferrer"
         >
