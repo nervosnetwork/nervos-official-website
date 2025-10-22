@@ -32,7 +32,7 @@ import {
   DIDIcon,
   CryptapeIcon,
   CellstudioIcon,
-  MagickbaseIcon,
+  App5LabsIcon,
   NervapeIcon,
   OmigaIcon,
   SporeIcon,
@@ -52,7 +52,7 @@ const TEAMS: {
   { icon: <OmigaIcon />, key: 'Omiga', link: 'https://omiga.io/' },
   { icon: <KhalaniIcon />, key: 'Khalani', link: 'https://khalani.network/' },
   { icon: <SporeIcon />, key: 'Spore', link: 'https://spore.pro/' },
-  { icon: <MagickbaseIcon />, key: 'Magickbase', link: 'https://magickbase.com/' },
+  { icon: <App5LabsIcon style={{ width: "100%", height: "auto", filter: "brightness(0)" }} />, key: 'App5Labs', link: 'https://www.app5.org/' },
 ]
 
 const Emphasis: FC<PropsWithChildren> = ({ children }) => <strong className={styles.emphasis}>{children}</strong>

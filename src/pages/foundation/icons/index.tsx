@@ -12,7 +12,6 @@ import KhalaniIcon from './khalani.svg'
 import DIDIcon from './did.svg'
 import CryptapeIcon from './cryptape.svg'
 import CellstudioIcon from './cellstudio.svg'
-import MagickbaseIcon from './magickbase.svg'
 import NervapeIcon from './nervape.svg'
 import OmigaIcon from './omiga.svg'
 import SporeIcon from './spore.svg'
@@ -20,12 +19,19 @@ import FoundationLogo from './foundationLogo.svg'
 
 import ImgFoundationLogo from './foundationLogo.png'
 import ImgInfrastructure from './infrastructure.png'
+import ImgApp5Labs from './app5labs.logo.png'
 import ImgGuidance from './guidance.png'
 import ImgCommunity from './community.png'
 import ImgCellsBg from './cellsBg.png'
 import ImgAnOpenBazaar from './an_open_bazaar.png'
 import ImgExplorationAndInnovation from './exploration_and_innovation.png'
 import ImgNurtureAndSupport from './nurture_and_support.png'
+import Image, { ImageProps } from 'next/image'
+
+
+function App5LabsIcon(props: Omit<ImageProps, 'src' | 'alt'>) {
+  return <Image src={ImgApp5Labs} alt="app5labs logo" {...props} />
+}
 
 export {
   NervosLogoIcon,
@@ -51,7 +57,7 @@ export {
   DIDIcon,
   CryptapeIcon,
   CellstudioIcon,
-  MagickbaseIcon,
+  App5LabsIcon,
   NervapeIcon,
   OmigaIcon,
   SporeIcon,

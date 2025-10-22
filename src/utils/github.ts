@@ -6,7 +6,7 @@ export const REPO = process.env.NEXT_PUBLIC_REPO!
 const token = process.env.GITHUB_TOKEN
 
 export const fetchContributors = async (): Promise<Array<Author>> => {
-  const RPC_URL = 'https://api.github.com/repos/magickbase/nervos-official-website/contributors'
+  const RPC_URL = 'https://api.github.com/repos/appfi5/nervos-official-website/contributors'
   try {
     return await fetch(RPC_URL, {
       headers: {
@@ -27,7 +27,7 @@ export const fetchContributors = async (): Promise<Array<Author>> => {
 }
 
 export const lastContributor = async (path: string): Promise<LastAuthor | null> => {
-  const RPC_URL = `https://api.github.com/repos/magickbase/nervos-official-website/commits?path=${path}`
+  const RPC_URL = `https://api.github.com/repos/appfi5/nervos-official-website/commits?path=${path}`
   try {
     const commit = await fetch(RPC_URL, {
       headers: {
