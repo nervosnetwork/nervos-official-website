@@ -1,3 +1,4 @@
+import Image, { ImageProps } from 'next/image'
 import NervosLogoIcon from './logo.svg'
 import NervosDocsIcon from './nervos_docs.svg'
 import ArrowRightIcon from './ArrowRight.svg'
@@ -26,7 +27,6 @@ import ImgCellsBg from './cellsBg.png'
 import ImgAnOpenBazaar from './an_open_bazaar.png'
 import ImgExplorationAndInnovation from './exploration_and_innovation.png'
 import ImgNurtureAndSupport from './nurture_and_support.png'
-import Image, { ImageProps } from 'next/image'
 
 
 function App5LabsIcon(props: Omit<ImageProps, 'src' | 'alt'>) {
