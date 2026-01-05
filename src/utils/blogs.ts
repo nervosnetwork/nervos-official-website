@@ -17,7 +17,7 @@ export interface AuthorDetail {
   platform: 'github'
 }
 
-export interface Blog {
+export type Blog = {
   slug: string
   content: string
   title: string
@@ -63,6 +63,7 @@ export async function getBlogBySlug<F extends (keyof Blog)[]>(
   prefLang = 'en',
   fields?: F,
 ): Promise<Blog | Pick<Blog, F[number]>> {
+  console.time("blogs getBlogBySlug record");
   const nameSuffix = prefLang === 'en' ? '' : `_${prefLang}`
   let fullPath = join(blogsRootDirectory, slug, `index${nameSuffix}.md`)
   if (!fs.existsSync(fullPath)) {
@@ -147,11 +148,12 @@ export async function getBlogBySlug<F extends (keyof Blog)[]>(
     link,
     pageView,
   })
-
+  console.timeEnd("blogs getBlogBySlug record");
   return fields == null ? blog : pick(blog, ...fields)
 }
 
 export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', prefLang = 'en', fields?: F) {
+  console.time("blogs.ts record");
   const slugs = getBlogSlugs()
   const blogs = await Promise.all(
     slugs.map(slug =>
@@ -186,6 +188,7 @@ export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', pref
     }
     return 0
   })
+  console.timeEnd("blogs.ts record");
   return blogs
 }
 

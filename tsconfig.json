@@ -18,7 +18,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": "."
   },
-  "include": [".eslintrc.cjs", "next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
+  "include": [".eslintrc.cjs", "next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs"],
   "exclude": [
     "node_modules",
     // This is because next.config.mjs has too many `noImplicitAny` prompts.
