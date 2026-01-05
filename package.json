@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "node ./scripts/generate-aritcles.mjs",
+    "prebuild": "node ./scripts/generate-articles.mjs",
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",

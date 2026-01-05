@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { parseBlog } from './generate-aritcles/parserBlog.mjs'
+import { parseBlog } from './generate-articles/parserBlog.mjs'
 
 
 const SOURCE_DIR = path.join(process.cwd(), 'public', 'education_hub_articles')
