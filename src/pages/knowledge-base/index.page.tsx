@@ -11,7 +11,7 @@ import Category from '../../components/Category'
 import { Page } from '../../components/Page'
 import { BASE_URL, getTimeFormatter } from '../../utils'
 import { Blog, getCategoriesFromBlogs } from '../../utils/blogs'
-import { getAllBlogs } from '../../database/articles';
+import { getAllBlogs, SLUG_COUNT } from '../../database/articles';
 import { getPageViewCount } from '../../utils/gadata'
 import styles from './index.module.scss'
 import EmbellishedLeft from './embellished_left.svg'
@@ -315,7 +315,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, locale, quer
     pageCount: 0,
   }
 
-  if (req.method === "OPTIONS") {
+  if (req.method === "OPTIONS" || pageNo < 1 || pageNo > SLUG_COUNT ) {
     return { props }
   }
 
