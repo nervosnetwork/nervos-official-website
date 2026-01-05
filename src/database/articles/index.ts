@@ -69,3 +69,6 @@ export async function getBlogBySlug<F extends (keyof Blog)[]>(
   // console.timeEnd("db articles getBlogBySlug record");
   return Promise.resolve(blog);
 }
+
+
+export const SLUG_COUNT = originSlugList.length;
