@@ -7,7 +7,7 @@ const originSlugList = slugs;
 
 
 export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', prefLang = 'en', fields?: F) {
-  console.time("db articles getAllBlogs record");
+  // console.time("db articles getAllBlogs record");
   const blogs = originSlugList.map(slug => {
     const blog: Blog = slug[prefLang as 'en'] || slug.en;
     if(fields?.length) {
@@ -44,7 +44,7 @@ export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', pref
     }
     return 0
   })
-  console.timeEnd("db articles getAllBlogs record");
+  // console.timeEnd("db articles getAllBlogs record");
   return Promise.resolve(blogs)
 }
 
@@ -60,12 +60,12 @@ export async function getBlogBySlug<F extends (keyof Blog)[]>(
   prefLang = 'en',
   fields?: F,
 ): Promise<Blog | Pick<Blog, F[number]>> {
-  console.time("db articles getBlogBySlug record");
+  // console.time("db articles getBlogBySlug record");
   const slugObj = originSlugList.find(s => s.slug === slug);
   const blog: Blog = slugObj![prefLang as 'en'] || slugObj!.en;
   if(fields?.length) {
     return pick(blog, ...fields)
   }
-  console.timeEnd("db articles getBlogBySlug record");
+  // console.timeEnd("db articles getBlogBySlug record");
   return Promise.resolve(blog);
 }
