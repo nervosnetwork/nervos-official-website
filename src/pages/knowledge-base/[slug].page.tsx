@@ -18,10 +18,11 @@ import ExpandedAuthors from 'src/components/KnowledgeBase/ExpandedAuthorList'
 import { getStatusId } from 'src/utils/twitter'
 import { Page } from '../../components/Page'
 import { getTimeFormatter } from '../../utils'
-import { getBlogBySlug, getAllBlogs, getCategoriesFromBlogs, Blog } from '../../utils/blogs'
+import { getCategoriesFromBlogs, Blog } from '../../utils/blogs'
 import styles from './knowledgeBase.module.scss'
 import { TOCContextProvider, TOCItem } from '../../components/TableOfContents'
 import { StyledTOC } from './StyledTOC'
+import { getAllBlogs, getBlogBySlug } from '../../database/articles'
 
 type Props = {
   post: Blog
@@ -31,7 +32,7 @@ type Props = {
 
 /* eslint-disable-next-line @typescript-eslint/unbound-method */
 const formatTime = (dateStr: string) => {
-  const date = new Date(dateStr.replace(" T", "T"));
+  const date = new Date(dateStr);
   try {
     return getTimeFormatter().format(date)
   } catch (e) {
