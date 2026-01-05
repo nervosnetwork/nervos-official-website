@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "node ./scripts/generate-articles.mjs",
-    "build": "next build",
+    "build": "node ./scripts/generate-articles.mjs && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
