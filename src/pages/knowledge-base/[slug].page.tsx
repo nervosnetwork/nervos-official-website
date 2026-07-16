@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { Tweet } from 'react-tweet'
 import { getPageViewCount } from 'src/utils/gadata'
 import ExpandedAuthors from 'src/components/KnowledgeBase/ExpandedAuthorList'
+import { CodeBlock } from 'src/components/KnowledgeBase/CodeBlock'
 import { getStatusId } from 'src/utils/twitter'
 import { Page } from '../../components/Page'
 import { getTimeFormatter } from '../../utils'
@@ -32,7 +33,7 @@ type Props = {
 
 /* eslint-disable-next-line @typescript-eslint/unbound-method */
 const formatTime = (dateStr: string) => {
-  const date = new Date(dateStr);
+  const date = new Date(dateStr)
   try {
     return getTimeFormatter().format(date)
   } catch (e) {
@@ -146,6 +147,7 @@ const Post = ({ post, recents, categories }: Props) => {
                     h4: wrapHeadingWithTOCItem('h4'),
                     h5: wrapHeadingWithTOCItem('h5'),
                     h6: wrapHeadingWithTOCItem('h6'),
+                    code: CodeBlock,
                     img: props => {
                       if (props.src == null) return null
 
