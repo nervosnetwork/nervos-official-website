@@ -44,8 +44,8 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
           <p>
             <Trans t={t} i18nKey="tokenomics.description.text1">
               The CKB token launched with an initial supply of 33.6 billion coins, 8.4 billion of which were burned soon
-              thereafter. The base issuance is 33.6 billion coins per year and halves every four years until it hits
-              zero, whereas the fixed secondary issuance is 1.344 billion. Check out the detailed CKB supply structure
+              thereafter. The base issuance totals 33.6 billion coins and halves every four years until it hits
+              zero, whereas the fixed secondary issuance is 1.344 billion per year. Check out the detailed CKB supply structure
               and issuance schedule&nbsp;
               <StyledLink
                 href="https://medium.com/@m.quinn/a-detailed-description-of-nervos-ckb-supply-and-issuance-1d55c4b101f9"
@@ -67,7 +67,7 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
               <StyledLink href="https://medium.com/nervosnetwork/nervos-dao-explained-95e33898b1c" colored underline>
                 Nervos DAO
               </StyledLink>
-              &nbsp; smart contract, which is a mechanism incentivizes the removal of unnecessary data, ensuring long-term manageability of the blockchain.
+              &nbsp; smart contract, which is a mechanism that incentivizes the removal of unnecessary data, ensuring long-term manageability of the blockchain.
             </Trans>
           </p>
         </>
@@ -84,7 +84,7 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
               this list
             </StyledLink>
             . However, consider transferring and holding your CKB using a non-custodial cryptocurrency
-            <StyledLink href="https://nervos-official-website.vercel.app/wallets" colored underline>
+            <StyledLink href="/wallets" colored underline>
               wallet
             </StyledLink>
             , as holding it on centralized exchanges is risky.
