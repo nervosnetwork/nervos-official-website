@@ -39,15 +39,16 @@ export function ScrollDepthTracker() {
 
       const scrollDepth = getScrollDepth()
       const umami = (window as typeof window & { umami?: { track?: Umami } }).umami
+      const track = umami?.track
 
-      if (!umami?.track) {
+      if (!track) {
         return
       }
 
       SCROLL_MILESTONES.forEach(milestone => {
         if (scrollDepth >= milestone && !trackedMilestones.current.has(milestone)) {
           trackedMilestones.current.add(milestone)
-          umami.track('scroll_depth', {
+          track('scroll_depth', {
             percent_scrolled: milestone,
             page_path: `${window.location.pathname}${window.location.hash}`,
             page_title: document.title,

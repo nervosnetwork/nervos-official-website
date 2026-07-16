@@ -48,12 +48,13 @@ export function LinkClickTracker() {
       }
 
       const umami = (window as typeof window & { umami?: { track?: Umami } }).umami
+      const track = umami?.track
 
-      if (!umami?.track) {
+      if (!track) {
         return
       }
 
-      umami.track('link_click', {
+      track('link_click', {
         destination_category: getDestinationCategory(linkUrl),
       })
     }
