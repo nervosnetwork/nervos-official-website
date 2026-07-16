@@ -172,6 +172,13 @@ $linkColor: var(--colorSecond);
         border-radius: 4px;
       }
 
+      // Code blocks rendered by react-syntax-highlighter are wrapped in <pre><div><code>,
+      // so the :not(pre) > code rule above incorrectly adds inline-code padding to them.
+      pre code {
+        padding: 0;
+        background: transparent;
+      }
+
       // Tables
       table {
         width: 100%;
