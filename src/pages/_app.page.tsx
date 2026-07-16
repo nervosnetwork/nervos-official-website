@@ -4,6 +4,8 @@ import Head from 'next/head'
 import { appWithTranslation } from 'next-i18next'
 import localFont from 'next/font/local'
 import { IS_PROD, api } from '../utils'
+import { LinkClickTracker } from '../components/LinkClickTracker'
+import { ScrollDepthTracker } from '../components/ScrollDepthTracker'
 import 'swiper/css'
 import '../styles/globals.scss'
 
@@ -33,6 +35,7 @@ const App: AppType = ({ Component, pageProps }) => {
           <>
             <script async src="https://www.googletagmanager.com/gtag/js?id=G-WVH440CNZ3" />
             <script async src="/scripts/google-analytics.js" />
+            <script defer src="https://umami.retric.uk/script.js" data-website-id="1703a5f5-1391-4989-ba79-f6c06f08fb01" />
             <script async src="/scripts/twitter.js" />
           </>
         ) : null}
@@ -41,6 +44,12 @@ const App: AppType = ({ Component, pageProps }) => {
         // Here as redundancy in server-side rendering.
         className={fontArticulatCF.className}
       >
+        {IS_PROD ? (
+          <>
+            <LinkClickTracker />
+            <ScrollDepthTracker />
+          </>
+        ) : null}
         <Component {...pageProps} />
       </main>
     </>
