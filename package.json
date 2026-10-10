@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "kb:validate": "node scripts/test-kb-content.mjs",
+    "kb:sync": "git submodule update --init public/education_hub_articles",
+    "kb:prepare": "node scripts/prepare-kb-content.mjs",
     "build": "node ./scripts/generate-articles.mjs && next build",
     "dev": "next dev",
     "lint": "next lint",

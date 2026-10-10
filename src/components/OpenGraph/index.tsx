@@ -2,6 +2,7 @@
 import { FC } from 'react'
 import Head from 'next/head'
 import { pick } from '../../utils'
+import { sharingImageUrl, sharingPageUrl } from '../../utils/sharing-urls'
 
 export type OGProperties = {
   locale?: string
@@ -31,11 +32,16 @@ export type OGProperties = {
 }
 
 export const OpenGraph: FC<{ properties: OGProperties }> = ({ properties }) => {
-  const { url, title, type, description, image, twitter } = properties
+  const normalized = {
+    ...properties,
+    url: sharingPageUrl(properties.url),
+    image: properties.image ? { ...properties.image, url: sharingImageUrl(properties.image.url) } : undefined,
+  }
+  const { url, title, type, description, image, twitter } = normalized
 
   const ogTags: [string, string][] = []
 
-  Object.entries(pick(properties, 'type', 'locale', 'title', 'description', 'url', 'site_name')).forEach(
+  Object.entries(pick(normalized, 'type', 'locale', 'title', 'description', 'url', 'site_name')).forEach(
     ([key, value]) => {
       if (value == null) return
       ogTags.push([`og:${key}`, value])

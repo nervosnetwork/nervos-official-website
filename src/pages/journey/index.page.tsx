@@ -191,7 +191,7 @@ const Roadmap: NextPage = () => {
             </>
           )}
           <div>
-            <div className={styles.title}>{t('title')}</div>
+            <h1 className={styles.title}>{t('title')}</h1>
             <div className={styles.subTitleWrapper}>
               <div className={styles.subTitleItem}>{t('subtitle.never_finished')},</div>
               <div className={styles.subTitleItem}>{t('subtitle.always_building')}</div>

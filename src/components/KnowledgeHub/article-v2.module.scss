@@ -1,0 +1,688 @@
+@use './tokens' as tokens;
+@import './pages.module';
+
+/* Updated article frame 22:2582. Photography remains a deliberate placeholder. */
+.scrollingHeader.scrollingHeader {
+  position: relative;
+}
+
+.mobileContents {
+  display: none;
+}
+
+.articleBody [id] {
+  scroll-margin-top: calc(var(--articleNavHeight) + 24px);
+}
+
+.articleNav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 64px;
+  margin-top: 48px;
+  padding: 12px 0;
+  background: var(--kbSurface);
+  border-bottom: 1px solid var(--kbDivider);
+}
+
+.articleBrand {
+  gap: 8px;
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.articleBrand strong {
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.writeArticle {
+  min-height: 30px;
+  padding: 5px 8px;
+  color: var(--kbText);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  background: var(--kbSurface);
+  transition:
+    color 220ms ease,
+    background-color 220ms ease;
+}
+
+.writeArticle img {
+  transition: filter 220ms ease;
+}
+
+.writeArticle:is(:hover, :focus-visible) {
+  color: var(--kbInverseText);
+  background: var(--kbDark);
+}
+
+.writeArticle:is(:hover, :focus-visible) img {
+  filter: brightness(0) invert(1);
+}
+
+.writeArticle:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writeArticle,
+  .writeArticle img {
+    transition: none;
+  }
+}
+
+.articleLayout {
+  grid-template-columns: minmax(0, 690px) 306px;
+  gap: 102px;
+  width: min(1098px, calc(100% - 64px));
+  margin: 64px max(32px, calc((100% - 1200px) / 2)) 96px auto;
+}
+
+.articleBody {
+  @include tokens.type(body);
+
+  color: var(--kbText);
+}
+
+.articleMeta > div {
+  gap: 8px;
+  color: var(--kbText);
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.articleBody header {
+  max-width: 650px;
+}
+
+.articleBody h1 {
+  @include tokens.type(h3);
+
+  margin-top: 24px;
+}
+
+.articleBody .subhead {
+  @include tokens.type(subheader);
+
+  margin-top: 8px !important;
+  color: var(--kbMuted);
+}
+
+.articleBody section {
+  margin-top: 24px;
+}
+
+.articleBody section > h2 {
+  @include tokens.type(h4);
+}
+
+.discoverBanner p,
+.discoverCompact p {
+  @include tokens.type(subheader2);
+
+  margin-top: 16px;
+  color: var(--kbInverseSecondary);
+}
+
+.discoverBanner p {
+  max-width: 284px;
+}
+
+.discoverCompact p {
+  max-width: 250px;
+}
+
+.like p {
+  margin-top: 8px;
+  color: var(--kbPlaceholder);
+}
+
+.articleBody section > p {
+  margin-top: 24px;
+}
+
+.articleBody > section:first-of-type > p:first-of-type {
+  max-width: 650px;
+}
+
+.articlePlaceholder {
+  max-width: 650px;
+  margin-top: 24px;
+  color: var(--kbMuted);
+  background: var(--kbDivider);
+}
+
+.articleBody .inlineIllustration {
+  max-width: none;
+  color: var(--kbInverseMuted);
+  background: var(--kbDark);
+  aspect-ratio: 690 / 378.467;
+}
+
+.tokenFigure {
+  margin: 24px 0;
+  letter-spacing: 0;
+}
+
+.tokenFigure figcaption {
+  margin-bottom: 8px;
+  line-height: 15px;
+}
+
+.tokenGrid > div {
+  background: var(--kbDivider);
+}
+
+.discoverBanner > div,
+.discoverCompact > div,
+.discoverAction {
+  position: relative;
+  z-index: 1;
+}
+
+.tokenGrid > div:last-child {
+  color: white;
+  background: var(--kbBrand);
+}
+
+.ckbMark {
+  margin: 72px auto 24px;
+}
+
+.discoverBanner,
+.discoverCompact {
+  background: linear-gradient(125deg, #163827, #08657a 70%, #8b7cff);
+}
+
+.articleBody .discoverBanner {
+  position: relative;
+  gap: 20px;
+  min-height: 172px;
+  padding: 32px 78px;
+  overflow: hidden;
+  background: var(--kbDark) url('/images/knowledge-hub/discover-banner-background.jpg') center / cover no-repeat;
+  border-radius: 9px;
+  isolation: isolate;
+}
+
+.discoverLife {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.94;
+  pointer-events: none;
+}
+
+.discoverBanner h2 {
+  width: 334px;
+  max-width: 100%;
+}
+
+.sidebar h2 {
+  @include tokens.type(subheader);
+
+  margin-bottom: 16px;
+}
+
+.articleBody .discoverBanner h2,
+.sidebar .discoverCompact h2 {
+  @include tokens.type(h3);
+
+  margin: 0;
+}
+
+.discoverBanner .discoverButton,
+.discoverCompact .discoverButton {
+  @include tokens.type(body2);
+
+  height: 32px;
+  padding: 5px 16px;
+  color: white;
+  white-space: nowrap;
+  text-transform: none;
+  background: transparent;
+  border-color: white;
+  border-radius: 3px;
+}
+
+.discoverAction {
+  flex-shrink: 0;
+}
+
+.discoverBanner .discoverAction {
+  align-self: flex-end;
+}
+
+.discoverBanner .discoverButton:is(:hover, :focus-visible),
+.discoverCompact .discoverButton:is(:hover, :focus-visible) {
+  color: var(--kbDark);
+  background: white;
+}
+
+.sidebar {
+  display: grid;
+  grid-template-rows: auto minmax(min-content, 1fr) repeat(4, auto);
+  gap: 24px;
+  align-content: stretch;
+}
+
+.stickyContents {
+  position: sticky;
+  top: calc(var(--articleNavHeight) + 24px);
+  max-height: calc(100dvh - var(--articleNavHeight) - 48px);
+  overflow-y: auto;
+}
+
+.discoverCompact {
+  position: relative;
+  gap: 24px;
+  min-height: 289px;
+  padding: 48px 24px;
+  overflow: hidden;
+  background: var(--kbAccent) url('/images/knowledge-hub/discover-background.jpg') center / cover no-repeat;
+  isolation: isolate;
+}
+
+.sidebar > .discoverCompact {
+  margin-bottom: 8px;
+}
+
+.sidebar .discoverCompact h2 {
+  max-width: 217px;
+}
+
+.toc {
+  gap: 0;
+  padding-left: 24px;
+  border-color: var(--kbBorder);
+}
+
+.toc a {
+  @include tokens.type(label);
+
+  position: relative;
+  padding: 8px 0;
+  color: var(--kbMuted);
+  transition: color 180ms ease;
+}
+
+.recentPosts a {
+  color: var(--kbBrand);
+}
+
+.moreArticles > a:last-child {
+  border-bottom: 0;
+}
+
+.toc a:not([aria-current]):is(:hover, :focus-visible) {
+  color: var(--kbBrand);
+}
+
+.toc a[aria-current] {
+  color: var(--kbBrand);
+}
+
+.toc a[aria-current]::before {
+  position: absolute;
+  top: 13px;
+  left: -27px;
+  width: 5px;
+  height: 5px;
+  background: var(--kbBrand);
+  border-radius: 50%;
+  content: '';
+}
+
+.recentPosts {
+  @include tokens.type(body2);
+
+  gap: 8px;
+}
+
+.recentPostArrow {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.recentPosts a:is(:hover, :focus-visible) .recentPostArrow {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recentPostArrow {
+    transition: none;
+  }
+}
+
+.categories {
+  gap: 8px;
+}
+
+.categories button {
+  @include tokens.type(label);
+
+  padding: 3px 8px;
+}
+
+.sharing {
+  padding-top: 24px;
+}
+
+.like {
+  padding-top: 0;
+}
+
+.sidebar .sharing h2,
+.sidebar .like h2 {
+  @include tokens.type(label);
+
+  margin-bottom: 8px;
+}
+
+.like button {
+  @include tokens.type(body2);
+
+  padding: 1px 8px;
+}
+
+.articleBody .moreArticles {
+  margin-top: 48px;
+  padding-top: 48px;
+  border-top: 1px solid var(--kbDivider);
+}
+
+.backToTop {
+  position: fixed;
+  right: 32px;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+}
+
+.articlePage ~ footer {
+  border-top: 1px solid var(--kbDivider);
+}
+
+@media (width <= 1100px) {
+  .articleLayout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 40px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .articleBody .discoverBanner {
+    flex-wrap: wrap;
+    padding: 24px 24px 24px 78px;
+  }
+}
+
+/* Stack the article before the sidebar starts squeezing the reading column. */
+@media (width <= 900px) {
+  .articleNav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    width: min(690px, calc(100% - 40px));
+    margin-top: 24px;
+    padding: 12px 0;
+  }
+
+  .mobileContents {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    color: var(--kbMuted);
+    @include tokens.type(body2);
+  }
+
+  .mobileContents select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 12px;
+    color: var(--kbText);
+    font: inherit;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    background: var(--kbInput);
+    border: 1px solid var(--kbBorder);
+    border-radius: 6px;
+  }
+
+  .mobileContents select:focus-visible {
+    outline: 2px solid var(--kbAccent);
+    outline-offset: 2px;
+  }
+
+  .tocSlot {
+    display: none;
+  }
+
+  .articleBrand {
+    min-width: 0;
+    font-size: 14px;
+  }
+
+  .articleBrand > span {
+    flex-shrink: 0;
+  }
+
+  .articleBrand strong {
+    font-size: 17px;
+  }
+
+  .writeArticle {
+    min-height: 44px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .articleLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    width: min(690px, calc(100% - 40px));
+    margin: 32px auto 64px;
+  }
+
+  .articleBody {
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+
+  .articleBody > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .articlePage .articleBody [id] {
+    scroll-margin-top: calc(var(--articleNavHeight) + 24px);
+  }
+
+  .articleBody h1 {
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .articleBody .subhead {
+    line-height: 1.6;
+  }
+
+  .articleMeta > div {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .articleMeta span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .articleBody .moreArticles {
+    margin-top: 40px;
+    padding-top: 32px;
+  }
+
+  .moreArticles > a {
+    grid-template-columns: minmax(0, 1fr) 160px;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .articleBody .discoverBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+  }
+
+  .discoverBanner h2 {
+    width: auto;
+  }
+
+  .articleBody .discoverBanner h2 {
+    padding-left: 0;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+
+  .discoverLife {
+    opacity: 0.42;
+  }
+
+  .discoverBanner > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .moreArticles > a > div {
+    min-width: 0;
+  }
+
+  .discoverBanner .discoverAction {
+    align-self: flex-start;
+  }
+
+  .discoverBanner .discoverButton,
+  .discoverCompact .discoverButton {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .sidebar {
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .sidebar > * {
+    min-width: 0;
+  }
+
+  .discoverCompact {
+    min-height: 0;
+    padding: 32px 24px;
+  }
+
+  .sidebar > .discoverCompact {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+
+  .sidebar .discoverCompact h2,
+  .discoverCompact p,
+  .discoverBanner p {
+    max-width: 100%;
+  }
+
+  .recentPosts {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .recentPosts a {
+    padding: 4px 0;
+    overflow-wrap: anywhere;
+  }
+
+  .categories button {
+    max-width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .backToTop {
+    right: 20px;
+  }
+}
+
+@media (width <= 600px) {
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .moreArticles > a {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .moreArticles > a > div:first-child {
+    grid-row: 2;
+  }
+
+  .moreArticles > a > div:last-child {
+    grid-row: 1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .moreArticles > a h3 {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .moreArticles > a p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .backToTop {
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (width <= 480px) {
+  .articleBrand strong {
+    font-size: 16px;
+  }
+
+  .writeArticle img {
+    display: none !important;
+  }
+}

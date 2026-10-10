@@ -1,16 +1,14 @@
-import { Blog } from "../../utils/blogs";
-import { slugs } from "./list";
-import { pick } from "../../utils";
+import { Blog } from '../../utils/blogs'
+import { slugs } from './list'
+import { pick } from '../../utils'
 
-
-const originSlugList = slugs;
-
+const originSlugList: Array<{ slug: string; en: Blog }> = slugs
 
 export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', prefLang = 'en', fields?: F) {
   // console.time("db articles getAllBlogs record");
   const blogs = originSlugList.map(slug => {
-    const blog: Blog = slug[prefLang as 'en'] || slug.en;
-    if(fields?.length) {
+    const blog: Blog = slug[prefLang as 'en'] || slug.en
+    if (fields?.length) {
       return pick(blog, ...fields)
     }
     return blog
@@ -48,7 +46,6 @@ export async function getAllBlogs<F extends (keyof Blog)[]>(sortBy = 'all', pref
   return Promise.resolve(blogs)
 }
 
-
 export async function getBlogBySlug(slug: string, prefLang?: string): Promise<Blog>
 export async function getBlogBySlug<F extends (keyof Blog)[]>(
   slug: string,
@@ -61,14 +58,13 @@ export async function getBlogBySlug<F extends (keyof Blog)[]>(
   fields?: F,
 ): Promise<Blog | Pick<Blog, F[number]>> {
   // console.time("db articles getBlogBySlug record");
-  const slugObj = originSlugList.find(s => s.slug === slug);
-  const blog: Blog = slugObj![prefLang as 'en'] || slugObj!.en;
-  if(fields?.length) {
+  const slugObj = originSlugList.find(s => s.slug === slug)
+  const blog: Blog = slugObj![prefLang as 'en'] || slugObj!.en
+  if (fields?.length) {
     return pick(blog, ...fields)
   }
   // console.timeEnd("db articles getBlogBySlug record");
-  return Promise.resolve(blog);
+  return Promise.resolve(blog)
 }
 
-
-export const SLUG_COUNT = originSlugList.length;
+export const SLUG_COUNT = originSlugList.length

@@ -16,7 +16,7 @@ type ContributorsDialogType = {
 
 const Contributor: FC<{ author: Author }> = ({ author }) => (
   <div className={styles.avatarAndLink}>
-    <Image className={styles.avatar} width={45} height={45} alt="avatar" src={author.avatar} />
+    <Image className={styles.avatar} width={45} height={45} alt={author.username} src={author.avatar} />
     <StyledLink href={author.github} colored underline>
       {`@${author.username}`}
     </StyledLink>

@@ -20,14 +20,14 @@ import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife'
 const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '')
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
-export type HeaderProps = ComponentProps<'div'>
+export type HeaderProps = ComponentProps<'div'> & { variant?: 'default' | 'knowledgeHub' }
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, ...divProps } = props
+  const { className, variant = 'default', ...divProps } = props
 
   return (
-    <div className={clsx(styles.header, className)} {...divProps}>
-      <MenuPopover />
+    <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
+      <MenuPopover alignRight={variant === 'knowledgeHub'} />
       <Link className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)} href="/">
         <LogoIcon />
       </Link>
@@ -55,13 +55,17 @@ export function useHeaderHeight(): number {
   }, [isMobile])
 }
 
-const MenuPopover: FC = () => {
+const MenuPopover: FC<{ alignRight?: boolean }> = ({ alignRight }) => {
   const [t] = useTranslation('common', { keyPrefix: 'navigation' })
+  const isMobile = useIsMobile()
   return (
     <Popover className={styles.menuPopover}>
       {({ close }) => (
         <>
-          <Popover.Button className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}>
+          <Popover.Button
+            aria-label="Menu"
+            className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}
+          >
             <MenuIcon />
             <span className={styles.text}>MENU</span>
           </Popover.Button>
@@ -77,7 +81,17 @@ const MenuPopover: FC = () => {
               leaveFrom={styles.leaveFrom}
               leaveTo={styles.leaveTo}
             >
-              <Popover.Panel className={styles.menuPopoverContent}>
+              <Popover.Panel
+                className={clsx(styles.menuPopoverContent, alignRight && styles.rightMenu)}
+                onClick={event => {
+                  if (!alignRight || !isMobile || !(event.target instanceof Element)) return
+                  const link = event.target.closest('a[href]')
+                  const href = link?.getAttribute('href')
+                  if (href?.startsWith('/') && !href.startsWith('//') && link?.getAttribute('target') !== '_blank') {
+                    close()
+                  }
+                }}
+              >
                 <div className={styles.menu}>
                   <StyledLink href="/developers" className={styles.title}>
                     <CodeIcon />

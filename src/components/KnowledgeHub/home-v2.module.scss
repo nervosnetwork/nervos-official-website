@@ -1,0 +1,752 @@
+@use './tokens' as tokens;
+@import './index.module';
+
+.page {
+  @include tokens.theme;
+
+  --headerHeight: 80px;
+
+  overflow-x: clip;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  overscroll-behavior-x: none;
+
+  h2 {
+    @include tokens.type(h2);
+  }
+
+  input::placeholder {
+    color: var(--kbPlaceholder);
+  }
+
+  button {
+    font-weight: 500;
+  }
+
+  input:is(:autofill, :-webkit-autofill) {
+    // Cover the browser's forced autofill tint without disabling autofill.
+    box-shadow: inset 0 0 0 1000px var(--kbFieldBackground, var(--kbSurface));
+    transition: box-shadow 180ms ease;
+    -webkit-text-fill-color: var(--kbText);
+    caret-color: var(--kbText);
+  }
+}
+
+.eyebrow {
+  gap: 16px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  @include tokens.type(subheader2);
+}
+
+.hero {
+  min-height: 687px;
+  padding-top: 48px;
+}
+
+.heading {
+  gap: 24px;
+}
+
+.heading h1 {
+  @include tokens.type(display);
+}
+
+.brain {
+  background: var(--kbDark);
+}
+
+.intro {
+  margin-top: 32px !important;
+  @include tokens.type(subheader);
+}
+
+.guideBanner {
+  min-height: 340px;
+  margin-top: 64px;
+  padding: 32px 48px;
+  background: #111 url('/images/knowledge-hub/guide-background.jpg') center / cover no-repeat;
+  isolation: isolate;
+}
+
+.guideLife {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 36%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.guideContent {
+  max-width: calc(64% - 32px);
+}
+
+.guideContent .eyebrow {
+  margin-bottom: 16px;
+}
+
+.guideContent h2 {
+  @include tokens.type(h1);
+}
+
+.guideContent p {
+  max-width: 688px;
+  margin-top: 16px;
+  @include tokens.type(subheader);
+}
+
+.newsletterCopy form {
+  --kbFieldBackground: var(--kbSurface);
+
+  margin-top: 48px;
+  padding-right: 8px;
+  padding-left: 24px;
+}
+
+.guideButton {
+  width: 336px;
+  height: 56px;
+  margin-top: 32px;
+  font-weight: 500;
+  font-size: 16px !important;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  background: var(--kbAccent);
+  transition: background-color 220ms ease;
+}
+
+.guideButton span {
+  display: inline-block;
+  transition: transform 220ms ease;
+}
+
+.guideButton:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guideButton,
+  .guideButton span {
+    transition: none;
+  }
+
+  .guideButton:is(:hover, :focus-visible) span {
+    transform: none;
+  }
+}
+
+.topics {
+  padding: 80px 0;
+}
+
+.topicIntro {
+  max-width: 560px;
+  margin-top: 24px !important;
+  color: var(--kbSecondary);
+  @include tokens.type(subheader);
+}
+
+@media (width <= 750px) {
+  .topicIntroBreak {
+    display: none;
+  }
+}
+
+.hubGrid {
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.popular {
+  padding: 80px 0 81px;
+}
+
+.popularHeader {
+  align-items: center;
+}
+
+.popularHeader .eyebrow {
+  align-items: center;
+  margin-bottom: 8px;
+  line-height: 20px;
+}
+
+.resourceCard p {
+  margin-top: 16px;
+  color: var(--kbMuted);
+  transition: color 220ms ease;
+  @include tokens.type(label);
+}
+
+.resourceCard {
+  color: var(--kbText);
+  background: var(--kbSurface);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+.resourceCard img {
+  filter: brightness(0) invert(89%);
+  transition: filter 220ms ease;
+}
+
+.resourceCard:first-child {
+  color: var(--kbText);
+  background: var(--kbSurface);
+}
+
+.resourceCard:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+.popularHeader .eyebrow > img {
+  display: block !important;
+}
+
+.popularGrid {
+  margin-top: 64px;
+}
+
+.searchActions {
+  gap: 16px;
+}
+
+.searchWrap form {
+  --kbFieldBackground: var(--kbInput);
+
+  height: 48px;
+  background: var(--kbInput);
+  transition: background-color 180ms ease;
+}
+
+.searchWrap form:is(:hover, :focus-within) {
+  --kbFieldBackground: var(--kbDivider);
+
+  background: var(--kbDivider);
+}
+
+.allArticles {
+  min-width: 169px;
+  height: 48px;
+  font-size: 14px !important;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.searchWrap input {
+  @include tokens.type(body);
+}
+
+.searchWrap input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.clearSearch:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 2px;
+}
+
+.searchWrap form .clearSearch {
+  flex-shrink: 0;
+  padding: 0 4px;
+  color: var(--kbMuted);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.searchResults {
+  top: calc(100% + 8px);
+  z-index: 10;
+  box-sizing: border-box;
+  max-height: min(360px, 60vh);
+  padding: 8px;
+  overflow-y: auto;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  border: 1px solid var(--kbBorder);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(17 17 17 / 8%);
+}
+
+.searchCaption {
+  gap: 16px;
+  padding: 4px 8px 8px;
+  color: var(--kbMuted);
+  @include tokens.type(body2);
+}
+
+.searchCaption button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  color: var(--kbMuted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.searchResults > button,
+.searchResults > a,
+.searchResults > p {
+  display: block;
+  margin: 0;
+  padding: 12px;
+  @include tokens.type(subheader);
+}
+
+.searchResults > p {
+  color: var(--kbMuted);
+}
+
+.searchResults > button,
+.searchResults > a {
+  color: var(--kbText);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.newsletterCopy form button {
+  height: 32px;
+  padding: 4px 24px;
+  background: var(--kbAccent);
+  transition: background-color 220ms ease;
+  @include tokens.type(body);
+}
+
+.searchResults button:is(:hover, :focus-visible),
+.searchResults a:is(:hover, :focus-visible) {
+  color: var(--kbBrand);
+  background: var(--kbInput);
+}
+
+.searchResults button:focus-visible,
+.searchResults a:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .searchWrap form,
+  .searchResults button {
+    transition: none;
+  }
+}
+
+.page .searchWrap input:focus,
+.page .searchWrap input:focus-visible,
+.page .newsletterCopy input:focus,
+.page .newsletterCopy input:focus-visible {
+  outline: none;
+}
+
+.popularCard {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  background: var(--kbDark);
+  transition: transform 220ms ease;
+}
+
+.popularCard:is(:hover, :focus-visible) {
+  transform: translateY(-4px);
+}
+
+.popularCard:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+.popularCard h3 {
+  min-height: 114px;
+  @include tokens.type(h4);
+}
+
+.coverPlaceholder {
+  color: var(--kbMuted);
+  background: var(--kbDivider);
+}
+
+.articleMeta {
+  gap: 8px;
+  margin-top: auto;
+  color: var(--kbDisabled);
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popularCard {
+    transition: none;
+  }
+
+  .popularCard:is(:hover, :focus-visible) {
+    transform: none;
+  }
+}
+
+.newsletter {
+  background: var(--kbBrandSurface);
+}
+
+.newsletterInner {
+  gap: 48px;
+  min-height: 444px;
+  padding: 80px 0;
+}
+
+.newsletterCopy > p {
+  margin-top: 24px;
+  color: var(--kbSecondary);
+  @include tokens.type(subheader);
+}
+
+.newsletterCopy input {
+  @include tokens.type(body);
+}
+
+.newsletterCopy form button:is(:hover, :focus-visible) {
+  background: #9487ff;
+}
+
+.newsletterCopy form button:focus-visible {
+  outline: 2px solid var(--kbDark);
+  outline-offset: 2px;
+}
+
+.newsletterCopy form button span {
+  display: inline-block;
+  transition: transform 220ms ease;
+}
+
+.guideButton:is(:hover, :focus-visible) {
+  background: #9487ff;
+
+  span {
+    transform: translateX(8px);
+  }
+}
+
+.newsletterCopy form button:is(:hover, :focus-visible) span {
+  transform: translateX(8px);
+}
+
+.newsletterCopy > small {
+  margin-top: 8px;
+  color: var(--kbMuted);
+  @include tokens.type(footnote);
+}
+
+.resourceGrid {
+  gap: 16px;
+  max-width: 629px;
+}
+@media (width >= 751px) {
+  .resourceCard {
+    gap: 32px;
+    justify-content: flex-start;
+  }
+}
+
+.resourceCard:is(:hover, :focus-visible) {
+  color: #fff;
+  background: var(--kbDark);
+  transform: translateY(-4px);
+
+  img {
+    filter: none;
+  }
+
+  p {
+    color: var(--kbDisabled);
+  }
+}
+
+.resourceCard h3 {
+  @include tokens.type(h5);
+}
+
+@media (width >= 751px) {
+  .resourceCard h3 {
+    min-height: 2.6em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resourceCard,
+  .resourceCard img,
+  .resourceCard p,
+  .newsletterCopy form button,
+  .newsletterCopy form button span {
+    transition: none;
+  }
+
+  .resourceCard:is(:hover, :focus-visible),
+  .newsletterCopy form button:is(:hover, :focus-visible) span {
+    transform: none;
+  }
+}
+@media (width <= 1100px) {
+  .heading h1 {
+    font-size: 48px;
+  }
+
+  .newsletterInner {
+    gap: 24px;
+  }
+
+  .newsletterCopy {
+    width: 40%;
+  }
+}
+@media (width <= 950px) {
+  .newsletterCopy {
+    width: 100%;
+  }
+
+  .guideLife {
+    display: none;
+  }
+
+  .guideContent {
+    max-width: none;
+  }
+}
+@media (width <= 750px) {
+  .page {
+    --headerHeight: 65px;
+  }
+
+  .hero {
+    min-height: 0;
+    padding-top: 32px;
+  }
+
+  .heading h1 {
+    font-size: 40px;
+  }
+
+  .guideBanner {
+    margin-top: 40px;
+    padding: 32px 24px 56px;
+  }
+
+  .guideContent h2 {
+    font-size: 32px;
+  }
+
+  .topics,
+  .popular {
+    padding: 56px 0;
+  }
+
+  .hubGrid {
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .newsletterInner {
+    padding: 56px 0;
+  }
+
+  .newsletterCopy form button {
+    padding: 4px 12px;
+  }
+}
+
+@media (width < 280px) {
+  .resourceCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Mobile keeps the desktop visual language, with room for real article titles. */
+@media (width <= 750px) {
+  .container,
+  .guideBanner,
+  .newsletterInner {
+    width: calc(100% - 40px);
+  }
+
+  .page h2 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .heading h1 {
+    font-size: 36px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  .intro {
+    margin-top: 24px !important;
+    padding: 0 20px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .guideBanner {
+    margin-top: 32px;
+    padding: 28px 24px;
+  }
+
+  .guideContent h2 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .guideContent p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .guideButton {
+    width: 100%;
+    height: 48px;
+    margin-top: 24px;
+  }
+
+  .topics,
+  .popular {
+    padding: 48px 0;
+  }
+
+  .popularHeader {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .searchActions,
+  .searchWrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .searchWrap input,
+  .newsletterCopy input {
+    font-size: 16px;
+  }
+
+  .searchWrap form {
+    padding-right: 4px;
+    padding-left: 16px;
+  }
+
+  .searchCaption button,
+  .searchWrap form button {
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .searchResults {
+    max-height: min(360px, 50dvh);
+  }
+
+  .popularGrid {
+    margin-top: 24px;
+  }
+
+  .popularCard h3 {
+    min-height: 0;
+    padding: 20px;
+    font-size: 20px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .articleMeta {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 20px 20px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .newsletterInner {
+    gap: 32px;
+    padding: 48px 0;
+  }
+
+  .newsletterCopy {
+    max-width: none;
+  }
+
+  .newsletterCopy form {
+    height: 56px;
+    margin-top: 24px;
+    padding-left: 16px;
+  }
+
+  .newsletterCopy form button {
+    min-height: 44px;
+  }
+
+  .resourceCard {
+    min-width: 0;
+  }
+
+  .resourceCard h3 {
+    font-size: 18px;
+  }
+
+  .resourceCard p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@media (width <= 540px) {
+  .allArticles {
+    width: 100%;
+  }
+
+  .newsletterCopy form {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .newsletterCopy input {
+    min-height: 48px;
+    padding: 12px 20px;
+    background: var(--kbSurface);
+    border-radius: 100px;
+  }
+
+  .newsletterCopy form button {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .resourceCard {
+    gap: 20px;
+    min-height: 132px;
+    padding: 24px 20px;
+  }
+
+  .resourceCard > img {
+    width: 48px;
+    height: 48px;
+  }
+}

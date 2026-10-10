@@ -2,6 +2,11 @@
 const config = {
   overrides: [
     {
+      // Standalone ESM scripts/tests are not part of the TypeScript application project.
+      files: ['**/*.mjs'],
+      parserOptions: { project: null },
+    },
+    {
       extends: ['plugin:@typescript-eslint/recommended-requiring-type-checking'],
       files: ['*.ts', '*.tsx'],
       parserOptions: {

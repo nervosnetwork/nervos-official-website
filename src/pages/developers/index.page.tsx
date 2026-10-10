@@ -40,7 +40,7 @@ const Developers: NextPage<PageProps> = ({ contributors, author }) => {
     </div>
   )
 
-  const title = <div style={{ maxWidth: '550px' }}>{t('title')}</div>
+  const title = <h1 style={{ maxWidth: '550px' }}>{t('title')}</h1>
   const description = t('slogan')
   const info = t('contribution_welcome', { ns: 'common' })
   const functions = [

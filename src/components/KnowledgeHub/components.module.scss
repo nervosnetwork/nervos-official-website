@@ -1,0 +1,729 @@
+@use './tokens' as tokens;
+
+.arrowButton {
+  display: inline-flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--kbText);
+  font-weight: 500;
+  background: var(--kbSurface);
+  border: 1px solid var(--kbText);
+  border-radius: 100px;
+  transition:
+    color 220ms ease,
+    background-color 220ms ease;
+}
+
+.arrowButtonIcon {
+  display: inline-block;
+  transition: transform 220ms ease;
+}
+
+.arrowButton:is(:hover, :focus-visible) {
+  color: white;
+  background: var(--kbDark);
+}
+
+.arrowButton:is(:hover, :focus-visible) .arrowButtonIcon {
+  transform: translateX(8px);
+}
+
+.arrowButton:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+.subject {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  min-height: 116px;
+  padding: 8px 16px;
+  color: var(--kbText);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  background: var(--kbSurface);
+  border: 1px solid var(--kbNeutral400);
+  border-radius: var(--kbRadiusControl);
+  transition: transform 220ms ease;
+  @include tokens.type(subheader2);
+}
+
+.subject:is(:hover, :focus-visible) {
+  transform: translateY(-4px);
+}
+
+.subject:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subject {
+    transition: none;
+  }
+
+  .subject:is(:hover, :focus-visible) {
+    transform: none;
+  }
+}
+
+.tags span {
+  padding: 4px 8px;
+  background: var(--kbTagNervos);
+  border-radius: 8px;
+  @include tokens.type(footnote);
+}
+
+.count > span {
+  display: inline-block;
+  transition: transform 220ms ease;
+}
+
+.subject > span:last-child {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.selected img {
+  filter: brightness(0) invert(1);
+}
+
+.subject:not(.selected) img {
+  filter: brightness(0);
+}
+
+.selected {
+  color: white;
+  background: var(--kbAccent);
+  border-color: var(--kbAccent);
+}
+
+.stepIndex {
+  font-weight: 300;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.readingList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.readingList a {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  color: var(--kbText);
+  background: var(--kbSubtle);
+  border-radius: 3px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+  @include tokens.type(subheader2);
+}
+
+.compactReading a {
+  padding: 8px;
+  @include tokens.type(body2);
+}
+
+.readingList a:is(:hover, :focus-visible) {
+  color: var(--kbInverseText);
+  background: var(--kbAccent);
+}
+
+.readingList small {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  color: var(--kbMuted);
+  transition: opacity 140ms ease;
+  @include tokens.type(footnote);
+}
+
+.compactReading small {
+  gap: 4px;
+}
+
+.readingTitle {
+  min-width: 0;
+  transition: transform 180ms ease;
+}
+
+.readingAction {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.readingArrow {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  font-size: 20px;
+  line-height: 1;
+  transform: translateY(-50%);
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 140ms ease,
+    visibility 140ms ease;
+}
+
+.readingList a:is(:hover, :focus-visible) .readingTitle {
+  transform: translateX(4px);
+}
+
+.readingList a:is(:hover, :focus-visible) small {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.readingList a:is(:hover, :focus-visible) .readingArrow {
+  visibility: visible;
+  opacity: 1;
+}
+
+.readingList a:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 2px;
+}
+
+.hubCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 396px;
+  padding: 24px;
+  background: var(--kbSurface);
+  border: 0.5px solid var(--kbBorder);
+  border-radius: var(--kbRadiusCard);
+  box-shadow: var(--kbShadow);
+}
+
+.hubContent {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrowButton,
+  .arrowButtonIcon,
+  .readingList a,
+  .readingList small,
+  .readingArrow,
+  .readingTitle {
+    transition: none;
+  }
+
+  .arrowButton:is(:hover, :focus-visible) .arrowButtonIcon {
+    transform: none;
+  }
+}
+
+.count {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  align-self: flex-end;
+  margin-top: auto;
+  padding-top: 24px;
+  @include tokens.type(body2);
+}
+
+.count:is(:hover, :focus-visible) > span {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .count > span {
+    transition: none;
+  }
+
+  .count:is(:hover, :focus-visible) > span {
+    transform: none;
+  }
+}
+
+.stepSection {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px 48px;
+  overflow: hidden;
+  background: var(--kbSurface);
+  border: 1px solid var(--kbBorder);
+  border-radius: var(--kbRadiusCard);
+  box-shadow: var(--kbShadow);
+  scroll-margin-top: 24px;
+}
+
+.stepTop {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.stepLabel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  text-transform: uppercase;
+  @include tokens.type(h4);
+}
+
+.stepSection .stepLabel > img {
+  // Align the circle with the uppercase glyphs, not the font's descender space.
+  transform: translateY(-2px);
+}
+
+.stepSection > .stepTop h2 {
+  @include tokens.type(h1);
+}
+
+.callout {
+  padding: 16px 24px;
+  color: white;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.3;
+  background: var(--kbDark);
+  border-radius: 8px;
+}
+
+.callout strong {
+  font-weight: 600;
+}
+
+.stepBody {
+  color: var(--kbSecondary);
+  @include tokens.type(body);
+}
+
+.points {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--kbDivider);
+  @include tokens.type(body);
+}
+
+.points li:last-child {
+  min-height: 32px;
+  padding-bottom: 0;
+  border: 0;
+}
+
+.deeper {
+  width: 100%;
+  margin-top: 0;
+}
+
+.deeper h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  @include tokens.type(h5);
+}
+
+.articleCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 312px;
+  overflow: hidden;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  border: 1px solid var(--kbBorder);
+  border-radius: 16px;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.articleCard:is(:hover, :focus-visible) {
+  box-shadow: var(--kbShadow);
+  transform: translateY(-4px);
+}
+
+.articleCard:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+.cover {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  color: var(--kbMuted);
+  font-size: 12px;
+  background: var(--kbDivider);
+  place-items: center;
+  aspect-ratio: 16/9;
+}
+
+.tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 8px;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  border-radius: 60px;
+  @include tokens.type(footnote);
+}
+
+.articleCard .cardTitle {
+  margin: 16px 20px;
+  @include tokens.type(h4);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  color: var(--kbMuted);
+  @include tokens.type(footnote);
+}
+
+.articleCard > .meta {
+  margin: auto 12px 18px 20px;
+}
+
+.populated .cardTitle {
+  display: -webkit-box;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.populated > .meta {
+  flex-shrink: 0;
+}
+
+.small {
+  height: 249px;
+  border-radius: 13px;
+}
+
+.small .cardTitle {
+  margin: 12px 14px;
+  @include tokens.type(h5);
+}
+
+.small > .meta {
+  gap: 3px;
+  margin: auto 8px 14px 12px;
+  font-size: 9px;
+}
+
+.small > .meta img {
+  width: 12px;
+  height: 12px;
+}
+
+.large {
+  height: 423px;
+}
+
+.large .cardTitle {
+  margin: 22px 27px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.large > .meta {
+  margin: auto 20px 25px 27px;
+}
+
+.horizontalCard {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) 200px;
+  gap: 48px;
+  width: min(690px, 100%);
+  padding: 24px 0;
+  transition: transform 220ms ease;
+}
+
+.horizontalCard:is(:hover, :focus-visible) {
+  transform: translateX(4px);
+}
+
+.horizontalCard:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 3px;
+}
+
+.horizontalCard h3 {
+  @include tokens.type(h5);
+}
+
+.horizontalCard p {
+  margin: 8px 0;
+  color: var(--kbSecondary);
+  @include tokens.type(label);
+}
+
+.hubCard .hubContent h3 {
+  margin: 0 0 16px;
+  @include tokens.type(h3);
+}
+
+.hubCard .hubContent > p {
+  margin: 0 0 24px;
+  @include tokens.type(subheader2);
+}
+
+.horizontalCover {
+  height: 112px;
+  background: var(--kbDivider);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.tags span:nth-child(2) {
+  background: var(--kbTagBlockchain);
+}
+
+.tags span:nth-child(3) {
+  background: var(--kbTagCrypto);
+}
+
+.tags span:nth-child(4) {
+  background: var(--kbTagPow);
+}
+@media (750px < width <= 1024px) {
+  .articleCard {
+    height: auto;
+    min-height: 0;
+  }
+
+  .articleCard .cardTitle {
+    margin: 20px;
+    font-size: 20px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .articleCard > .meta {
+    gap: 6px;
+    margin: auto 20px 20px;
+    font-size: 12px;
+  }
+}
+
+@media (width <= 750px) {
+  .subject {
+    flex-shrink: 0;
+    width: 190px;
+    scroll-snap-align: start;
+  }
+
+  .stepSection {
+    padding: 24px;
+  }
+
+  .stepSection > .stepTop h2 {
+    font-size: 30px;
+  }
+
+  .points li {
+    align-items: flex-start;
+  }
+
+  .readingList a {
+    padding: 12px;
+  }
+
+  .readingList small {
+    font-size: 10px;
+  }
+
+  .articleCard {
+    height: auto;
+    min-height: 300px;
+  }
+
+  .articleCard .cardTitle {
+    margin: 16px;
+    font-size: 20px;
+  }
+
+  .articleCard > .meta {
+    margin: auto 16px 16px;
+    font-size: 10px;
+  }
+
+  .horizontalCard {
+    grid-template-columns: minmax(0, 1fr) 90px;
+    gap: 16px;
+  }
+
+  .horizontalCover {
+    height: 70px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .horizontalCard,
+  .articleCard {
+    transition: none;
+  }
+
+  .horizontalCard:is(:hover, :focus-visible),
+  .articleCard:is(:hover, :focus-visible) {
+    transform: none;
+  }
+}
+
+@media (width <= 750px) {
+  .hubCard {
+    min-width: 0;
+    min-height: 0;
+    padding: 24px 20px;
+  }
+
+  .horizontalCard h3 {
+    font-size: 18px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .horizontalCard p {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .hubCard .hubContent h3 {
+    font-size: 24px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .hubCard .hubContent > p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .readingList a {
+    min-height: 48px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .readingTitle {
+    overflow-wrap: anywhere;
+  }
+
+  .readingList small {
+    font-size: 11px;
+  }
+
+  .count {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .stepSection {
+    gap: 24px;
+    padding: 24px 20px;
+  }
+
+  .stepSection > .stepTop h2 {
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .stepBody,
+  .points li {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .callout {
+    padding: 16px;
+    line-height: 1.5;
+  }
+
+  .articleCard {
+    height: auto;
+    min-height: 0;
+  }
+
+  .articleCard .cardTitle {
+    margin: 20px;
+    font-size: 20px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .articleCard > .meta {
+    gap: 6px;
+    margin: auto 20px 20px;
+    font-size: 12px;
+  }
+
+  .tag {
+    max-width: calc(100% - 24px);
+    white-space: normal;
+  }
+
+  .horizontalCard {
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 16px;
+    width: 100%;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--kbDivider);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .readingList a:hover .readingTitle {
+    transform: none;
+  }
+
+  .readingList a:hover small {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .readingList a:hover .readingArrow {
+    visibility: hidden;
+    opacity: 0;
+  }
+}

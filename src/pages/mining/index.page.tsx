@@ -34,13 +34,13 @@ const Mining: NextPage<PageProps> = ({ contributors, author }) => {
   )
 
   const title = (
-    <div style={{ maxWidth: '550px' }}>
+    <h1 style={{ maxWidth: '550px' }}>
       <Trans t={t} i18nKey={'title'}>
         CKB
         <HeartIcon style={{ margin: '0 16px', width: '0.846em' }} />
         PoW
       </Trans>
-    </div>
+    </h1>
   )
   const description = t('slogan')
   const info = t('contribution_welcome', { ns: 'common' })
