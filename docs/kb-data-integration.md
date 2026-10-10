@@ -61,12 +61,12 @@ than silently loading stale metadata.
   been removed from the navigation and guide, and the headline says four steps.
   The remaining English guide copy and selections are unchanged. Steps 3 and 4
   use the approved revised titles.
-- Listings use actual locale files. Existing public article routes retain
-  their established English fallback when the requested translation is absent,
-  so previously valid locale-prefixed URLs still serve directly. This fallback
-  does not create translated source files. Draft/future entries are excluded
-  independently of metadata review status. Unknown metadata does not remove
-  existing articles.
+- Listings and prebuilt article routes use actual published locale files.
+  When a public article translation is absent, its locale-prefixed URL permanently
+  redirects to the existing published English article path instead of serving
+  English content under the requested locale. Actual translations serve directly;
+  unknown, draft and future entries return 404. Publishing status is independent
+  of metadata review status. Unknown metadata does not remove existing articles.
 
 The redesigned homepage and supporting pages now live under `/knowledge-base`,
 matching the existing public prefix. The old `/kb` route family, including the
@@ -77,10 +77,12 @@ preview noindex flag; search results remain noindex. This branch has not been
 deployed to production.
 Cards, search results, reading lists, recent posts and related articles use the
 stored canonical article paths. Next Link adds the current locale prefix once;
-review catalogs are scoped to the current locale. Existing public locale routes
-keep English fallback where translations are missing. Hub/Subject changes affect
+review catalogs are scoped to the current locale. Missing public translations
+redirect to the existing English article address. Hub/Subject changes affect
 navigation and metadata, never the article address. Original article-body links
-keep their established destinations. No public article redirects or article route renames are introduced.
+keep their established destinations. No article route renames or redirects to
+new categorized URLs are introduced; missing-translation redirects are the only
+article redirects added here.
 
 The accepted UI is the pre-integration `951c139` design. Data integration must
 preserve its page structure, styling, cards and controls. Handoff document
@@ -122,12 +124,14 @@ remains supported. See `kb-newsletter-integration.md` for behavior and tests.
 `yarn kb:validate` checks all source/body hashes, route and identity uniqueness,
 original source-directory slugs, canonical article links (including case,
 underscores and locale prefixes), and stable addresses after reclassification.
-It also exercises the real article route loaders: public paths include every
-English article across all seven configured locales, missing public translations
-serve English directly without a redirect, actual translations stay localized,
-and unknown articles return 404.
+It also exercises the real article route loaders: prebuilt public paths contain
+only actual published renditions, missing public translations permanently redirect
+to the existing English article path, actual translations stay localized, and
+unknown, draft and future articles return 404. The source snapshot still contains
+318 unmodified renditions; redirects preserve original slug case, underscores
+and URL encoding.
 Taxonomy ownership, available cover paths, review-catalog locale isolation,
 recommendation deduplication and technical/Chinese search examples are covered.
 This is not an editorial review or proof that every historical public URL was
 live. Actual production HTTP URL reconciliation is still needed before
-introducing redirects.
+introducing historical URL redirects beyond the missing-translation behavior.

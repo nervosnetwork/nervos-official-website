@@ -32,7 +32,7 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
     </div>
   )
 
-  const title = <div>{t('title')}</div>
+  const title = <h1>{t('title')}</h1>
   const description = t('slogan')
   const info = t('contribution_welcome', { ns: 'common' })
   const functions = [
@@ -44,9 +44,9 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
           <p>
             <Trans t={t} i18nKey="tokenomics.description.text1">
               The CKB token launched with an initial supply of 33.6 billion coins, 8.4 billion of which were burned soon
-              thereafter. The base issuance totals 33.6 billion coins and halves every four years until it hits
-              zero, whereas the fixed secondary issuance is 1.344 billion per year. Check out the detailed CKB supply structure
-              and issuance schedule&nbsp;
+              thereafter. The base issuance totals 33.6 billion coins and halves every four years until it hits zero,
+              whereas the fixed secondary issuance is 1.344 billion per year. Check out the detailed CKB supply
+              structure and issuance schedule&nbsp;
               <StyledLink
                 href="https://medium.com/@m.quinn/a-detailed-description-of-nervos-ckb-supply-and-issuance-1d55c4b101f9"
                 colored
@@ -62,12 +62,12 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
 
           <p>
             <Trans t={t} i18nKey="tokenomics.description.text3">
-              CKB holders receive rewards from the secondary issuance by locking their coins in
-              the&nbsp;
+              CKB holders receive rewards from the secondary issuance by locking their coins in the&nbsp;
               <StyledLink href="https://medium.com/nervosnetwork/nervos-dao-explained-95e33898b1c" colored underline>
                 Nervos DAO
               </StyledLink>
-              &nbsp; smart contract, which is a mechanism that incentivizes the removal of unnecessary data, ensuring long-term manageability of the blockchain.
+              &nbsp; smart contract, which is a mechanism that incentivizes the removal of unnecessary data, ensuring
+              long-term manageability of the blockchain.
             </Trans>
           </p>
         </>

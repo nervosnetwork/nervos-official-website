@@ -6,6 +6,9 @@ import type { KBArticle, KBCatalog } from '../components/KnowledgeHub/content'
 
 const root = path.join(process.cwd(), 'public/education_hub_articles')
 type SourceArticle = KBArticle & { sourceFile: string; sourceSHA256: string; draft: boolean }
+function isPublished(article: SourceArticle) {
+  return !article.draft && (!article.date || Date.parse(article.date) <= Date.now())
+}
 function source() {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'metadata/catalog.json'), 'utf8')) as Omit<
     KBCatalog,
@@ -24,7 +27,7 @@ function markdown(article: SourceArticle) {
 export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
   const data = source()
   const articles = data.articles
-    .filter(a => a.language === language && !a.draft && (!a.date || Date.parse(a.date) <= Date.now()))
+    .filter(a => a.language === language && isPublished(a))
     .map(a => {
       const body = markdown(a)
       const {
@@ -75,9 +78,11 @@ export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
     featured: data.featured.filter(f => f.language === language),
   }
 }
+export function getKBArticleStatus(id: string, language = 'en'): 'missing' | 'unpublished' | 'published' {
+  const article = source().articles.find(a => a.id === id && a.language === language)
+  return !article ? 'missing' : isPublished(article) ? 'published' : 'unpublished'
+}
 export function getKBArticle(id: string, language = 'en') {
   const article = source().articles.find(a => a.id === id && a.language === language)
-  return article && !article.draft && (!article.date || Date.parse(article.date) <= Date.now())
-    ? markdown(article)
-    : null
+  return article && isPublished(article) ? markdown(article) : null
 }

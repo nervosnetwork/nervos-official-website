@@ -3,23 +3,23 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { remark } from 'remark'
 import { byDate, relatedArticles } from '../components/KnowledgeHub/content'
 import { headingTree } from '../components/KnowledgeHub/markdown-headings'
-import { getKBArticle, getKBCatalog } from './kb-content'
+import { getKBArticle, getKBArticleStatus, getKBCatalog } from './kb-content'
 
 type ArticleRoute = 'canonical' | 'preview'
 
 export const articleStaticPaths =
   (route: ArticleRoute): GetStaticPaths =>
   ({ locales }) => {
-    const englishArticles = getKBCatalog('en').articles
     return {
       paths: (locales ?? ['en']).flatMap(locale =>
-        // The existing public route also serves English when a translation is absent.
-        (route === 'canonical' ? englishArticles : getKBCatalog(locale).articles).map(article => ({
+        getKBCatalog(locale).articles.map(article => ({
           params: { slug: article.id },
           locale,
         })),
       ),
-      fallback: false,
+      // Untranslated public URLs still need to reach getStaticProps so that
+      // they redirect to English instead of generating duplicate English pages.
+      fallback: route === 'canonical' ? 'blocking' : false,
     }
   }
 
@@ -29,11 +29,18 @@ export const articleStaticProps =
     const id = typeof params?.slug === 'string' ? params.slug : ''
     if (!id) return { notFound: true }
     const language = locale ?? 'en'
-    let catalog = getKBCatalog(language)
-    let article = catalog.articles.find(item => item.id === id)
+    const catalog = getKBCatalog(language)
+    const article = catalog.articles.find(item => item.id === id)
     if (!article && route === 'canonical' && language !== 'en') {
-      catalog = getKBCatalog('en')
-      article = catalog.articles.find(item => item.id === id)
+      // A draft or scheduled translation is not a missing translation and
+      // must remain unavailable until it is published.
+      if (getKBArticleStatus(id, language) === 'unpublished') return { notFound: true }
+      const englishArticle = getKBCatalog('en').articles.find(item => item.id === id)
+      if (englishArticle) {
+        // Next applies getStaticProps redirects without adding the requested
+        // locale. Preserve the source path, including case and underscores.
+        return { redirect: { destination: encodeURI(englishArticle.canonicalPath), permanent: true } }
+      }
     }
     if (!article) return { notFound: true }
     const markdown = getKBArticle(id, article.language)

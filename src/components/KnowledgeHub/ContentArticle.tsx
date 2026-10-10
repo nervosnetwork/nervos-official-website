@@ -165,6 +165,8 @@ export function ContentArticle({
                 ],
               ]}
               components={{
+                // The article title owns the page H1; body headings keep the existing H1/H2 styling.
+                h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
                 img: ({ src, alt }) => <img src={resolveImage(src)} alt={alt || ''} loading="lazy" />,
                 a: ({ href, children }) => <a href={href}>{children}</a>,
               }}

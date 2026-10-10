@@ -132,12 +132,15 @@ const { locales } = require('../next-i18next.config.js').i18n
 
 const englishArticles = source.getKBCatalog('en').articles
 const canonicalPaths = await articleStaticPaths('canonical')({ locales })
-assert.equal(canonicalPaths.fallback, false)
-assert.equal(canonicalPaths.paths.length, englishArticles.length * locales.length)
+assert.equal(canonicalPaths.fallback, 'blocking', 'Missing translations must reach the redirect resolver')
+assert.equal(
+  canonicalPaths.paths.length,
+  catalog.articles.filter(a => source.getKBArticleStatus(a.id, a.language) === 'published').length,
+)
 assert.deepEqual(
   new Set(canonicalPaths.paths.map(({ locale, params }) => `${locale}:${params.slug}`)),
-  new Set(locales.flatMap(locale => englishArticles.map(article => `${locale}:${article.id}`))),
-  'Existing public routes must retain every English article in every configured locale',
+  new Set(locales.flatMap(locale => source.getKBCatalog(locale).articles.map(article => `${locale}:${article.id}`))),
+  'Only real published renditions should be prebuilt; untranslated locales must not create English copies',
 )
 const previewPaths = await articleStaticPaths('preview')({ locales })
 assert.equal(previewPaths.fallback, false)
@@ -148,31 +151,136 @@ assert.deepEqual(
 )
 const originalEnglish = englishArticles.find(article => /[A-Z]/.test(article.id) && article.id.includes('_'))
 assert(originalEnglish, 'Expected an existing mixed-case, underscore article to exercise legacy paths')
-const frenchContext = { params: { slug: originalEnglish.id }, locale: 'fr' }
-const frenchPage = await articleStaticProps('canonical')(frenchContext)
-assert('props' in frenchPage && !('redirect' in frenchPage), 'Old untranslated paths must serve directly')
-assert.equal(frenchPage.props.article.language, 'en')
-assert.equal(frenchPage.props.article.canonicalPath, originalEnglish.canonicalPath)
-assert.equal(frenchPage.props.markdown, source.getKBArticle(originalEnglish.id, 'en'))
-assert.equal(frenchPage.props.preview, false)
-assert.equal(translationRequests.at(-1), 'fr', 'Page chrome must retain the requested locale')
-assert.deepEqual(await articleStaticProps('preview')(frenchContext), { notFound: true })
-const originalChinese = source.getKBCatalog('zh').articles.find(article => article.id === originalEnglish.id)
-assert(originalChinese, 'Expected a real Chinese translation for the route fixture')
-const chineseContext = { params: { slug: originalChinese.id }, locale: 'zh' }
-const chinesePage = await articleStaticProps('canonical')(chineseContext)
-assert('props' in chinesePage && !('redirect' in chinesePage))
-assert.equal(chinesePage.props.article.language, 'zh')
-assert.equal(chinesePage.props.article.canonicalPath, originalChinese.canonicalPath)
-assert.equal(chinesePage.props.markdown, source.getKBArticle(originalChinese.id, 'zh'))
-assert.equal(chinesePage.props.preview, false)
-assert.equal((await articleStaticProps('preview')(chineseContext)).props.preview, true)
-for (const route of ['canonical', 'preview']) {
-  assert.deepEqual(await articleStaticProps(route)({ params: { slug: 'not-an-existing-article' }, locale: 'en' }), {
-    notFound: true,
+const englishContext = { params: { slug: originalEnglish.id }, locale: 'en' }
+const englishPage = await articleStaticProps('canonical')(englishContext)
+assert('props' in englishPage && !('redirect' in englishPage), 'Existing English URLs must continue serving directly')
+assert.equal(englishPage.props.article.canonicalPath, originalEnglish.canonicalPath)
+for (const language of ['fr', 'ko', 'tr', 'pt']) {
+  const context = { params: { slug: originalEnglish.id }, locale: language }
+  const requestsBefore = translationRequests.length
+  assert.deepEqual(await articleStaticProps('canonical')(context), {
+    redirect: { destination: encodeURI(originalEnglish.canonicalPath), permanent: true },
   })
+  assert.equal(
+    translationRequests.length,
+    requestsBefore,
+    'A redirect must not render translated chrome around English content',
+  )
+  assert.deepEqual(await articleStaticProps('preview')(context), { notFound: true })
+}
+for (const language of ['zh', 'es']) {
+  const originalTranslation = source.getKBCatalog(language).articles.find(article => article.id === originalEnglish.id)
+  assert(originalTranslation, `Expected a real ${language} translation for the route fixture`)
+  const context = { params: { slug: originalTranslation.id }, locale: language }
+  const page = await articleStaticProps('canonical')(context)
+  assert('props' in page && !('redirect' in page))
+  assert.equal(page.props.article.language, language)
+  assert.equal(page.props.article.canonicalPath, originalTranslation.canonicalPath)
+  assert.equal(page.props.markdown, source.getKBArticle(originalTranslation.id, language))
+  assert.equal(page.props.preview, false)
+  assert.equal(translationRequests.at(-1), language)
+  assert.equal((await articleStaticProps('preview')(context)).props.preview, true)
+
+  const untranslated = englishArticles.find(article => source.getKBArticleStatus(article.id, language) === 'missing')
+  assert(untranslated, `Expected an untranslated English article in ${language}`)
+  assert.deepEqual(await articleStaticProps('canonical')({ params: { slug: untranslated.id }, locale: language }), {
+    redirect: { destination: encodeURI(untranslated.canonicalPath), permanent: true },
+  })
+}
+for (const route of ['canonical', 'preview']) {
+  for (const language of ['en', 'zh', 'fr']) {
+    for (const slug of [
+      'not-an-existing-article',
+      '../metadata/catalog.json',
+      '%2e%2e%2findex',
+      '//example.com',
+      '\\index',
+      ['invalid'],
+    ]) {
+      assert.deepEqual(await articleStaticProps(route)({ params: { slug }, locale: language }), { notFound: true })
+    }
+  }
   assert.deepEqual(await articleStaticProps(route)({ params: {}, locale: 'en' }), { notFound: true })
 }
+
+// Use in-memory metadata to cover publication states without editing real articles.
+// The actual kb-content publication filter and source/hash validation still run.
+const originalEntry = catalog.articles.find(article => article.language === 'en' && !article.draft)
+const fixture = (id, language = 'en', overrides = {}) => ({
+  ...originalEntry,
+  id,
+  language,
+  canonicalPath: `${language === 'en' ? '' : `/${language}`}/knowledge-base/${id}`,
+  date: '2020-01-01T00:00:00Z',
+  draft: false,
+  ...overrides,
+})
+const fixtureCatalog = {
+  ...catalog,
+  articles: [
+    fixture('published'),
+    fixture('draft', 'en', { draft: true }),
+    fixture('future', 'en', { date: '2999-01-01T00:00:00Z' }),
+    fixture('draft-translation'),
+    fixture('draft-translation', 'zh', { draft: true }),
+    fixture('future-translation'),
+    fixture('future-translation', 'zh', { date: '2999-01-01T00:00:00Z' }),
+    fixture('translated'),
+    fixture('translated', 'zh'),
+    fixture('Legacy_Slug with_space'),
+  ],
+}
+const fixtureSource = loadServerModule('src/server/kb-content.ts', {
+  'node:fs': {
+    ...fs,
+    readFileSync: (filename, ...args) =>
+      String(filename).endsWith('/metadata/catalog.json')
+        ? JSON.stringify(fixtureCatalog)
+        : fs.readFileSync(filename, ...args),
+  },
+})
+const fixtureRoutes = loadServerModule('src/server/kb-article-page.ts', {
+  '../components/KnowledgeHub/content': content,
+  '../components/KnowledgeHub/markdown-headings': headings,
+  './kb-content': fixtureSource,
+  remark: { remark },
+  'next-i18next/serverSideTranslations': { serverSideTranslations: async () => ({}) },
+})
+const fixturePaths = await fixtureRoutes.articleStaticPaths('canonical')({ locales })
+assert.deepEqual(
+  new Set(fixturePaths.paths.map(({ locale, params }) => `${locale}:${params.slug}`)),
+  new Set([
+    'en:published',
+    'en:draft-translation',
+    'en:future-translation',
+    'en:translated',
+    'zh:translated',
+    'en:Legacy_Slug with_space',
+  ]),
+)
+for (const route of ['canonical', 'preview']) {
+  for (const language of ['en', 'zh', 'fr']) {
+    for (const slug of ['draft', 'future', 'unknown']) {
+      assert.deepEqual(await fixtureRoutes.articleStaticProps(route)({ params: { slug }, locale: language }), {
+        notFound: true,
+      })
+    }
+  }
+  for (const slug of ['draft-translation', 'future-translation']) {
+    assert.deepEqual(await fixtureRoutes.articleStaticProps(route)({ params: { slug }, locale: 'zh' }), {
+      notFound: true,
+    })
+  }
+}
+assert.deepEqual(await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'published' }, locale: 'fr' }), {
+  redirect: { destination: '/knowledge-base/published', permanent: true },
+})
+assert.deepEqual(
+  await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'Legacy_Slug with_space' }, locale: 'fr' }),
+  {
+    redirect: { destination: '/knowledge-base/Legacy_Slug%20with_space', permanent: true },
+  },
+)
 console.log(
-  `Verified ${identities.size} source hashes, body hashes, unchanged canonical routes and article links, images and taxonomy; ${canonicalPaths.paths.length} public route entries, translation fallback, strict previews, recommendation/language/search tests passed.`,
+  `Verified ${identities.size} source hashes, body hashes, unchanged canonical routes and article links, images and taxonomy; ${canonicalPaths.paths.length} real public renditions, missing-translation redirects, unpublished/unknown 404s, strict previews, recommendation/language/search tests passed.`,
 )

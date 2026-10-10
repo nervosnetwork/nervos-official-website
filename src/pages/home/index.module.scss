@@ -157,6 +157,11 @@ $headerZ: 2;
   pointer-events: none;
 }
 
+h1.titleText {
+  /* The existing div title had no browser heading margins. */
+  margin: 0;
+}
+
 .titleText {
   font-weight: 800;
   font-size: 82px;
