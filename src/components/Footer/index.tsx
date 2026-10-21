@@ -22,7 +22,7 @@ export const Footer: FC<FooterProps> = props => {
         { label: t('mining'), url: '/mining' },
         { label: t('wallets'), url: '/wallets' },
         { label: t('journey'), url: '/journey' },
-        { label: t('wiki'), url: 'https://www.wikiwand.com/en/Nervos_Network' },
+        { label: t('wiki'), url: 'https://en.wikipedia.org/wiki/Nervos_Network' },
         {
           label: t('media_kit'),
           url: '/media-kit',
