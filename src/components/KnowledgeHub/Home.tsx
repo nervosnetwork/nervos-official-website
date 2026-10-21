@@ -101,7 +101,7 @@ export function KnowledgeHubHome({
                 <span className={styles.brain}>
                   <NeuronIcon />
                 </span>
-                <h1 id="kb-title">Knowledge Base Hub</h1>
+                <h1 id="kb-title">Knowledge Base</h1>
               </div>
               <p className={styles.intro}>
                 Build your understanding of blockchain technology. Find answers to specific questions, explore a new
@@ -351,22 +351,29 @@ export function Newsletter() {
             <form onSubmit={event => void onSubmit(event)} aria-busy={isSubmitting}>
               <input
                 aria-label="Email address"
-                aria-describedby="signal-newsletter-status"
+                aria-describedby="signal-newsletter-note signal-newsletter-status"
                 aria-invalid={isInvalid || undefined}
                 name="email"
                 type="email"
                 required
                 maxLength={254}
                 disabled={isSubmitting}
-                placeholder="you@email.com"
+                placeholder="Your email address"
                 autoComplete="email"
               />
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting…' : 'Get the briefing'} <span aria-hidden="true">→</span>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                aria-label={isSubmitting ? 'Submitting newsletter signup' : 'Get the briefing'}
+                title="Get the briefing"
+              >
+                Get the briefing
+                <span aria-hidden="true">→</span>
               </button>
             </form>
+            <small id="signal-newsletter-note">Monthly. Unsubscribe anytime.</small>
             <small id="signal-newsletter-status" role={isError ? 'alert' : 'status'} aria-live="polite">
-              {status || 'Monthly. Unsubscribe anytime.'}
+              {status}
             </small>
           </div>
           <div className={styles.resourceGrid}>
@@ -382,11 +389,7 @@ export function Newsletter() {
               <Icon name="newsletter-imgLayer1" size={60} />
               <div>
                 <h3>Build on CKB</h3>
-                <p>
-                  Developer Docs &amp;
-                  <br />
-                  Quick Start →
-                </p>
+                <p>Developer Docs &amp; Quick Start →</p>
               </div>
             </a>
             <a
@@ -400,34 +403,22 @@ export function Newsletter() {
             >
               <Icon name="newsletter-imgLayer1" size={60} />
               <div>
-                <h3>
-                  Join the CKB
-                  <br />
-                  Community
-                </h3>
-                <p>
-                  Join the Discussion on
-                  <br />
-                  NervosTalk →
-                </p>
+                <h3>Join the CKB Community</h3>
+                <p>Join the Discussion on NervosTalk →</p>
               </div>
             </a>
             <a
               className={styles.resourceCard}
-              href="https://www.ckba.build/"
+              href="https://ckba.build/"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() =>
-                trackKBEvent('kb_resource_click', { resource_id: 'ckba_membership', placement: 'signal_resources' })
+                trackKBEvent('kb_resource_click', { resource_id: 'membership', placement: 'signal_resources' })
               }
             >
               <Icon name="newsletter-imgLayer1" size={60} />
               <div>
-                <h3>
-                  Become a CKBA
-                  <br />
-                  Member
-                </h3>
+                <h3>Become a CKBA Member</h3>
                 <p>Explore Membership →</p>
               </div>
             </a>

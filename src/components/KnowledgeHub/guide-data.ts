@@ -1,55 +1,101 @@
-// Titles follow the editorial feedback; body copy remains transcribed from Figma.
-export const guideSteps = [
+type GuideStep = {
+  id: string
+  title: string
+  navTitle: string
+  summary: string
+  body: string
+  points: string[]
+  reading: string[]
+  actions?: { title: string; description: string; label: string; href: string; resourceId: string }[]
+}
+
+export const guideSteps: GuideStep[] = [
   {
     id: 'step-1',
     title: 'What is Nervos CKB?',
+    navTitle: 'What is Nervos CKB?',
     summary:
-      'In one line: Nervos CKB, the “Common Knowledge Base”, is a Layer 1 blockchain secured by Proof-of-Work and built on a RISC-V virtual machine, designed to be the most flexible and interoperable foundation in crypto.',
-    body: 'Most blockchains lock you into one signature scheme and one smart-contract language. CKB takes a different route. It stores “common knowledge” (state everyone agrees on) in a simple, general model called Cells, and it runs a RISC-V virtual machine, the same open instruction set used in real hardware. That means CKB isn’t opinionated about cryptography or logic; almost anything can be built on top.',
+      'Built on RISC-V and secured by Proof-of-Work, CKB is the most cryptographically flexible and programmable UTXO-based chain.',
+    body: 'CKB was built around a conviction: a blockchain should remain useful as technology evolves, without giving up the principles that make it worth using. Its ambition is to carry Bitcoin’s resilience, openness, and independent verifiability into a broader world of applications, where developers can define their own rules and users retain control over the digital assets and systems they depend on.',
     points: [
-      'CKB is the Layer 1 of the Nervos Network; CKB is also the token.',
-      'Secured by Proof-of-Work, the same consensus family as Bitcoin.',
-      'The Cell model is a general form of Bitcoin’s UTXO, flexible enough for any asset or app.',
+      'The Blockchain: CKB stands for Common Knowledge Base, the Layer 1 of the Nervos Network.',
+      'The Token: CKB is the native currency, used to pay transaction fees and occupy on-chain storage.',
+      'The Network: Nervos is a growing set of standards and protocols built around CKB.',
     ],
-    reading: ['secp256k1, explained', 'Unbreakable? How SHA-256 works', 'Unbreakable? How SHA-256 works'],
+    reading: [],
   },
   {
     id: 'step-2',
     title: 'Why it’s built differently?',
+    navTitle: 'Why it’s built differently',
     summary:
-      'The short version: CKB refuses the usual trade-off. It keeps Proof-of-Work security and stays fully programmable, because its RISC-V VM supports every cryptographic primitive and gives it account abstraction by default.',
+      'CKB is built to let applications and cryptography evolve independently of the core protocol. Developers can introduce new features, signature schemes, and ownership rules without requiring a network-wide upgrade, keeping the foundation stable while expanding what can be built on it.',
     body: 'Three design choices set CKB apart:',
     points: [
-      'Proof-of-Work: battle-tested security and decentralization that resist capture, rather than trading them away for speed.',
-      '“Build on hardware, not software”: the RISC-V VM runs low-level instructions, so developers aren’t boxed in by a fixed smart-contract language.',
-      'Account abstraction by default: CKB doesn’t hard-code one signature scheme, so wallets and apps define their own rules for a smoother experience.',
+      'The Cell Model: Bitcoin’s UTXOs, extended to hold assets, data, and code, with programmable rules governing how they can be used.',
+      'A RISC-V VM: Built on an open instruction set used in real processors, CKB can run application logic and cryptographic libraries compiled for RISC-V.',
+      'Native Account Abstraction: Each Cell defines how access is authorized, enabling wallets and apps to support passkeys, multiple signatures, and post-quantum schemes.',
     ],
-    reading: ['secp256k1, explained', 'Unbreakable? How SHA-256 works'],
+    reading: [],
   },
   {
     id: 'step-3',
     title: 'What it makes possible',
+    navTitle: 'CKB & Bitcoin',
     summary:
-      'The idea: CKB is positioned as the “Contract Kernel of Bitcoin.” Through RGB++, the UTXO Stack and the Fiber payment network, it adds programmability and scale to Bitcoin, without cross-chain bridges.',
-    body: 'Bitcoin is secure but deliberately limited. Bridging its assets to other chains has caused some of crypto’s biggest hacks. CKB’s answer is RGB++ and client-side validation: because CKB shares Bitcoin’s UTXO-style model, assets and logic can be tied to Bitcoin without handing custody to a bridge. Fiber then adds Lightning-style instant payments on top.',
+      'CKB’s flexibility translates into new ways to secure assets, build payment networks, and connect blockchains. Developers can put these ideas into practice on the same underlying foundation.',
+    body: 'From the keys that protect your assets to the networks that move them, here’s what that freedom enables:',
     points: [
-      'RGB++: issue and move assets that settle against Bitcoin, no bridge required.',
-      'Fiber: an open, Lightning-style payment network for fast, cheap transfers.',
-      'Same UTXO DNA means CKB and Bitcoin fit together naturally.',
+      'Flexible security: From Quantum Purse’s post-quantum signatures to JoyID’s passkeys, developers can choose how users secure and access their assets.',
+      'Novel Layer 2s: Fiber extends Lightning’s payment-channel model with more expressive channels supporting multiple assets, native swaps, and cross-chain payments.',
+      'Interoperability: CKB can link asset ownership to another blockchain while enforcing the asset’s rules on CKB, as RGB++ demonstrates with Bitcoin.',
     ],
-    reading: ['secp256k1, explained', 'Unbreakable? How SHA-256 works', 'Unbreakable? How SHA-256 works'],
+    reading: [],
   },
   {
     id: 'step-4',
-    title: 'Crypto-Agile & Quantum Ready',
-    summary:
-      'Why CKB is ready: the real quantum problem isn’t just resistance. It’s whether a chain can change its cryptography without a hard fork. CKB can. That property is called crypto agility.',
-    body: 'A powerful enough quantum computer could one day break the signatures (ECDSA over secp256k1) that Bitcoin and Ethereum rely on. Swapping those out usually needs a contentious hard fork and a governance vote. On CKB, because the RISC-V VM supports all cryptographic primitives, a post-quantum scheme can be adopted as ordinary code. Quantum Purse, a community-built wallet using the post-quantum SPHINCS+ scheme, proved it: no fork, no vote, no protocol change.',
+    title: 'Crypto-Agile & Quantum-Ready',
+    navTitle: 'Quantum & crypto agility',
+    summary: 'CKB is the only crypto-agile blockchain in existence today.',
+    body: 'Security shouldn’t be limited to the cryptography a blockchain launched with. CKB can support new signature schemes, including post-quantum alternatives, without changing its core protocol, giving developers the freedom to prepare for emerging threats.',
     points: [
-      'Neither Bitcoin nor Ethereum is quantum resistant today.',
-      'CKB can adopt post-quantum cryptography as regular code. That’s crypto agility.',
-      'Quantum Purse (SPHINCS+) demonstrated it live, with no protocol change.',
+      'Crypto-Agility by Design: Signature schemes live in programmable scripts, so anyone can deploy or use new ones without waiting for soft or hard forks.',
+      'Post-Quantum Protection Today: SPHINCS+ is available on CKB and used by the Quantum Purse wallet.',
+      'Ready For What Comes Next: As better post-quantum schemes emerge, developers can add them through the same process, without seeking permission.',
     ],
-    reading: ['secp256k1, explained', 'Unbreakable? How SHA-256 works', 'Unbreakable? How SHA-256 works'],
+    reading: [],
+  },
+  {
+    id: 'step-5',
+    title: 'Make your next move',
+    navTitle: 'Try it & build',
+    summary:
+      'You’ve seen what makes CKB different. Now explore what people are building, meet the community, or start building something of your own.',
+    body: 'You don’t have to read everything. The fastest way to make CKB click is to try it out.',
+    points: [],
+    reading: [],
+    actions: [
+      {
+        title: 'Explore the ecosystem',
+        description: 'Find wallets, apps, and tools that put CKB’s capabilities into practice.',
+        label: 'Explore CKB',
+        href: 'https://ckbdapps.com/ecosystem',
+        resourceId: 'ecosystem',
+      },
+      {
+        title: 'Join the conversation',
+        description: 'Ask questions, exchange ideas, and meet the people shaping Nervos.',
+        label: 'Visit NervosTalk',
+        href: 'https://talk.nervos.org/',
+        resourceId: 'community',
+      },
+      {
+        title: 'Build on CKB',
+        description: 'Go from understanding the architecture to writing your first application.',
+        label: 'Developer Docs & Quick Start',
+        href: 'https://docs.nervos.org/',
+        resourceId: 'developer_docs',
+      },
+    ],
   },
 ]

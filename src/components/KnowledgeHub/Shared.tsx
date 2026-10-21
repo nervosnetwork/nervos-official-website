@@ -155,7 +155,7 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
   )
 }
 
-export function useActiveSection(ids: string[], mobileScrollMargin = false) {
+export function useActiveSection(ids: string[], useScrollMargin = false) {
   const [active, setActive] = useState(ids[0] ?? '')
   const key = ids.join('|')
   useEffect(() => {
@@ -166,10 +166,7 @@ export function useActiveSection(ids: string[], mobileScrollMargin = false) {
       sectionIds.forEach(id => {
         const node = document.getElementById(id)
         if (!node) return
-        const threshold =
-          mobileScrollMargin && window.matchMedia('(max-width: 750px)').matches
-            ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2
-            : 150
+        const threshold = useScrollMargin ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2 : 150
         if (node.getBoundingClientRect().top <= threshold) current = id
       })
       setActive(current)
@@ -186,6 +183,6 @@ export function useActiveSection(ids: string[], mobileScrollMargin = false) {
       window.removeEventListener('resize', onScroll)
       cancelAnimationFrame(frame)
     }
-  }, [key, mobileScrollMargin])
+  }, [key, useScrollMargin])
   return active
 }

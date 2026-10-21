@@ -204,6 +204,34 @@
   outline-offset: 2px;
 }
 
+.stepActionEnd {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+.stepActionLabel {
+  display: none;
+  white-space: nowrap;
+  @include tokens.type(footnote);
+}
+
+.stepActionArrow {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.stepActions a:focus-visible .stepActionLabel {
+  display: inline;
+}
+
+@media (hover: hover) {
+  .stepActions a:hover .stepActionLabel {
+    display: inline;
+  }
+}
+
 .hubCard {
   display: flex;
   flex-direction: column;
@@ -348,7 +376,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px !important;
   text-transform: uppercase;
   @include tokens.type(h5);
 }

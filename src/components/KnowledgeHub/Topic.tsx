@@ -74,7 +74,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
       id: 'all',
       name: 'View all',
       icon: 'topics-imgGroup59',
-      description: 'Browse all articles in this topic.',
+      description: '',
     },
   ]
   const [selectedSubject, setSelectedSubject] = useState(
@@ -86,7 +86,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
     id: 'all',
     name: 'View all',
     icon: 'topics-imgGroup59',
-    description: 'Browse all articles in this topic.',
+    description: '',
   }
   const posts = catalog.articles
     .filter(post => post.hub === hubId && (subject.id === 'all' || post.subjects.includes(subject.id)))
@@ -136,7 +136,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
           <div className={styles.topicToolbar}>
             <div>
               <h2 id="subject-title">{subject.name === 'View all' ? 'All subjects' : subject.name}</h2>
-              <p>{subject.description}</p>
+              {subject.description && <p>{subject.description}</p>}
             </div>
             <ArticleGridControls density={density} onDensityChange={setDensity} placement="topic" />
           </div>
