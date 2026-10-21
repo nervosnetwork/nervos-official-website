@@ -70,5 +70,5 @@ test('article row metadata keeps its layout slot while swapping to the arrow', (
   assert.match(componentStyles, /\.readingAction\s*\{[\s\S]*?position:\s*relative/)
   assert.match(componentStyles, /\.readingArrow\s*\{[\s\S]*?position:\s*absolute/)
   assert.match(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[\s\S]*?visibility:\s*hidden/)
-  assert.doesNotMatch(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[\s\S]*?display:\s*none/)
+  assert.doesNotMatch(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[^}]*display:\s*none/)
 })

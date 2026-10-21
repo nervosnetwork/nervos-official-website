@@ -205,9 +205,8 @@ export function KnowledgeFooter() {
       <div className={styles.bottom}>
         <Logo />
         <p>
-          ©Nervos is an open-source project funded by the Nervos Foundation.
-          <br />
-          All Rights Reserved.
+          ©Nervos is an open-source project funded by the <span className={styles.textPrimary}>Nervos Foundation</span>
+          . All Rights Reserved.
         </p>
       </div>
     </footer>

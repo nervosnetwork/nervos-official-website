@@ -171,7 +171,7 @@ test('API rejection and network failures keep the email, show a retryable error 
   }
 })
 
-test('Blockchain Signal keeps its initial copy and wires the real shared signup with pending controls', () => {
+test('newsletter status starts empty and wires the real shared signup with pending controls', () => {
   let submitted
   const state = {
     isSubmitting: false,
@@ -210,7 +210,11 @@ test('Blockchain Signal keeps its initial copy and wires the real shared signup 
     return [node, ...nodes(node.props?.children)]
   }
   let tree = nodes(Newsletter())
-  assert.equal(tree.find(node => node.type === 'small').props.children, 'Monthly. Unsubscribe anytime.')
+  assert.equal(
+    tree.find(node => node.props?.id === 'signal-newsletter-note').props.children,
+    'Monthly. Unsubscribe anytime.',
+  )
+  assert.equal(tree.find(node => node.props?.id === 'signal-newsletter-status').props.children, '')
   const input = tree.find(node => node.type === 'input')
   assert.equal(input.props.name, 'email')
   assert.equal(input.props.required, true)
@@ -223,5 +227,5 @@ test('Blockchain Signal keeps its initial copy and wires the real shared signup 
   tree = nodes(Newsletter())
   assert.equal(tree.find(node => node.type === 'input').props.disabled, true)
   assert.equal(tree.find(node => node.type === 'button').props.disabled, true)
-  assert.equal(tree.find(node => node.type === 'small').props.children, 'Submitting…')
+  assert.equal(tree.find(node => node.props?.id === 'signal-newsletter-status').props.children, 'Submitting…')
 })

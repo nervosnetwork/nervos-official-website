@@ -18,5 +18,5 @@ test('reader favourites interactions match the requested behavior', () => {
   assert.match(styles, /\.clearSearch[\s\S]*?color:\s*var\(--kbMuted\)/)
   assert.match(styles, /\.popularHeader \.eyebrow[\s\S]*?align-items:\s*center/)
   assert.match(styles, /\.newsletterCopy form button span[\s\S]*?transition:\s*transform/)
-  assert.match(styles, /\.newsletterCopy form button:is\(:hover, :focus-visible\) span[\s\S]*?translateX\(8px\)/)
+  assert.match(styles, /\.newsletterCopy form button:is\(:hover, :focus-visible\) span[^}]*translateX\(2px\)/)
 })

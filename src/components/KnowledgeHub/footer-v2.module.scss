@@ -2,10 +2,10 @@
 
 .footer {
   width: min(1200px, calc(100% - 64px));
-  height: 445px;
-  min-height: 445px;
+  min-height: 455px;
   margin: 0 auto;
-  padding: 64px 0 48px;
+  padding: 70px 0 50px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .top {
@@ -14,24 +14,18 @@
   justify-content: space-between;
 }
 
-.groups {
+.footer .groups {
   display: flex;
-  gap: 48px;
+  gap: 45px;
 }
 
-.groups h2 {
-  font-weight: 500;
+.footer .groups h2 {
+  margin: 0;
+  font-weight: 400;
   font-size: 12px;
-  line-height: 1.3;
+  line-height: 1;
+  letter-spacing: 3.12px;
   text-transform: uppercase;
-}
-
-.groups button {
-  padding: 0;
-  color: inherit;
-  text-align: left;
-  background: none;
-  border: 0;
 }
 
 .subscribe button {
@@ -41,20 +35,28 @@
   border: 0;
 }
 
+.footer .groups button {
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+}
+
 .socials a {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  min-height: 24px;
+  min-height: 21px;
 }
 
-.groups h2,
-.groups h2 > a,
-.groups li > a,
-.groups li > button {
+.footer .groups h2,
+.footer .groups h2 > a,
+.footer .groups li > a,
+.footer .groups li > button {
   display: inline-flex;
-  gap: 8px;
+  gap: 5px;
   align-items: center;
 }
 
@@ -63,25 +65,23 @@
   flex-shrink: 0;
 }
 
-.groups ul {
+.footer .groups ul {
   display: grid;
-  gap: 8px;
-  margin: 32px 0 0;
+  gap: 7px;
+  margin: 35px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.groups li {
+.footer .groups li {
   display: flex;
   align-items: center;
   min-height: 21px;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.33px;
   white-space: nowrap;
-  @include tokens.type(footnote);
-}
-
-.groups a:hover,
-.groups button:hover {
-  color: var(--kbBrand);
 }
 
 .footer .groups li > a,
@@ -89,19 +89,31 @@
   font-weight: 400;
 }
 
+.footer .groups a:hover,
+.footer .groups button:hover {
+  color: var(--kbBrand);
+}
+
 .subscribe {
   position: relative;
   flex-shrink: 0;
-  width: 408px;
+  width: 374px;
 }
 
-.subscribe h2 {
-  @include tokens.type(h4);
+.footer .subscribe h2 {
+  margin: 0;
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: 0.57px;
 }
 
-.subscribe > p {
-  margin-top: 24px;
-  @include tokens.type(footnote);
+.footer .subscribe > p {
+  margin: 26px 0 0;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.33px;
 }
 
 .subscribe form {
@@ -110,9 +122,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 36px;
-  margin-top: 24px;
-  padding: 0 16px;
+  height: 34.286px;
+  margin-top: 26px;
+  padding: 0 10px;
   background: var(--kbSubtle);
   border-radius: 0;
   transition: background-color 180ms ease;
@@ -128,9 +140,13 @@
   width: 100%;
   min-width: 0;
   color: var(--kbText);
+  font-weight: 300;
+  font-size: 11px;
+  font-family: inherit;
+  line-height: 1;
+  letter-spacing: 0.33px;
   background: transparent;
   border: 0;
-  @include tokens.type(body);
 }
 
 .footer .subscribe input:focus,
@@ -149,14 +165,14 @@
 
 .socials {
   display: flex;
-  gap: 32px;
-  margin-top: 24px;
+  gap: 30px;
+  margin-top: 26px;
 }
 
 .socialRule {
   display: block;
   width: 50px;
-  margin-top: 24px;
+  margin-top: 26px;
 }
 
 .subscribe .status {
@@ -176,7 +192,7 @@
   align-items: center;
   justify-content: space-between;
   min-height: 43px;
-  margin-top: 64px;
+  margin-top: 60px;
 }
 
 .bottom > svg {
@@ -184,17 +200,26 @@
   height: 20px;
 }
 
-.bottom p {
+.footer .bottom p {
+  margin: 0;
   color: var(--kbPlaceholder);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.33px;
   text-align: right;
-  @include tokens.type(label);
 }
+
+.textPrimary {
+  color: var(--kbText);
+}
+
 @media (width <= 1200px) {
   .footer {
     height: auto;
   }
 
-  .groups {
+  .footer .groups {
     flex-wrap: wrap;
     gap: 24px;
   }
@@ -217,38 +242,39 @@
     min-height: 44px;
   }
 
-  .groups {
+  .footer .groups {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
   }
 
-  .groups > div {
+  .footer .groups > div {
     min-width: 0;
   }
 
-  .groups h2 {
+  .footer .groups h2 {
     min-height: 44px;
     font-size: 14px;
+    letter-spacing: 1px;
   }
 
-  .groups h2 > a,
-  .groups li > a {
+  .footer .groups h2 > a,
+  .footer .groups li > a {
     min-height: 44px;
   }
 
-  .groups ul {
+  .footer .groups ul {
     gap: 0;
     margin-top: 8px;
   }
 
-  .groups li {
+  .footer .groups li {
     font-size: 14px;
     line-height: 1.5;
     white-space: normal;
   }
 
-  .groups li > a {
+  .footer .groups li > a {
     width: 100%;
   }
 
@@ -256,7 +282,7 @@
     width: 100%;
   }
 
-  .subscribe > p {
+  .footer .subscribe > p {
     max-width: 600px;
     margin-top: 16px;
     font-size: 14px;
@@ -302,7 +328,7 @@
     margin-top: 40px;
   }
 
-  .bottom p {
+  .footer .bottom p {
     max-width: 100%;
     line-height: 1.5;
     text-align: left;
@@ -320,7 +346,7 @@
     gap: 40px;
   }
 
-  .groups {
+  .footer .groups {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px 16px;
   }
@@ -334,7 +360,7 @@
 }
 
 @media (width < 280px) {
-  .groups {
+  .footer .groups {
     grid-template-columns: 1fr;
   }
 }

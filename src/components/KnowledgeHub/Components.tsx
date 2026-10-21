@@ -182,22 +182,49 @@ export function StepSection({
           Step <Icon name={`topics-imgNumber${numbers[index] ?? 'One'}Circle`} size={25} />
         </div>
         <h2>{step.title}</h2>
-        <p className={styles.callout}>
-          <strong>{step.summary.slice(0, step.summary.indexOf(':') + 1)}</strong>
-          {step.summary.slice(step.summary.indexOf(':') + 1)}
-        </p>
+        <p className={styles.callout}>{step.summary}</p>
         <p className={styles.stepBody}>{step.body}</p>
         {!!step.points.length && (
           <ul className={styles.points}>
             {step.points.map(point => (
               <li key={point}>
                 <Icon name="startBody-imgArrowArrowCircleRight" size={24} />
-                <span>{point}</span>
+                <span>
+                  <strong>{point.slice(0, point.indexOf(':') + 1)}</strong>
+                  {point.slice(point.indexOf(':') + 1)}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </div>
+      {step.actions && (
+        <ul className={clsx(styles.readingList, styles.stepActions)}>
+          {step.actions.map(action => (
+            <li key={action.resourceId}>
+              <Link
+                href={action.href}
+                onClick={() =>
+                  trackKBEvent('kb_resource_click', {
+                    resource_id: action.resourceId,
+                    placement: 'start_here_actions',
+                  })
+                }
+              >
+                <span className={styles.readingTitle}>
+                  {action.title}: {action.description}
+                </span>
+                <span className={styles.stepActionEnd}>
+                  <span className={styles.stepActionLabel}>{action.label}</span>
+                  <span className={styles.stepActionArrow} aria-hidden="true">
+                    →
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       {(articles ? articles.length > 0 : step.reading.length > 0) && (
         <div className={styles.deeper}>
           <h3>
