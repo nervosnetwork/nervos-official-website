@@ -89,7 +89,7 @@
 .breadcrumb {
   margin-bottom: 32px;
   color: var(--kbPlaceholder);
-  text-transform: none;
+  text-transform: uppercase;
   @include tokens.type(label);
 }
 

@@ -18,7 +18,7 @@ export const hubs = [
   },
   {
     name: 'Blockchain Scalability',
-    description: 'Layer-2 channels, rollups, and sharding — how blockchains grow without giving up decentralisation.',
+    description: 'Why CKB runs a RISC-V VM, the Cell model in practice, and building on hardware, not software.',
   },
   {
     name: 'Nervos CKB',
