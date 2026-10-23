@@ -7,6 +7,7 @@
 
 # testing
 /coverage
+/.playwright-cli/
 
 # database
 /prisma/db.sqlite
@@ -14,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-kb-validation/
 /out/
 next-env.d.ts
 

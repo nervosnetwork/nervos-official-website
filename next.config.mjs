@@ -8,6 +8,8 @@ const i18nConfig = (await import('./next-i18next.config.js')).default
 
 /** @type {import("next").NextConfig} */
 const config = {
+  // Isolate a second local validation server from the active preview.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   transpilePackages: ['react-tweet'],
 

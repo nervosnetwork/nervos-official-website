@@ -243,7 +243,7 @@ const SlideCKBIntro: FC<ScreenSlideProps> = props => {
             <div className={styles.slideCKBIntroContent}>
               <div className={clsx(styles.introBlock, DISABLE_CGOL_MOUSE_CONTROLLER)}>
                 <div className={styles.introBlockContent}>
-                  <div className={clsx(styles.titleText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text1')}</div>
+                  <h1 className={clsx(styles.titleText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text1')}</h1>
                   <div className={clsx(styles.descriptionText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text2')}</div>
                   <a href="https://docs.nervos.org/" className={styles.introLink} target="_blank" rel="noreferrer">
                     {t('nervos_ckb_docs')} <OpenIcon width={16} />
@@ -278,7 +278,7 @@ const SlideCKBIntro: FC<ScreenSlideProps> = props => {
         <div className={styles.slideCKBIntroContent}>
           <div className={clsx(styles.introBlock, DISABLE_CGOL_MOUSE_CONTROLLER)}>
             <div className={styles.introBlockContent}>
-              <div className={clsx(styles.titleText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text1')}</div>
+              <h1 className={clsx(styles.titleText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text1')}</h1>
               <div className={clsx(styles.descriptionText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('text2')}</div>
               <a href="https://docs.nervos.org/" className={styles.introLink} target="_blank" rel="noreferrer">
                 {t('nervos_ckb_docs')} <OpenIcon width={16} />

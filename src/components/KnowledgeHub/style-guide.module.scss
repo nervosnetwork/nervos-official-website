@@ -1,0 +1,102 @@
+@use './tokens' as tokens;
+
+.guide {
+  width: min(1200px, calc(100% - 48px));
+  margin: 48px auto 80px;
+}
+
+.guide h1 {
+  @include tokens.type(h1);
+}
+
+.guide > p {
+  margin-top: 16px;
+  color: var(--kbMuted);
+}
+
+.guide > section {
+  margin-top: 56px;
+}
+
+.guide > section > h2 {
+  margin-bottom: 24px;
+  @include tokens.type(h3);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 24px;
+}
+
+.swatches span {
+  display: block;
+  height: 72px;
+  margin-bottom: 8px;
+  border: 1px solid var(--kbBorder);
+  border-radius: 13px;
+}
+
+.swatches code {
+  font-size: 12px;
+}
+
+.typeScale {
+  display: grid;
+  gap: 8px;
+}
+
+.typeScale > div {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  padding: 24px;
+  background: var(--kbSubtle);
+  border-radius: 13px;
+}
+
+.typeScale code {
+  min-width: 120px;
+  font-size: 12px;
+}
+
+.subjects {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.hub {
+  max-width: 379px;
+}
+
+.articleGrid {
+  display: grid;
+  grid-template-columns: 227fr 288fr 389fr;
+  gap: 24px;
+}
+@each $role in display, h1, h2, h3, h4, h5, subheader, subheader2, body, body2, label, footnote {
+  .#{$role} {
+    @include tokens.type($role);
+  }
+}
+@media (width <= 750px) {
+  .subjects {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .typeScale > div {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .typeScale span {
+    overflow-wrap: anywhere;
+  }
+
+  .articleGrid {
+    grid-template-columns: 1fr;
+  }
+}
