@@ -203,7 +203,7 @@ export function NavigationMenu({ article = false, className }: { article?: boole
     const close = () => setOpen(false)
     const desktop = window.matchMedia('(min-width: 901px)')
     const onResize = () => {
-      if (article && desktop.matches) close()
+      if (desktop.matches) close()
     }
     desktop.addEventListener('change', onResize)
     router.events.on('routeChangeStart', close)
@@ -211,7 +211,7 @@ export function NavigationMenu({ article = false, className }: { article?: boole
       desktop.removeEventListener('change', onResize)
       router.events.off('routeChangeStart', close)
     }
-  }, [article, router.events])
+  }, [router.events])
 
   return (
     <>
