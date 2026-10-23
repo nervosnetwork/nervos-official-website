@@ -2,13 +2,10 @@
 @use './menu-chrome';
 
 .header {
+  @include menu-chrome.desktop-layout;
+
   position: relative;
   z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 80px;
-  padding: 0 32px;
   color: #111;
   background: #fff;
 }
@@ -153,10 +150,6 @@
 }
 
 .closeButton {
-  display: flex;
-}
-
-.standaloneMenu {
   display: flex;
 }
 

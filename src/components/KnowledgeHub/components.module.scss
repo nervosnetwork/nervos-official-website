@@ -38,6 +38,24 @@
   transform: translateX(-8px);
 }
 
+@media (width < 768px) {
+  .arrowButton.arrowButton {
+    position: relative;
+    box-sizing: border-box;
+    height: 32px;
+    min-height: 32px;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    // Extend the clickable area by 6px above and below the 32px button face.
+    &::after {
+      position: absolute;
+      inset: -7px -1px;
+      content: '';
+    }
+  }
+}
+
 .subject {
   display: flex;
   flex-direction: column;
@@ -383,6 +401,17 @@
   margin-bottom: 20px !important;
   text-transform: uppercase;
   @include tokens.type(h5);
+}
+
+@media (width < 768px) {
+  .deeper .readingList a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deeper .readingAction {
+    width: 100%;
+  }
 }
 
 .articleCard {

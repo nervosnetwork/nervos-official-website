@@ -31,6 +31,7 @@ $defaultHeaderHeight: 90px;
   padding: 0;
   color: #111;
   font-size: 12px;
+  font-family: inherit;
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -163,6 +164,42 @@ $defaultHeaderHeight: 90px;
       outline: 2px solid #8b7cff;
       outline-offset: 2px;
     }
+  }
+}
+
+.siteDesktopMenu {
+  order: 2;
+}
+
+.header .siteDesktopMenu .menuPopover {
+  margin: 0;
+}
+
+.header .siteDesktopMenu .trigger {
+  gap: 2px;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  min-height: 44px;
+  padding: 0;
+}
+
+.header .siteDesktopMenu .trigger > .text {
+  margin-top: 0;
+  font-size: 9px;
+  line-height: 1;
+  transform: none;
+}
+
+@media (width <= 900px) {
+  .siteDesktopMenu {
+    display: none;
+  }
+}
+
+@media (width > 900px) {
+  .header {
+    @include menu-chrome.desktop-layout;
   }
 }
 

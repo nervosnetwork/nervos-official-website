@@ -1,4 +1,4 @@
-import { ComponentProps, FC, Fragment, useMemo } from 'react'
+import { ComponentProps, FC, Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
@@ -29,6 +29,15 @@ export type HeaderProps = ComponentProps<'div'> & {
 export const Header: FC<HeaderProps> = props => {
   const { className, variant = 'default', readingProgress, ...divProps } = props
 
+  const [singleColumn, setSingleColumn] = useState(false)
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 901px)')
+    const update = () => setSingleColumn(!desktop.matches)
+    update()
+    desktop.addEventListener('change', update)
+    return () => desktop.removeEventListener('change', update)
+  }, [])
+
   if (variant === 'knowledgeArticle') {
     return (
       <KnowledgeHeader className={className} readingProgress={readingProgress} {...divProps}>
@@ -42,6 +51,9 @@ export const Header: FC<HeaderProps> = props => {
   return (
     <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
       <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
+      <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
+        {!singleColumn && <MenuPopover alignRight />}
+      </div>
       <Link className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)} href="/">
         <LogoIcon />
       </Link>
