@@ -253,15 +253,6 @@ export function KnowledgeHubHome({
                         </div>
                       )}
                     </div>
-                    <ArrowButton
-                      className={styles.allArticles}
-                      href="/knowledge-base/articles"
-                      onClick={() =>
-                        trackKBEvent('kb_cta_click', { cta_id: 'all_articles', placement: 'home_recommended' })
-                      }
-                    >
-                      See all articles
-                    </ArrowButton>
                   </div>
                 </div>
                 <div className={styles.popularGrid}>
@@ -309,6 +300,15 @@ export function KnowledgeHubHome({
                     </Link>
                   ))}
                 </div>
+                <ArrowButton
+                  className={styles.allArticles}
+                  href="/knowledge-base/articles"
+                  onClick={() =>
+                    trackKBEvent('kb_cta_click', { cta_id: 'all_articles', placement: 'home_recommended' })
+                  }
+                >
+                  See all articles
+                </ArrowButton>
               </div>
             </section>
             <Newsletter />

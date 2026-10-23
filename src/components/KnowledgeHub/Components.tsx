@@ -15,21 +15,30 @@ export function ArrowButton({
   href,
   className,
   onClick,
+  direction = 'right',
 }: {
   children: ReactNode
   href?: string
   className?: string
   onClick?: () => void
+  direction?: 'left' | 'right'
 }) {
   const content = (
     <>
+      {direction === 'left' && (
+        <span className={styles.arrowButtonIcon} aria-hidden="true">
+          ←
+        </span>
+      )}
       {children}
-      <span className={styles.arrowButtonIcon} aria-hidden="true">
-        →
-      </span>
+      {direction === 'right' && (
+        <span className={styles.arrowButtonIcon} aria-hidden="true">
+          →
+        </span>
+      )}
     </>
   )
-  const classes = clsx(styles.arrowButton, className)
+  const classes = clsx(styles.arrowButton, direction === 'left' && styles.arrowButtonBack, className)
 
   return href ? (
     <Link className={classes} href={href} onClick={onClick}>
@@ -247,7 +256,7 @@ export function CardMeta({ author = false, article }: { author?: boolean; articl
       <Icon name="articleBody-imgGroup58" size={18} />
       {author && (
         <>
-          <span>{article ? article.authors.join(', ') || 'Author not supplied' : 'Nervos'}</span>
+          <span>{article ? article.authors.join(', ') || 'Nervos Network' : 'Nervos'}</span>
           <span>·</span>
         </>
       )}
@@ -330,8 +339,8 @@ export function ArticleCard({
         }
       >
         {!article?.coverImage && <span>{article ? 'No cover image' : 'Cover image'}</span>}
-        {tag && <span className={styles.tag}>{tag}</span>}
       </div>
+      {tag && <span className={styles.tag}>{tag}</span>}
       <h3 className={styles.cardTitle} title={article ? title : undefined}>
         {title}
       </h3>

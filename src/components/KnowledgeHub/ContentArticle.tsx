@@ -16,6 +16,8 @@ import contentStyles from './pages-v2.module.scss'
 import { headingPlugin } from './markdown-headings'
 import { articleSocialActionsEnabled } from './article-features'
 import { trackKBEvent } from './analytics'
+import { LanguageToggle } from '../Header/KnowledgeHeader'
+import { readingProgress } from './reading-progress'
 
 export function ContentArticle({
   article,
@@ -33,14 +35,18 @@ export function ContentArticle({
   recent?: KBArticle[]
   hub: KBCatalog['hubs'][number] | null
   subjects: KBCatalog['subjects']
-  headings: { id: string; label: string }[]
+  headings: { id: string; label: string; depth: number }[]
   preview?: boolean
 }) {
   const router = useRouter()
   const contents = headings.map(heading => ({ ...heading, id: `user-content-${heading.id}` }))
+  const mobileContents = contents.filter(heading => heading.depth === 2)
   const active = useActiveSection(contents.map(item => item.id))
   const [notice, setNotice] = useState('')
   const navRef = useRef<HTMLDivElement>(null)
+  const articleRef = useRef<HTMLElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = useState(0)
   const [navHeight, setNavHeight] = useState(80)
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -49,16 +55,97 @@ export function ContentArticle({
     if (navRef.current) observer.observe(navRef.current)
     return () => observer.disconnect()
   }, [])
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      if (!articleRef.current || !textRef.current || !navRef.current) return
+      setProgress(
+        readingProgress(
+          articleRef.current.getBoundingClientRect().top,
+          textRef.current.getBoundingClientRect().bottom,
+          window.innerHeight,
+          (navRef.current.getBoundingClientRect().height || 56) + 2,
+        ),
+      )
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(update)
+    }
+    const observer = new ResizeObserver(schedule)
+    for (const element of [articleRef.current, textRef.current, navRef.current]) {
+      if (element) observer.observe(element)
+    }
+    update()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [article.id, markdown])
   const resolveImage = (src = '') =>
     /^(https?:)?\/\//.test(src) || src.startsWith('/')
       ? src
       : `/education_hub_articles/${encodeURIComponent(article.id)}/${src}`
+  const recentPosts = (
+    <>
+      <h2>Recent posts:</h2>
+      <div className={styles.recentPosts}>
+        {recent.map(item => (
+          <Link
+            key={item.id}
+            href={articlePath(item)}
+            onClick={() => trackKBEvent('kb_article_click', { article_id: item.id, placement: 'recent_posts' })}
+          >
+            {item.title}
+            <span className={styles.recentPostArrow} aria-hidden="true">
+              {' '}
+              →
+            </span>
+          </Link>
+        ))}
+      </div>
+    </>
+  )
+  const categoryTags = hub && (
+    <div className={styles.categories}>
+      <button
+        onClick={() => {
+          trackKBEvent('kb_hub_click', { hub_id: hub.id, placement: 'article_categories' })
+          void router.push(`/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}`)
+        }}
+      >
+        {hub.name}
+      </button>
+      {subjects.map(subject => (
+        <button
+          key={subject.id}
+          onClick={() => {
+            trackKBEvent('kb_subject_select', {
+              hub_id: hub.id,
+              subject_id: subject.id,
+              placement: 'article_categories',
+            })
+            void router.push(
+              `/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}&subject=${encodeURIComponent(subject.id)}`,
+            )
+          }}
+        >
+          {subject.name}
+        </button>
+      ))}
+    </div>
+  )
   return (
     <PreviewPage
       title={article.title}
       newsletter={false}
       revision
-      headerClassName={styles.scrollingHeader}
+      articleNavigation
+      readingProgress={progress}
       preview={preview}
       canonicalPath={article.canonicalPath}
       description={article.subtitle}
@@ -89,50 +176,38 @@ export function ContentArticle({
               Education Hub
             </div>
           </Link>
-          <a
-            className={styles.writeArticle}
-            href="https://github.com/NervosEducationHub/EducationHubArticles"
-            onClick={() =>
-              trackKBEvent('kb_resource_click', { resource_id: 'write_article', placement: 'article_nav' })
-            }
+          <div className={styles.articleNavActions}>
+            <a
+              className={styles.writeArticle}
+              href="https://github.com/NervosEducationHub/EducationHubArticles"
+              onClick={() =>
+                trackKBEvent('kb_resource_click', { resource_id: 'write_article', placement: 'article_nav' })
+              }
+            >
+              <span className={styles.writeArticleFace}>
+                <Icon name="articleNav-imgGroup1" size={19} />
+                Write an article
+              </span>
+            </a>
+            <LanguageToggle />
+          </div>
+          <div
+            className={styles.readingProgress}
+            role="progressbar"
+            aria-label="Article reading progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
           >
-            <Icon name="articleNav-imgGroup1" size={19} />
-            Write an article
-          </a>
-          {contents.length > 0 && (
-            <label className={styles.mobileContents}>
-              <span>Contents</span>
-              <select
-                aria-label="Table of contents"
-                value={active || contents[0]?.id}
-                onChange={event => {
-                  const sectionIndex = contents.findIndex(item => item.id === event.target.value)
-                  if (sectionIndex >= 0) {
-                    trackKBEvent('kb_toc_click', {
-                      article_id: article.id,
-                      section_index: sectionIndex + 1,
-                      placement: 'mobile',
-                    })
-                  }
-                  document.getElementById(event.target.value)?.scrollIntoView({ block: 'start' })
-                  window.history.replaceState(null, '', `#${event.target.value}`)
-                }}
-              >
-                {contents.map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+            <span style={{ transform: `scaleX(${progress / 100})` }} />
+          </div>
         </div>
         <div className={styles.articleLayout}>
-          <article className={styles.articleBody}>
+          <article className={styles.articleBody} ref={articleRef}>
             <div className={styles.articleMeta}>
               <div className={clsx(styles.meta, styles.largeMeta)}>
                 <Icon name="articleBody-imgGroup58" size={35} />
-                <span>{article.authors.join(', ') || 'Author not supplied'}</span>
+                <span>{article.authors.join(', ') || 'Nervos Network'}</span>
                 <span>·</span>
                 <span>{formatArticleDate(article.date)}</span>
                 <span>·</span>
@@ -144,35 +219,62 @@ export function ContentArticle({
               <h1>{article.title}</h1>
               {article.subtitle && <p className={styles.subhead}>{article.subtitle}</p>}
             </header>
+            {hub && <div className={styles.mobileCategories}>{categoryTags}</div>}
+            {mobileContents.length > 0 && (
+              <nav className={styles.inlineContents} aria-label="On this page">
+                <h2>On this page:</h2>
+                <ul>
+                  {mobileContents.map(item => (
+                    <li key={item.id}>
+                      <a
+                        href={`#${item.id}`}
+                        onClick={() =>
+                          trackKBEvent('kb_toc_click', {
+                            article_id: article.id,
+                            section_index: contents.findIndex(heading => heading.id === item.id) + 1,
+                            placement: 'mobile',
+                          })
+                        }
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
             {article.coverImage && <img src={article.coverImage} alt="" className={contentStyles.articleCover} />}
-            <ReactMarkdown
-              className={contentStyles.articleMarkdown}
-              remarkPlugins={[remarkGfm, headingPlugin]}
-              rehypePlugins={[
-                rehypeRaw,
-                [
-                  rehypeSanitize,
-                  {
-                    ...defaultSchema,
-                    attributes: {
-                      ...defaultSchema.attributes,
-                      h2: [
-                        ['id', /^section-\d+$/, 'footnote-label'],
-                        ['className', 'sr-only'],
-                      ],
+            <div ref={textRef}>
+              <ReactMarkdown
+                className={contentStyles.articleMarkdown}
+                remarkPlugins={[remarkGfm, headingPlugin]}
+                rehypePlugins={[
+                  rehypeRaw,
+                  [
+                    rehypeSanitize,
+                    {
+                      ...defaultSchema,
+                      attributes: {
+                        ...defaultSchema.attributes,
+                        h2: [
+                          ['id', /^section-\d+$/, 'footnote-label'],
+                          ['className', 'sr-only'],
+                        ],
+                      },
                     },
-                  },
-                ],
-              ]}
-              components={{
-                // The article title owns the page H1; body headings keep the existing H1/H2 styling.
-                h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
-                img: ({ src, alt }) => <img src={resolveImage(src)} alt={alt || ''} loading="lazy" />,
-                a: ({ href, children }) => <a href={href}>{children}</a>,
-              }}
-            >
-              {markdown}
-            </ReactMarkdown>
+                  ],
+                ]}
+                components={{
+                  // The article title owns the page H1; body headings keep the existing H1/H2 styling.
+                  h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
+                  img: ({ src, alt }) => <img src={resolveImage(src)} alt={alt || ''} loading="lazy" />,
+                  a: ({ href, children }) => <a href={href}>{children}</a>,
+                }}
+              >
+                {markdown}
+              </ReactMarkdown>
+            </div>
+            {recent.length > 0 && <section className={styles.mobileRecentPosts}>{recentPosts}</section>}
             <div className={styles.ckbMark} aria-label="CKB">
               <span aria-hidden="true">
                 <Icon name="article-endmark" size={12} />
@@ -225,58 +327,11 @@ export function ContentArticle({
                 </nav>
               </div>
             )}
-            {recent.length > 0 && (
-              <section>
-                <h2>Recent posts:</h2>
-                <div className={styles.recentPosts}>
-                  {recent.map(item => (
-                    <Link
-                      key={item.id}
-                      href={articlePath(item)}
-                      onClick={() =>
-                        trackKBEvent('kb_article_click', { article_id: item.id, placement: 'recent_posts' })
-                      }
-                    >
-                      {item.title}
-                      <span className={styles.recentPostArrow} aria-hidden="true">
-                        {' '}
-                        →
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
+            {recent.length > 0 && <section className={styles.desktopRecentPosts}>{recentPosts}</section>}
             {hub && (
-              <section>
+              <section className={styles.desktopCategories}>
                 <h2>Categories:</h2>
-                <div className={styles.categories}>
-                  <button
-                    onClick={() => {
-                      trackKBEvent('kb_hub_click', { hub_id: hub.id, placement: 'article_categories' })
-                      void router.push(`/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}`)
-                    }}
-                  >
-                    {hub.name}
-                  </button>
-                  {subjects.map(subject => (
-                    <button
-                      key={subject.id}
-                      onClick={() => {
-                        trackKBEvent('kb_subject_select', {
-                          hub_id: hub.id,
-                          subject_id: subject.id,
-                          placement: 'article_categories',
-                        })
-                        void router.push(
-                          `/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}&subject=${encodeURIComponent(subject.id)}`,
-                        )
-                      }}
-                    >
-                      {subject.name}
-                    </button>
-                  ))}
-                </div>
+                {categoryTags}
               </section>
             )}
             {articleSocialActionsEnabled && (

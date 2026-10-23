@@ -34,6 +34,10 @@
   outline-offset: 3px;
 }
 
+.arrowButtonBack:is(:hover, :focus-visible) .arrowButtonIcon {
+  transform: translateX(-8px);
+}
+
 .subject {
   display: flex;
   flex-direction: column;
@@ -382,6 +386,7 @@
 }
 
 .articleCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -727,8 +732,16 @@
   }
 
   .tag {
-    max-width: calc(100% - 24px);
+    position: static;
+    align-self: flex-start;
+    max-width: calc(100% - 40px);
+    margin: 16px 20px 0 18px;
     white-space: normal;
+    background: var(--kbNeutral100);
+  }
+
+  .articleCard > .tag + .cardTitle {
+    margin-top: 12px;
   }
 
   .horizontalCard {

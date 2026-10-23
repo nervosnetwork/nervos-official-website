@@ -29,6 +29,8 @@ export function PreviewPage({
   canonicalPath,
   description,
   openGraph,
+  readingProgress,
+  articleNavigation = false,
 }: {
   title: string
   children: ReactNode
@@ -40,6 +42,8 @@ export function PreviewPage({
   canonicalPath?: string
   description?: string
   openGraph?: OGProperties
+  readingProgress?: number
+  articleNavigation?: boolean
 }) {
   return (
     <>
@@ -55,7 +59,11 @@ export function PreviewPage({
       >
         {({ renderHeader, renderFooter }) => (
           <>
-            {renderHeader({ variant: 'knowledgeHub', className: headerClassName })}
+            {renderHeader({
+              variant: articleNavigation ? 'knowledgeArticle' : 'knowledgeHub',
+              className: headerClassName,
+              readingProgress,
+            })}
             {children}
             {newsletter && <Newsletter />}
             {revision ? <KnowledgeFooter /> : renderFooter()}

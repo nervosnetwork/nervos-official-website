@@ -16,18 +16,32 @@ import LanguageIcon from './language.svg'
 import { useIsMobile } from '../../hooks'
 import { isClient } from '../../utils'
 import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife'
+import { KnowledgeHeader, NavigationMenu } from './KnowledgeHeader'
 
 const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '')
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
-export type HeaderProps = ComponentProps<'div'> & { variant?: 'default' | 'knowledgeHub' }
+export type HeaderProps = ComponentProps<'div'> & {
+  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
+  readingProgress?: number
+}
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, variant = 'default', ...divProps } = props
+  const { className, variant = 'default', readingProgress, ...divProps } = props
+
+  if (variant === 'knowledgeArticle') {
+    return (
+      <KnowledgeHeader className={className} readingProgress={readingProgress} {...divProps}>
+        <div className={styles.knowledgeDesktopMenu}>
+          <MenuPopover alignRight />
+        </div>
+      </KnowledgeHeader>
+    )
+  }
 
   return (
     <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
-      <MenuPopover alignRight={variant === 'knowledgeHub'} />
+      <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
       <Link className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)} href="/">
         <LogoIcon />
       </Link>
