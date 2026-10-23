@@ -1,3 +1,4 @@
+@use './menu-chrome';
 @import '../../styles/variables.module';
 
 $headerHeightVarName: '--headerHeight';
@@ -20,15 +21,41 @@ $defaultHeaderHeight: 90px;
   outline: none;
 }
 
+.knowledgeDesktopMenu .trigger {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0;
+  color: #111;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #5700ff;
+    outline-offset: 2px;
+  }
+}
+
+.knowledgeDesktopMenu .trigger > .text {
+  font-weight: 600;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.15em;
+}
+
 .header {
+  @include menu-chrome.layout;
+
   position: sticky;
   top: 0;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: row;
   width: 100%;
-  height: var(#{$headerHeightVarName});
   margin: 0 auto;
   color: #000;
   filter: invert(1);
@@ -67,11 +94,21 @@ $defaultHeaderHeight: 90px;
 
   .logo {
     display: flex;
-    margin: 0 32px;
+    align-items: center;
+    order: 0;
+    min-height: 44px;
+    margin: 0;
+  }
+
+  .siteMenu {
+    order: 2;
+    margin: 0 -10px 0 0;
+    color: #000;
   }
 
   .languagePopover {
-    margin: 0 32px;
+    order: 1;
+    margin: 0 20px 0 auto;
 
     .trigger {
       display: flex;
@@ -83,8 +120,6 @@ $defaultHeaderHeight: 90px;
   }
 
   @media (max-width: $mobileBreakPoint) {
-    flex-direction: row-reverse;
-
     .languagePopover {
       display: none;
     }
@@ -107,7 +142,8 @@ $defaultHeaderHeight: 90px;
     order: 0;
   }
 
-  .menuPopover {
+  .menuPopover,
+  .siteMenu {
     order: 1;
   }
 
@@ -131,6 +167,7 @@ $defaultHeaderHeight: 90px;
 }
 
 // Because Portal is used, it is no longer a child of header
+
 .menuPopoverContent {
   position: fixed;
   top: 26px;

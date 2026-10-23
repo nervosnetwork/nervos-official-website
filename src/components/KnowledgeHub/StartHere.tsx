@@ -101,7 +101,7 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
           ))}
         </div>
         <nav className={styles.guideLinks} aria-label="Continue learning">
-          <ArrowButton className={styles.pill} href="/knowledge-base">
+          <ArrowButton className={styles.pill} href="/knowledge-base" direction="left">
             Back to Knowledge Base
           </ArrowButton>
           <ArrowButton className={clsx(styles.pill, styles.keepReading)} href="/knowledge-base/articles">
