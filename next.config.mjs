@@ -76,8 +76,8 @@ const config = {
     }
     return [...archivedPages, roadmap]
   },
-  experimental: {
-    outputFileTracingIgnores: [
+  outputFileTracingExcludes: {
+    '/*': [
       'public/education_hub_articles/.git',
       'public/education_hub_articles/.github',
       'public/education_hub_articles/README.md',
