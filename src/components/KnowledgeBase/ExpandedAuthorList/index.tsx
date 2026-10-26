@@ -13,7 +13,7 @@ const ExpandedAuthors = ({ post, isShow, className }: Props) => {
       {[...post.authors].map(({ name, avatar }) => (
         <div className={styles.expandedAuthorItem} key={`expanded-author-item-${name}`}>
           <div className={styles.expandedAuthorAvatar}>
-            <img src={avatar} />
+            <img src={avatar} alt={name} />
           </div>
           <div>{name}</div>
         </div>

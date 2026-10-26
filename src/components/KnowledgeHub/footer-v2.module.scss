@@ -1,0 +1,366 @@
+@use './tokens' as tokens;
+
+.footer {
+  width: min(1200px, calc(100% - 64px));
+  min-height: 455px;
+  margin: 0 auto;
+  padding: 70px 0 50px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.top {
+  display: flex;
+  gap: 48px;
+  justify-content: space-between;
+}
+
+.footer .groups {
+  display: flex;
+  gap: 45px;
+}
+
+.footer .groups h2 {
+  margin: 0;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 3.12px;
+  text-transform: uppercase;
+}
+
+.subscribe button {
+  display: flex;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.footer .groups button {
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+}
+
+.socials a {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 21px;
+}
+
+.footer .groups h2,
+.footer .groups h2 > a,
+.footer .groups li > a,
+.footer .groups li > button {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.linkArrow {
+  display: block;
+  flex-shrink: 0;
+}
+
+.footer .groups ul {
+  display: grid;
+  gap: 7px;
+  margin: 35px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer .groups li {
+  display: flex;
+  align-items: center;
+  min-height: 21px;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.33px;
+  white-space: nowrap;
+}
+
+.footer .groups li > a,
+.footer .groups li > button {
+  font-weight: 400;
+}
+
+.footer .groups a:hover,
+.footer .groups button:hover {
+  color: var(--kbBrand);
+}
+
+.subscribe {
+  position: relative;
+  flex-shrink: 0;
+  width: 374px;
+}
+
+.footer .subscribe h2 {
+  margin: 0;
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: 0.57px;
+}
+
+.footer .subscribe > p {
+  margin: 26px 0 0;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.33px;
+}
+
+.subscribe form {
+  --kbFieldBackground: var(--kbSubtle);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34.286px;
+  margin-top: 26px;
+  padding: 0 10px;
+  background: var(--kbSubtle);
+  border-radius: 0;
+  transition: background-color 180ms ease;
+}
+
+.subscribe form:is(:hover, :focus-within) {
+  --kbFieldBackground: var(--kbDivider);
+
+  background: var(--kbDivider);
+}
+
+.subscribe input {
+  width: 100%;
+  min-width: 0;
+  color: var(--kbText);
+  font-weight: 300;
+  font-size: 11px;
+  font-family: inherit;
+  line-height: 1;
+  letter-spacing: 0.33px;
+  background: transparent;
+  border: 0;
+}
+
+.footer .subscribe input:focus,
+.footer .subscribe input:focus-visible {
+  outline: none;
+}
+
+.socials img {
+  display: block;
+}
+
+.subscribe button img {
+  width: 20px;
+  height: 15px;
+}
+
+.socials {
+  display: flex;
+  gap: 30px;
+  margin-top: 26px;
+}
+
+.socialRule {
+  display: block;
+  width: 50px;
+  margin-top: 26px;
+}
+
+.subscribe .status {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  min-height: 16px;
+  margin-top: 8px;
+  color: var(--kbMuted);
+  text-align: right;
+}
+
+.bottom {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 43px;
+  margin-top: 60px;
+}
+
+.bottom > svg {
+  width: 116px;
+  height: 20px;
+}
+
+.footer .bottom p {
+  margin: 0;
+  color: var(--kbPlaceholder);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.33px;
+  text-align: right;
+}
+
+.textPrimary {
+  color: var(--kbText);
+}
+
+@media (width <= 1200px) {
+  .footer {
+    height: auto;
+  }
+
+  .footer .groups {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .subscribe {
+    width: 35%;
+  }
+
+  .socials {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}
+@media (width <= 900px) {
+  .top {
+    flex-direction: column;
+  }
+
+  .socials a {
+    min-height: 44px;
+  }
+
+  .footer .groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .footer .groups > div {
+    min-width: 0;
+  }
+
+  .footer .groups h2 {
+    min-height: 44px;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .footer .groups h2 > a,
+  .footer .groups li > a {
+    min-height: 44px;
+  }
+
+  .footer .groups ul {
+    gap: 0;
+    margin-top: 8px;
+  }
+
+  .footer .groups li {
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  .footer .groups li > a {
+    width: 100%;
+  }
+
+  .subscribe {
+    width: 100%;
+  }
+
+  .footer .subscribe > p {
+    max-width: 600px;
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .subscribe form {
+    height: 48px;
+    padding: 0 4px 0 16px;
+  }
+
+  .subscribe input {
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .subscribe button {
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+  }
+
+  .socials {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
+    gap: 8px;
+    max-width: 408px;
+    margin-top: 16px;
+  }
+
+  .subscribe .status {
+    position: static;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .bottom {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 40px;
+  }
+
+  .footer .bottom p {
+    max-width: 100%;
+    line-height: 1.5;
+    text-align: left;
+  }
+}
+
+@media (width <= 750px) {
+  .footer {
+    width: calc(100% - 32px);
+    min-height: 0;
+    padding: 40px 0 32px;
+  }
+
+  .top {
+    gap: 40px;
+  }
+
+  .footer .groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+}
+
+@media (width <= 480px) {
+  .socials {
+    grid-template-columns: repeat(4, minmax(44px, 1fr));
+    max-width: 320px;
+  }
+}
+
+@media (width < 280px) {
+  .footer .groups {
+    grid-template-columns: 1fr;
+  }
+}

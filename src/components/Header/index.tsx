@@ -1,4 +1,4 @@
-import { ComponentProps, FC, Fragment, useMemo } from 'react'
+import { ComponentProps, FC, Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
@@ -16,18 +16,44 @@ import LanguageIcon from './language.svg'
 import { useIsMobile } from '../../hooks'
 import { isClient } from '../../utils'
 import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife'
+import { KnowledgeHeader, NavigationMenu } from './KnowledgeHeader'
 
 const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '')
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
-export type HeaderProps = ComponentProps<'div'>
+export type HeaderProps = ComponentProps<'div'> & {
+  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
+  readingProgress?: number
+}
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, ...divProps } = props
+  const { className, variant = 'default', readingProgress, ...divProps } = props
+
+  const [singleColumn, setSingleColumn] = useState(false)
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 901px)')
+    const update = () => setSingleColumn(!desktop.matches)
+    update()
+    desktop.addEventListener('change', update)
+    return () => desktop.removeEventListener('change', update)
+  }, [])
+
+  if (variant === 'knowledgeArticle') {
+    return (
+      <KnowledgeHeader className={className} readingProgress={readingProgress} {...divProps}>
+        <div className={styles.knowledgeDesktopMenu}>
+          <MenuPopover alignRight />
+        </div>
+      </KnowledgeHeader>
+    )
+  }
 
   return (
-    <div className={clsx(styles.header, className)} {...divProps}>
-      <MenuPopover />
+    <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
+      <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
+      <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
+        {!singleColumn && <MenuPopover alignRight />}
+      </div>
       <Link className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)} href="/">
         <LogoIcon />
       </Link>
@@ -55,13 +81,17 @@ export function useHeaderHeight(): number {
   }, [isMobile])
 }
 
-const MenuPopover: FC = () => {
+const MenuPopover: FC<{ alignRight?: boolean }> = ({ alignRight }) => {
   const [t] = useTranslation('common', { keyPrefix: 'navigation' })
+  const isMobile = useIsMobile()
   return (
     <Popover className={styles.menuPopover}>
       {({ close }) => (
         <>
-          <Popover.Button className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}>
+          <Popover.Button
+            aria-label="Menu"
+            className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}
+          >
             <MenuIcon />
             <span className={styles.text}>MENU</span>
           </Popover.Button>
@@ -77,7 +107,17 @@ const MenuPopover: FC = () => {
               leaveFrom={styles.leaveFrom}
               leaveTo={styles.leaveTo}
             >
-              <Popover.Panel className={styles.menuPopoverContent}>
+              <Popover.Panel
+                className={clsx(styles.menuPopoverContent, alignRight && styles.rightMenu)}
+                onClick={event => {
+                  if (!alignRight || !isMobile || !(event.target instanceof Element)) return
+                  const link = event.target.closest('a[href]')
+                  const href = link?.getAttribute('href')
+                  if (href?.startsWith('/') && !href.startsWith('//') && link?.getAttribute('target') !== '_blank') {
+                    close()
+                  }
+                }}
+              >
                 <div className={styles.menu}>
                   <StyledLink href="/developers" className={styles.title}>
                     <CodeIcon />

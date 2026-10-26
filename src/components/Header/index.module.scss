@@ -1,3 +1,4 @@
+@use './menu-chrome';
 @import '../../styles/variables.module';
 
 $headerHeightVarName: '--headerHeight';
@@ -20,15 +21,42 @@ $defaultHeaderHeight: 90px;
   outline: none;
 }
 
+.knowledgeDesktopMenu .trigger {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0;
+  color: #111;
+  font-size: 12px;
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #5700ff;
+    outline-offset: 2px;
+  }
+}
+
+.knowledgeDesktopMenu .trigger > .text {
+  font-weight: 600;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.15em;
+}
+
 .header {
+  @include menu-chrome.layout;
+
   position: sticky;
   top: 0;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: row;
   width: 100%;
-  height: var(#{$headerHeightVarName});
   margin: 0 auto;
   color: #000;
   filter: invert(1);
@@ -67,11 +95,21 @@ $defaultHeaderHeight: 90px;
 
   .logo {
     display: flex;
-    margin: 0 32px;
+    align-items: center;
+    order: 0;
+    min-height: 44px;
+    margin: 0;
+  }
+
+  .siteMenu {
+    order: 2;
+    margin: 0 -10px 0 0;
+    color: #000;
   }
 
   .languagePopover {
-    margin: 0 32px;
+    order: 1;
+    margin: 0 20px 0 auto;
 
     .trigger {
       display: flex;
@@ -83,8 +121,6 @@ $defaultHeaderHeight: 90px;
   }
 
   @media (max-width: $mobileBreakPoint) {
-    flex-direction: row-reverse;
-
     .languagePopover {
       display: none;
     }
@@ -97,11 +133,84 @@ $defaultHeaderHeight: 90px;
   }
 }
 
+.knowledgeHub {
+  position: relative;
+  flex-direction: row;
+  filter: none;
+  mix-blend-mode: normal;
+
+  .logo {
+    order: 0;
+  }
+
+  .menuPopover,
+  .siteMenu {
+    order: 1;
+  }
+
+  .languagePopover {
+    display: none;
+  }
+
+  @media (max-width: $mobileBreakPoint) {
+    .menuPopover .trigger {
+      justify-content: center;
+      min-width: 44px;
+      max-width: none;
+      min-height: 44px;
+    }
+
+    .menuPopover .trigger:focus-visible {
+      outline: 2px solid #8b7cff;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.siteDesktopMenu {
+  order: 2;
+}
+
+.header .siteDesktopMenu .menuPopover {
+  margin: 0;
+}
+
+.header .siteDesktopMenu .trigger {
+  gap: 2px;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  min-height: 44px;
+  padding: 0;
+}
+
+.header .siteDesktopMenu .trigger > .text {
+  margin-top: 0;
+  font-size: 9px;
+  line-height: 1;
+  transform: none;
+}
+
+@media (width <= 900px) {
+  .siteDesktopMenu {
+    display: none;
+  }
+}
+
+@media (width > 900px) {
+  .header {
+    @include menu-chrome.desktop-layout;
+  }
+}
+
 // Because Portal is used, it is no longer a child of header
+
 .menuPopoverContent {
   position: fixed;
   top: 26px;
-  z-index: 2;
+
+  // Portaled navigation must sit above page-level sticky rails and floating controls.
+  z-index: 1000;
   display: grid;
   grid-template-columns: repeat(auto-fill, 150px);
   gap: 5px;
@@ -278,6 +387,48 @@ $defaultHeaderHeight: 90px;
 
     &.placeholder {
       cursor: unset;
+    }
+  }
+}
+
+.menuPopoverContent.rightMenu {
+  right: 76px;
+  left: auto;
+
+  @media (max-width: $mobileBreakPoint) {
+    top: calc(var(--headerHeight, 65px) + 8px);
+    right: 16px;
+    left: auto;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    width: min(400px, calc(100% - 32px));
+    max-width: none;
+    max-height: calc(100dvh - var(--headerHeight, 65px) - 24px - env(safe-area-inset-bottom, 0px));
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+
+    .menu {
+      height: auto;
+      padding: 0 12px;
+
+      .title {
+        height: auto;
+        min-height: 44px;
+        padding: 8px 0;
+      }
+
+      .links {
+        gap: 0;
+        justify-content: flex-start;
+        padding-bottom: 8px;
+
+        .link {
+          min-height: 44px;
+          padding: 8px 0;
+          overflow-wrap: anywhere;
+        }
+      }
     }
   }
 }
