@@ -56,7 +56,6 @@ const groups: FooterGroup[] = [
     href: '/learn',
     links: [
       ['Knowledge Base', '/knowledge-base'],
-      ['Blog', 'https://archive.nervos.org/blog'],
       ['Medium', 'https://medium.com/nervosnetwork'],
       ['Youtube', 'https://www.youtube.com/c/NervosNetwork'],
     ],
