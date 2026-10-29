@@ -12,8 +12,8 @@ export function sharingPageUrl(path: string, locale?: string, defaultLocale = 'e
   if (locale && locale !== defaultLocale && pathname !== `/${locale}` && !pathname.startsWith(`/${locale}/`)) {
     pathname = `/${locale}${pathname === '/' ? '' : pathname}`
   }
-  // Preserve query-based Hub and listing addresses until their routing policy
-  // is agreed. A fragment identifies a section, not a separate shared page.
+  // The caller supplies the canonical route (Hub path or archive ?page=N).
+  // Keep its query; a fragment identifies a section, not a separate shared page.
   return `${PRODUCTION_SITE_ORIGIN}${pathname}${source.search}`
 }
 

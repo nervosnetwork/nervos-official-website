@@ -3,6 +3,7 @@ import { FC } from 'react'
 import Head from 'next/head'
 import { pick } from '../../utils'
 import { sharingImageUrl, sharingPageUrl } from '../../utils/sharing-urls'
+import { metaDescription } from '../../utils/meta-description'
 
 export type OGProperties = {
   locale?: string
@@ -34,6 +35,7 @@ export type OGProperties = {
 export const OpenGraph: FC<{ properties: OGProperties }> = ({ properties }) => {
   const normalized = {
     ...properties,
+    description: metaDescription(properties.description),
     url: sharingPageUrl(properties.url),
     image: properties.image ? { ...properties.image, url: sharingImageUrl(properties.image.url) } : undefined,
   }
@@ -85,6 +87,7 @@ export const OpenGraph: FC<{ properties: OGProperties }> = ({ properties }) => {
 
   return (
     <Head>
+      <meta name="description" content={description} key="description" />
       {ogTags.map(([key, value]) => (
         <meta key={key} property={key} content={value} />
       ))}

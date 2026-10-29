@@ -15,12 +15,16 @@ function files(directory) {
 
 test('the redesigned pages live under the existing knowledge-base prefix, without kb aliases', () => {
   const pages = files(path.join(root, 'src/pages')).map(file => path.relative(root, file))
-  for (const name of ['index', 'topic', 'start-here', 'articles', 'search', '[slug]']) {
+  for (const name of ['index', 'topic', 'topic/[hub]', 'start-here', 'articles', 'search', '[slug]']) {
     assert(pages.includes(`src/pages/knowledge-base/${name}.page.tsx`), `Missing ${name} route`)
   }
   assert(!pages.some(file => file.startsWith('src/pages/kb/')), 'The retired preview routes must not return')
   assert.match(read('src/pages/knowledge-base/index.page.tsx'), /export default KnowledgeHubHome/)
-  assert.match(read('src/pages/knowledge-base/topic.page.tsx'), /libraryProps\('topic'\)/)
+  assert.match(read('src/pages/knowledge-base/topic.page.tsx'), /getServerSideProps = legacyTopicPageProps/)
+  assert.match(
+    read('src/pages/knowledge-base/topic/[hub].page.tsx'),
+    /withServerPageSEO\('\/knowledge-base\/topic', topicPageProps\)/,
+  )
   assert.match(read('src/pages/knowledge-base/articles.page.tsx'), /export default ArticleArchive/)
   assert.match(read('src/pages/knowledge-base/search.page.tsx'), /libraryProps\('search'\)/)
   assert.match(read('src/pages/knowledge-base/start-here.page.tsx'), /export default StartHere/)
@@ -48,7 +52,9 @@ test('the public homepage is not a noindex preview, while search stays noindex',
   const home = read('src/components/KnowledgeHub/Home.tsx')
   assert(!home.includes('Design preview'))
   assert(!home.includes('noindex'))
-  assert.match(home, /rel="canonical"/)
+  assert.doesNotMatch(home, /rel="canonical"/)
+  assert.match(read('src/components/PageSEO/index.tsx'), /rel="canonical"/)
+  assert.match(read('src/pages/_app.page.tsx'), /<PageSEO seo=\{pageProps\.pageSEO\}/)
   assert.match(read('src/components/KnowledgeHub/Shared.tsx'), /preview = false/)
   assert.match(read('src/components/KnowledgeHub/Library.tsx'), /noindex=\{mode === 'search'\}/)
 })

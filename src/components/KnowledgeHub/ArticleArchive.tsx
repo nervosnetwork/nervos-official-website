@@ -12,9 +12,20 @@ import { trackKBEvent } from './analytics'
 export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'catalog' | 'page' | 'total'>) {
   const [density, setDensity] = useState(4)
   const { heroFade, breadcrumbHeight, breadcrumbRef } = useHeroScroll()
+  // Catalogs contain only real translations. Empty untranslated locale pages
+  // refer to English; pagination keeps its own canonical, without tracking keys.
+  const language = catalog.articles[0]?.language ?? 'en'
+  const localePrefix = language === 'en' ? '' : `/${language}`
+  const canonicalPath = `${localePrefix}/knowledge-base/articles${page > 1 ? `?page=${page}` : ''}`
 
   return (
-    <PreviewPage title="All articles" revision headerClassName={styles.scrollingHeader}>
+    <PreviewPage
+      title={page > 1 ? `All articles — Page ${page}` : 'All articles'}
+      description="Explore articles from across the Knowledge Base."
+      canonicalPath={canonicalPath}
+      revision
+      headerClassName={styles.scrollingHeader}
+    >
       <div
         className={styles.container}
         style={{ '--heroFade': heroFade, '--breadcrumbHeight': `${breadcrumbHeight}px` } as CSSProperties}
@@ -29,17 +40,22 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
         <div className={clsx(styles.topicRail, styles.archiveRail)} style={{ paddingTop: `${48 * (1 - heroFade)}px` }}>
           <div className={styles.topicToolbar}>
             <span className={styles.archiveCount}>{total} articles</span>
-            <ArticleGridControls density={density} onDensityChange={setDensity} placement="archive" />
+            <ArticleGridControls
+              density={density}
+              onDensityChange={setDensity}
+              placement="archive"
+              pageType="all_articles"
+            />
           </div>
         </div>
         <section className={styles.topicArticles} aria-labelledby="all-articles-title">
           <div className={clsx(styles.topicGrid, styles[`density${density}`])}>
-            {catalog.articles.map(article => (
+            {catalog.articles.map((article, index) => (
               <ArticleCard
                 key={article.id}
                 article={article}
                 title={article.title}
-                analyticsContext={{ placement: 'archive_articles' }}
+                analyticsContext={{ placement: 'archive_articles', position: index + 1 }}
                 size={density === 5 ? 'small' : density === 3 ? 'large' : 'medium'}
               />
             ))}
@@ -57,7 +73,14 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
           {page > 1 && (
             <Link
               href={`/knowledge-base/articles?page=${page - 1}`}
-              onClick={() => trackKBEvent('kb_pagination_click', { placement: 'archive', page: page - 1 })}
+              onClick={() =>
+                trackKBEvent('kb_pagination_click', {
+                  placement: 'archive',
+                  page: page - 1,
+                  page_type: 'all_articles',
+                  direction: 'previous',
+                })
+              }
             >
               ← Previous
             </Link>
@@ -68,7 +91,14 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
           {page * 24 < total && (
             <Link
               href={`/knowledge-base/articles?page=${page + 1}`}
-              onClick={() => trackKBEvent('kb_pagination_click', { placement: 'archive', page: page + 1 })}
+              onClick={() =>
+                trackKBEvent('kb_pagination_click', {
+                  placement: 'archive',
+                  page: page + 1,
+                  page_type: 'all_articles',
+                  direction: 'next',
+                })
+              }
             >
               Keep reading →
             </Link>

@@ -32,6 +32,7 @@ const { OpenGraph } = load('./index.tsx', {
   'next/head': { default: 'Head' },
   '../../utils': { pick: (value, ...keys) => Object.fromEntries(keys.map(key => [key, value[key]])) },
   '../../utils/sharing-urls': urls,
+  '../../utils/meta-description': load('../../utils/meta-description.ts'),
 })
 
 function nodes(node) {

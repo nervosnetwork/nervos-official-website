@@ -118,7 +118,7 @@ test('the existing Foundation illustrations are explicitly decorative with uncha
   ])
 })
 
-test('article Markdown keeps supplied alt text and intentionally empty descriptions without inventing copy', () => {
+test('article Markdown preserves supplied descriptions and replaces missing or placeholder alt with the article title', () => {
   const source = ts.createSourceFile(
     'article.tsx',
     read('src/components/KnowledgeHub/ContentArticle.tsx'),
@@ -134,16 +134,39 @@ test('article Markdown keeps supplied alt text and intentionally empty descripti
   }
   visit(source)
   assert.ok(renderer, 'Expected the real Markdown image renderer')
-  const { outputText } = ts.transpileModule(`export const renderImage = ${renderer}`, {
+  const { outputText } = ts.transpileModule(`export const renderMarkdownImage = ${renderer}`, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
     fileName: 'image.tsx',
   })
   const exports = {}
-  vm.runInNewContext(outputText, { exports, require, resolveImage: src => src })
-  for (const alt of ['Diagram of the CKB cell model', '现有图片说明', '', undefined]) {
-    const image = exports.renderImage({ src: '/existing.png', alt })
-    assert.equal(image.props.alt, alt || '')
-    assert.equal(image.props.src, '/existing.png')
-    assert.equal(image.props.loading, 'lazy')
+  const article = { title: 'Existing article title' }
+  vm.runInNewContext(outputText, {
+    exports,
+    require,
+    resolveImage: src => src,
+    article,
+    // Delivery is covered by the full article renderer test; this unit checks
+    // which description the Markdown callback passes into that renderer.
+    renderImage: (src, alt) => ({ props: { src, alt, loading: 'lazy' } }),
+  })
+  for (const title of ['Existing article title', '现有中文标题', 'Título del artículo']) {
+    article.title = title
+    for (const alt of [
+      'Diagram of the CKB cell model',
+      '现有图片说明',
+      '  Existing description  ',
+      'alt_text diagram',
+    ]) {
+      const image = exports.renderMarkdownImage({ src: '/existing.png', alt })
+      assert.equal(image.props.alt, alt)
+      assert.equal(image.props.src, '/existing.png')
+      assert.equal(image.props.loading, 'lazy')
+    }
+    for (const alt of ['', undefined, null, ' \n\t ', 'alt_text', '  alt_text  ', 'ALT_TEXT']) {
+      const image = exports.renderMarkdownImage({ src: '/existing.png', alt })
+      assert.equal(image.props.alt, title)
+      assert.equal(image.props.src, '/existing.png')
+      assert.equal(image.props.loading, 'lazy')
+    }
   }
 })

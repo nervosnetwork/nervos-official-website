@@ -8,6 +8,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { Portal, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { BASE_URL } from 'src/utils'
+import { withServerPageSEO } from '../../server/page-seo'
 import { useElementIntersecting, useElementSize, useIsMobile, useMouse } from '../../hooks'
 import {
   ConwayGameOfLife,
@@ -26,13 +27,13 @@ import OpenIcon from './open.svg'
 import presets from '../../styles/presets.module.scss'
 import styles from './index.module.scss'
 
-export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+export const getServerSideProps: GetServerSideProps = withServerPageSEO('/', async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale ?? 'en', ['common', 'home'])),
     },
   }
-}
+})
 
 const Home: NextPage = () => {
   const [t, { language }] = useTranslation('home')

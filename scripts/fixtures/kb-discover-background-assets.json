@@ -1,0 +1,65 @@
+{
+  "scope": "Article Discover bottom banner and sidebar CSS backgrounds only",
+  "tool": "sharp@0.33.5",
+  "resize": false,
+  "crop": false,
+  "encoding": "Lossy AVIF quality 75 (4:4:4) / WebP quality 90, effort 6, explicit sRGB ICC",
+  "assets": [
+    {
+      "source": "public/images/knowledge-hub/discover-banner-background.jpg",
+      "width": 1380,
+      "height": 344,
+      "bytes": 351298,
+      "sha256": "89e1df61df797417f0720c35ce621d9ab06c01b86d0c47b00cab534dbea8e249",
+      "outputs": [
+        {
+          "path": "public/images/knowledge-hub/discover-banner-background.f824b2b2.avif",
+          "format": "avif",
+          "quality": 75,
+          "effort": 6,
+          "chromaSubsampling": "4:4:4",
+          "bytes": 92567,
+          "sha256": "f824b2b2ec5aebb597ce7da0707edba16ec18861cdb4b46b004543a32f74176f",
+          "meanAbsoluteChannelDifference": 2.048703797326143
+        },
+        {
+          "path": "public/images/knowledge-hub/discover-banner-background.cb4683e2.webp",
+          "format": "webp",
+          "quality": 90,
+          "effort": 6,
+          "bytes": 126210,
+          "sha256": "cb4683e28bd9f41f315368c9ce3e36b3232fa19d07b4d81f1be96892daf8a09c",
+          "meanAbsoluteChannelDifference": 1.7988702112122232
+        }
+      ]
+    },
+    {
+      "source": "public/images/knowledge-hub/discover-background.jpg",
+      "width": 612,
+      "height": 578,
+      "bytes": 262624,
+      "sha256": "dba7095d082becac45547d3a90b6f03b2f90f4264d2e69bcd7cf99e01b573618",
+      "outputs": [
+        {
+          "path": "public/images/knowledge-hub/discover-background.292dffa2.avif",
+          "format": "avif",
+          "quality": 75,
+          "effort": 6,
+          "chromaSubsampling": "4:4:4",
+          "bytes": 63308,
+          "sha256": "292dffa2e62657da8ee9988606b39e19d5b5618597de9c22a69e9722d7de1a69",
+          "meanAbsoluteChannelDifference": 2.0766993840981223
+        },
+        {
+          "path": "public/images/knowledge-hub/discover-background.51d08613.webp",
+          "format": "webp",
+          "quality": 90,
+          "effort": 6,
+          "bytes": 87340,
+          "sha256": "51d08613dfd721c05446c04c8e69c4d146ca1d6ecd30ab10c5472b04e1472b00",
+          "meanAbsoluteChannelDifference": 1.8305949446291396
+        }
+      ]
+    }
+  ]
+}

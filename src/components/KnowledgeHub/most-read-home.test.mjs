@@ -35,11 +35,13 @@ const { KnowledgeHubHome } = load('./Home.tsx', {
   './content': { articlePath, featuredArticles },
   './home-v2.module.scss': { default: new Proxy({}, { get: (_, key) => key }) },
   './Icon': { Icon: 'Icon' },
-  './Components': { ArrowButton: 'ArrowButton', HubCard: 'HubCard' },
+  './ArticleLanguageLink': { ArticleLanguageLink: 'Link' },
+  './Components': { ArrowButton: 'ArrowButton', HubCard: 'HubCard', ArticleCover: 'ArticleCover' },
   './KnowledgeFooter': { KnowledgeFooter: 'KnowledgeFooter' },
   './GuideLife': { GuideLife: 'GuideLife' },
   './NeuronIcon': { NeuronIcon: 'NeuronIcon' },
   './analytics': { trackKBEvent: () => undefined },
+  './search-analytics': { trackKBSearch: () => undefined },
   './useNewsletterSignup': {},
 })
 const catalog = { articles: [], hubs: [], subjects: [], featured: [] }
@@ -73,6 +75,10 @@ test('home uses ranked articles even when they are absent from the pruned Hub ca
     cards.map(card => card.props.href),
     mostRead.articles.map(articlePath),
   )
+  assert.deepEqual(
+    cards.map(card => card.props.article),
+    mostRead.articles,
+  )
   const heading = tree.find(node => node.props?.id === 'popular-title')
   assert.equal(heading.props.children, 'Most read this year')
   assert.equal(heading.props.title, 'GA4 views: 2025-09-28 – 2026-09-27')
@@ -91,6 +97,7 @@ test('page loader selects popularity before pruning the Hub catalog', async () =
   const { getStaticProps } = load('../../pages/knowledge-base/index.page.tsx', {
     'next-i18next/serverSideTranslations': { serverSideTranslations: async () => ({}) },
     '../../components/KnowledgeHub/Home': { KnowledgeHubHome },
+    '../../server/page-seo': { withStaticPageSEO: (_route, loader) => loader },
     '../../server/kb-content': { getKBCatalog: () => fullCatalog },
     '../../server/kb-most-read': {
       getKBMostRead: data => {

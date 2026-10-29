@@ -1,0 +1,40 @@
+{
+  "source": {
+    "file": "public/images/knowledge-hub/guide-background.jpg",
+    "sha256": "8f6f4a36346db0979c87bc05021cbe3f0f8e16ab125a07a910e41279da2323eb",
+    "bytes": 1314053,
+    "width": 2400,
+    "height": 680
+  },
+  "encoding": {
+    "sharpVersion": "0.33.5",
+    "iccProfile": "srgb",
+    "resize": false,
+    "crop": false,
+    "lossless": false,
+    "effort": 6
+  },
+  "outputs": [
+    {
+      "file": "public/images/knowledge-hub/guide-background.1c63b618.avif",
+      "sha256": "1c63b618b50cc693dd9a194bbb3f4a8567f0c00f7a7c0f55b88a5ba01407304e",
+      "format": "avif",
+      "quality": 65,
+      "chromaSubsampling": "4:4:4",
+      "bytes": 275237,
+      "width": 2400,
+      "height": 680,
+      "meanAbsoluteChannelDifference": 2.6566946486928105
+    },
+    {
+      "file": "public/images/knowledge-hub/guide-background.420c8299.webp",
+      "sha256": "420c82994bf529a23850811787a07f647c60d562284d7dd86decf0cdec0630dd",
+      "format": "webp",
+      "quality": 90,
+      "bytes": 495382,
+      "width": 2400,
+      "height": 680,
+      "meanAbsoluteChannelDifference": 1.8323743872549019
+    }
+  ]
+}

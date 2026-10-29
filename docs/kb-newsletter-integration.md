@@ -1,6 +1,6 @@
 # Knowledge Base newsletter signup
 
-Updated: 2026-09-28.
+Updated: 2026-10-23 (D-20 event timing).
 
 ## Shared list and existing implementation
 
@@ -24,7 +24,9 @@ The two placements share the same mailing list. Their different visual labels do
 
 ## Analytics and privacy
 
-`kb_newsletter_submit` records a real attempt and `kb_newsletter_result` records `accepted` or `error`, with `placement: signal | footer`. These Umami events never include the email, first name, error detail, or request body. The existing production-only tracking switch remains unchanged. The former `kb_newsletter_submit_preview` is no longer emitted; its historical preview clicks must not be counted as subscriptions.
+`kb_newsletter_submit` now fires **only after the API accepts the request**, not before the request. GA4 receives `{ form_location: signal | footer, status: accepted }`; production Umami retains `{ placement: signal | footer }`. Failed, invalid or still-pending requests never emit this success event. Historical pre-D-20 submit counts measured attempts, so compare the two periods separately.
+
+`kb_newsletter_result { placement, outcome: accepted | error }` remains an Umami-only diagnostic. No event includes the email, first name, error detail or request body. GA4 preview verification requires an explicitly configured test stream in a separate test property; Umami remains production-only. See the [analytics event inventory](./kb-analytics-events.md) and [release checklist](./kb-release-checklist.md). The former `kb_newsletter_submit_preview` is no longer emitted; its historical clicks must not be counted as subscriptions.
 
 ## Verification
 

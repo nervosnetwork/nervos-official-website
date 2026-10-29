@@ -6,9 +6,10 @@ import { BaseSeparatePage } from 'src/components/BaseSeparatePage'
 import { StyledLink } from 'src/components/StyledLink'
 import { REPO, fetchContributors, lastContributor, Author, LastAuthor, BASE_URL } from 'src/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { withStaticPageSEO } from '../../server/page-seo'
 import EmbellishedLeft from './embellished_left.svg'
 import EmbellishedRight from './embellished_right.svg'
-import { useBodyClass, useIsMobile } from '../../hooks'
+import { useBodyClass } from '../../hooks'
 
 import presets from '../../styles/presets.module.scss'
 import styles from './index.module.scss'
@@ -41,7 +42,6 @@ interface PageProps {
 const Community: NextPage<PageProps> = ({ contributors, author }) => {
   const [t, { language }] = useTranslation(['community', 'common'])
   const { pathname } = useRouter()
-  const isMobile = useIsMobile()
 
   useBodyClass([presets.themeDark ?? ''])
 
@@ -130,25 +130,16 @@ const Community: NextPage<PageProps> = ({ contributors, author }) => {
         <title>{pageTitle}</title>
       </Head>
       <BaseSeparatePage
-        embellishedElements={
-          isMobile
-            ? [
-                { content: <EmbellishedLeft width={548} height={292} />, top: 52, right: -146 },
-                {
-                  content: <EmbellishedRight width={430} height={267} style={{ transform: 'rotate(180deg)' }} />,
-                  top: 443,
-                  left: -47,
-                },
-              ]
-            : [
-                { content: <EmbellishedLeft width={940} height={503} />, top: 154, right: 296 },
-                {
-                  content: <EmbellishedRight width={744} height={459} style={{ transform: 'rotate(180deg)' }} />,
-                  top: 568,
-                  left: 404,
-                },
-              ]
-        }
+        embellishedElements={[
+          {
+            content: <EmbellishedLeft width={940} height={503} />,
+            className: styles.embellishedLeft,
+          },
+          {
+            content: <EmbellishedRight width={744} height={459} style={{ transform: 'rotate(180deg)' }} />,
+            className: styles.embellishedRight,
+          },
+        ]}
         editLink={pageLink}
         title={title}
         floatIcons={floatIcons}
@@ -174,7 +165,7 @@ const Community: NextPage<PageProps> = ({ contributors, author }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/community', async ({ locale = 'en' }) => {
   const contributors = await fetchContributors()
   const author = await lastContributor(pagePath)
   const lng = await serverSideTranslations(locale, ['common', 'community'])
@@ -185,6 +176,6 @@ export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
       contributors,
     },
   }
-}
+})
 
 export default Community

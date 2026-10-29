@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import { StyledLink } from '../../../StyledLink'
-import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../../../../components/ConwayGameOfLife'
+import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../../../../components/ConwayGameOfLife/constants'
 
 import styles from './index.module.scss'
 

@@ -24,8 +24,31 @@ function markdown(article: SourceArticle) {
     throw new Error(`KB metadata is stale: ${article.sourceFile}. Regenerate and review the catalog.`)
   return matter(raw).content
 }
+function publishedLanguages(articles: SourceArticle[]): Record<string, string[]> {
+  const languages: Record<string, string[]> = {}
+  for (const article of articles) {
+    if (!isPublished(article)) continue
+    const available = languages[article.id] ?? (languages[article.id] = [])
+    if (!available.includes(article.language)) available.push(article.language)
+  }
+  return languages
+}
+
+export function getKBArticleLanguages(): Record<string, string[]> {
+  const languages = publishedLanguages(source().articles)
+  const migrations = JSON.parse(fs.readFileSync(path.join(root, 'metadata/slug-migrations.json'), 'utf8')) as {
+    renames: { from: string; to: string }[]
+  }
+  for (const { from, to } of migrations.renames) {
+    const available = languages[to]
+    if (available) languages[from] = available
+  }
+  return languages
+}
+
 export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
   const data = source()
+  const languages = publishedLanguages(data.articles)
   const articles = data.articles
     .filter(a => a.language === language && isPublished(a))
     .map(a => {
@@ -34,6 +57,7 @@ export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
         id,
         title,
         subtitle,
+        description,
         date,
         coverImage,
         authors,
@@ -49,6 +73,7 @@ export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
         id,
         title,
         subtitle,
+        ...(typeof description === 'string' && description.trim() ? { description } : {}),
         date,
         coverImage,
         authors,
@@ -60,6 +85,7 @@ export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
         excludedFromRecommendations,
         canonicalPath,
         language,
+        availableLanguages: languages[id] ?? [],
         ...(includeText
           ? {
               text: body
@@ -81,6 +107,14 @@ export function getKBCatalog(language = 'en', includeText = false): KBCatalog {
 export function getKBArticleStatus(id: string, language = 'en'): 'missing' | 'unpublished' | 'published' {
   const article = source().articles.find(a => a.id === id && a.language === language)
   return !article ? 'missing' : isPublished(article) ? 'published' : 'unpublished'
+}
+// D-18 is an explicit, case-sensitive migration, not a general slug normalizer.
+// Next config redirects are case-insensitive and would loop for case-only moves.
+export function resolveKBArticleId(id: string): string {
+  const migrations = JSON.parse(fs.readFileSync(path.join(root, 'metadata/slug-migrations.json'), 'utf8')) as {
+    renames: { from: string; to: string }[]
+  }
+  return migrations.renames.find(rename => rename.from === id)?.to ?? id
 }
 export function getKBArticle(id: string, language = 'en') {
   const article = source().articles.find(a => a.id === id && a.language === language)

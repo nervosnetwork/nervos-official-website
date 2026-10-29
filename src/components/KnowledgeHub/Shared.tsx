@@ -14,6 +14,7 @@ import { ArrowButton } from './Components'
 import { GuideLife } from './GuideLife'
 import type { OGProperties } from '../OpenGraph'
 import { trackKBEvent } from './analytics'
+import { kbHubPath } from '../../utils/kb-hubs'
 
 export const articleHref = (title?: string) =>
   title ? `/knowledge-base/search?q=${encodeURIComponent(title)}` : '/knowledge-base/articles'
@@ -24,17 +25,19 @@ export function PreviewPage({
   newsletter = true,
   revision = false,
   headerClassName,
+  mobileHeaderActions,
   preview = false,
   noindex = false,
-  canonicalPath,
-  description,
   openGraph,
+  description,
+  canonicalPath,
 }: {
   title: string
   children: ReactNode
   newsletter?: boolean
   revision?: boolean
   headerClassName?: string
+  mobileHeaderActions?: ReactNode
   preview?: boolean
   noindex?: boolean
   canonicalPath?: string
@@ -46,16 +49,24 @@ export function PreviewPage({
       <Head>
         <title>{preview ? `${title} — Knowledge Base preview` : title}</title>
         {(preview || noindex) && <meta name="robots" content={preview ? 'noindex, nofollow' : 'noindex, follow'} />}
-        {canonicalPath && <link rel="canonical" href={`https://www.nervos.org${canonicalPath}`} />}
-        {description && <meta name="description" content={description} />}
       </Head>
       <Page
         className={revision ? clsx(revisedBase.page, revisedStyles.page) : clsx(base.page, styles.page)}
-        openGraph={openGraph}
+        openGraph={
+          openGraph ??
+          (description || canonicalPath
+            ? defaults => ({
+                ...defaults,
+                title,
+                description: description ?? defaults.description,
+                url: canonicalPath ?? defaults.url,
+              })
+            : undefined)
+        }
       >
         {({ renderHeader, renderFooter }) => (
           <>
-            {renderHeader({ variant: 'knowledgeHub', className: headerClassName })}
+            {renderHeader({ variant: 'knowledgeHub', className: headerClassName, mobileActions: mobileHeaderActions })}
             {children}
             {newsletter && <Newsletter />}
             {revision ? <KnowledgeFooter /> : renderFooter()}
@@ -71,6 +82,7 @@ export function Breadcrumb({ current, revision = false }: { current: string; rev
     <nav className={revision ? revisedStyles.breadcrumb : styles.breadcrumb} aria-label="Breadcrumb">
       <Link
         href="/knowledge-base"
+        locale="en"
         onClick={() => trackKBEvent('kb_cta_click', { cta_id: 'kb_home', placement: 'breadcrumb' })}
       >
         Knowledge Base
@@ -112,7 +124,8 @@ export function RelatedHubs({ revision = false }: { revision?: boolean }) {
           <ArrowButton
             className={design.pill}
             key={name}
-            href={`/knowledge-base/topic?hub=${encodeURIComponent(name)}`}
+            href={kbHubPath(id) ?? '/knowledge-base'}
+            locale="en"
             onClick={() => trackKBEvent('kb_hub_click', { hub_id: id, placement: 'related_hubs' })}
           >
             {name}
@@ -141,6 +154,7 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
         <ArrowButton
           className={design.discoverButton}
           href="/knowledge-base/start-here"
+          locale="en"
           onClick={() =>
             trackKBEvent('kb_cta_click', {
               cta_id: 'discover_ckb',

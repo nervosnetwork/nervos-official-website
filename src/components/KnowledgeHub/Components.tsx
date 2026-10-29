@@ -1,25 +1,100 @@
 import clsx from 'clsx'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { Icon } from './Icon'
 import type { guideSteps } from './guide-data'
 import styles from './components.module.scss'
 import { KBArticle, formatArticleDate, articlePath } from './content'
 import { ArticleAnalyticsContext, trackKBEvent } from './analytics'
+import { kbHubPath } from '../../utils/kb-hubs'
+import { ArticleLanguageLink } from './ArticleLanguageLink'
 
 const numbers = ['One', 'Two', 'Three', 'Four', 'Five', 'Six']
 const articleHref = (title: string) => `/knowledge-base/search?q=${encodeURIComponent(title)}`
+
+// Match the existing 1200px grid, 16px gaps and 1px card borders. Tablet/mobile
+// columns are fixed by CSS even when the desktop density control changes.
+const gridImageSizes = {
+  small:
+    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(20vw - 27.6px), 225.2px',
+  medium:
+    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(25vw - 30px), 286px',
+  large:
+    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(33.333333vw - 34px), 387.333333px',
+}
+
+function optimizableCover(src?: string | null): src is string {
+  if (!src || !/^\/education_hub_articles\/[^/]+\/(?:[^/]+\/)*[^/]+\.(?:jpe?g|png)$/i.test(src)) return false
+  try {
+    return src
+      .slice(1)
+      .split('/')
+      .every(segment => {
+        const decoded = decodeURIComponent(segment)
+        return decoded !== '.' && decoded !== '..' && !/[/\\\0?#]/.test(decoded)
+      })
+  } catch {
+    return false
+  }
+}
+
+// Preserve the original wrapper/crop and raw background fallback. GIF/APNG,
+// WebP and external URLs are left untouched; Next also preserves any animated
+// PNG detected from its bytes instead of converting it to a still image.
+export function ArticleCover({
+  src,
+  className,
+  sizes,
+  ariaLabel,
+  children,
+}: {
+  src?: string | null
+  className?: string
+  sizes: string
+  ariaLabel?: string
+  children?: ReactNode
+}) {
+  const optimized = optimizableCover(src)
+  return (
+    <div
+      className={className}
+      style={
+        optimized
+          ? { position: 'relative' }
+          : src
+            ? { backgroundImage: `url(${JSON.stringify(src)})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+            : undefined
+      }
+      aria-label={ariaLabel}
+    >
+      {optimized && (
+        <Image
+          src={src}
+          alt=""
+          fill
+          loading="lazy"
+          sizes={sizes}
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+        />
+      )}
+      {children}
+    </div>
+  )
+}
 
 export function ArrowButton({
   children,
   href,
   className,
   onClick,
+  locale,
 }: {
   children: ReactNode
   href?: string
   className?: string
   onClick?: () => void
+  locale?: string
 }) {
   const content = (
     <>
@@ -32,7 +107,7 @@ export function ArrowButton({
   const classes = clsx(styles.arrowButton, className)
 
   return href ? (
-    <Link className={classes} href={href} onClick={onClick}>
+    <Link className={classes} href={href} onClick={onClick} locale={locale}>
       {content}
     </Link>
   ) : (
@@ -94,12 +169,18 @@ export function ReadingList({
     <ul className={clsx(styles.readingList, compact && styles.compactReading)}>
       {titles.map((title, index) => (
         <li key={`${title}-${index}`}>
-          <Link
+          <ArticleLanguageLink
+            article={articles?.[index]}
             href={articles?.[index] ? articlePath(articles[index]!) : articleHref(title)}
             onClick={() => {
               const article = articles?.[index]
               if (article && analyticsContext)
-                trackKBEvent('kb_article_click', { ...analyticsContext, article_id: article.id })
+                trackKBEvent('kb_article_click', {
+                  ...analyticsContext,
+                  article_id: article.id,
+                  hub_id: analyticsContext.hub_id ?? article.hub ?? undefined,
+                  position: index + 1,
+                })
             }}
           >
             <span className={styles.readingTitle}>{title}</span>
@@ -113,7 +194,7 @@ export function ReadingList({
                 →
               </span>
             </span>
-          </Link>
+          </ArticleLanguageLink>
         </li>
       ))}
     </ul>
@@ -141,7 +222,8 @@ export function HubCard({
       <div className={styles.hubContent}>
         <h3>
           <Link
-            href={`/knowledge-base/topic?hub=${encodeURIComponent(hubId ?? name)}`}
+            href={kbHubPath(hubId ?? name) ?? '/knowledge-base'}
+            locale="en"
             onClick={() => hubId && trackKBEvent('kb_hub_click', { hub_id: hubId, placement: 'home_hub_heading' })}
           >
             {name}
@@ -157,7 +239,8 @@ export function HubCard({
       </div>
       <Link
         className={styles.count}
-        href={`/knowledge-base/topic?hub=${encodeURIComponent(hubId ?? name)}`}
+        href={kbHubPath(hubId ?? name) ?? '/knowledge-base'}
+        locale="en"
         onClick={() => hubId && trackKBEvent('kb_hub_click', { hub_id: hubId, placement: 'home_hub_count' })}
       >
         {count ?? 14} Articles <span aria-hidden="true">→</span>
@@ -238,6 +321,8 @@ export function ArticleCard({
   size = 'medium',
   className,
   horizontal = false,
+  hidden = false,
+  imageSizes,
   article,
   analyticsContext,
 }: {
@@ -246,17 +331,28 @@ export function ArticleCard({
   size?: 'small' | 'medium' | 'large'
   className?: string
   horizontal?: boolean
+  hidden?: boolean
+  imageSizes?: string
   article?: KBArticle
   analyticsContext?: ArticleAnalyticsContext
 }) {
   const trackClick = () => {
-    if (article && analyticsContext) trackKBEvent('kb_article_click', { ...analyticsContext, article_id: article.id })
+    if (article && analyticsContext)
+      trackKBEvent('kb_article_click', {
+        ...analyticsContext,
+        article_id: article.id,
+        hub_id: analyticsContext.hub_id ?? article.hub ?? undefined,
+      })
   }
   if (horizontal)
     return (
-      <Link
+      <ArticleLanguageLink
+        article={article}
         href={article ? articlePath(article) : articleHref(title)}
         className={styles.horizontalCard}
+        hidden={hidden || undefined}
+        style={hidden ? { display: 'none' } : undefined}
+        tabIndex={hidden ? -1 : undefined}
         onClick={trackClick}
       >
         <div>
@@ -269,46 +365,32 @@ export function ArticleCard({
           </div>
           <CardMeta author article={article} />
         </div>
-        <div
+        <ArticleCover
+          src={article?.coverImage}
           className={styles.horizontalCover}
-          style={
-            article?.coverImage
-              ? {
-                  backgroundImage: `url(${JSON.stringify(article.coverImage)})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }
-              : undefined
-          }
-          aria-label="Article cover"
+          sizes={imageSizes ?? '(max-width: 750px) 88px, 200px'}
+          ariaLabel="Article cover"
         />
-      </Link>
+      </ArticleLanguageLink>
     )
   return (
-    <Link
+    <ArticleLanguageLink
+      article={article}
       href={article ? articlePath(article) : articleHref(title)}
       className={clsx(styles.articleCard, styles[size], article && styles.populated, className)}
+      hidden={hidden || undefined}
+      style={hidden ? { display: 'none' } : undefined}
+      tabIndex={hidden ? -1 : undefined}
       onClick={trackClick}
     >
-      <div
-        className={styles.cover}
-        style={
-          article?.coverImage
-            ? {
-                backgroundImage: `url(${JSON.stringify(article.coverImage)})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }
-            : undefined
-        }
-      >
+      <ArticleCover src={article?.coverImage} className={styles.cover} sizes={imageSizes ?? gridImageSizes[size]}>
         {!article?.coverImage && <span>{article ? 'No cover image' : 'Cover image'}</span>}
         {tag && <span className={styles.tag}>{tag}</span>}
-      </div>
+      </ArticleCover>
       <h3 className={styles.cardTitle} title={article ? title : undefined}>
         {title}
       </h3>
       <CardMeta article={article} />
-    </Link>
+    </ArticleLanguageLink>
   )
 }

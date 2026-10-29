@@ -74,6 +74,11 @@ const socials = [
 
 // Keep the design's arrow markers independent from how each destination opens.
 const unmarkedLinks = new Set(['CKB', 'Mining', 'Wallets', 'Knowledge Base'])
+const footerResources: Record<string, string> = {
+  Documentation: 'developer_docs',
+  Github: 'github',
+  Explorer: 'explorer',
+}
 
 // Only fixed navigation labels are used here; never include destination URLs or form values.
 const footerLinkId = (label: string) => label.toLowerCase().replace(/\s+/g, '_')
@@ -103,12 +108,15 @@ export function KnowledgeFooter() {
                 {group.href ? (
                   <Link
                     href={group.href}
+                    locale="en"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() =>
                       trackKBEvent('kb_footer_link_click', {
                         group: footerLinkId(group.title),
                         link_id: `${footerLinkId(group.title)}_heading`,
+                        link_text: group.title,
+                        link_url: group.href,
                       })
                     }
                   >
@@ -124,14 +132,25 @@ export function KnowledgeFooter() {
                   <li key={label}>
                     <Link
                       href={href}
+                      locale="en"
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() =>
+                      onClick={() => {
                         trackKBEvent('kb_footer_link_click', {
                           group: footerLinkId(group.title),
                           link_id: footerLinkId(label),
+                          link_text: label,
+                          link_url: href,
                         })
-                      }
+                        const resource = footerResources[label]
+                        if (resource) {
+                          trackKBEvent('kb_resource_click', {
+                            resource_id: resource,
+                            placement: 'footer',
+                            link_url: href,
+                          })
+                        }
+                      }}
                     >
                       {label}
                       {!unmarkedLinks.has(label) && <FooterArrow />}
@@ -177,7 +196,7 @@ export function KnowledgeFooter() {
                 aria-label={label}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackKBEvent('kb_social_click', { network: icon, placement: 'footer' })}
+                onClick={() => trackKBEvent('kb_social_click', { network: icon, placement: 'footer', link_url: href })}
               >
                 <Image
                   src={`/images/knowledge-hub/footer-${icon}.svg`}

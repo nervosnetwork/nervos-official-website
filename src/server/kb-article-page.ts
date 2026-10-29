@@ -3,7 +3,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { remark } from 'remark'
 import { byDate, relatedArticles } from '../components/KnowledgeHub/content'
 import { headingTree } from '../components/KnowledgeHub/markdown-headings'
-import { getKBArticle, getKBArticleStatus, getKBCatalog } from './kb-content'
+import { getKBArticle, getKBArticleLanguages, getKBArticleStatus, getKBCatalog, resolveKBArticleId } from './kb-content'
+import { getKBImageDimensions } from './kb-images'
 
 type ArticleRoute = 'canonical' | 'preview'
 
@@ -26,8 +27,9 @@ export const articleStaticPaths =
 export const articleStaticProps =
   (route: ArticleRoute): GetStaticProps =>
   async ({ params, locale }) => {
-    const id = typeof params?.slug === 'string' ? params.slug : ''
-    if (!id) return { notFound: true }
+    const requestedId = typeof params?.slug === 'string' ? params.slug : ''
+    if (!requestedId) return { notFound: true }
+    const id = route === 'canonical' ? resolveKBArticleId(requestedId) : requestedId
     const language = locale ?? 'en'
     const catalog = getKBCatalog(language)
     const article = catalog.articles.find(item => item.id === id)
@@ -43,12 +45,17 @@ export const articleStaticProps =
       }
     }
     if (!article) return { notFound: true }
+    if (id !== requestedId) {
+      return { redirect: { destination: encodeURI(article.canonicalPath), permanent: true } }
+    }
     const markdown = getKBArticle(id, article.language)
     if (markdown === null) return { notFound: true }
     return {
       props: {
         article,
         markdown,
+        languagesByArticle: getKBArticleLanguages(),
+        imageDimensions: getKBImageDimensions(article.id, article.coverImage),
         preview: route === 'preview',
         headings: headingTree(remark().parse(markdown)),
         related: relatedArticles(article, catalog),

@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { BASE_URL } from 'src/utils'
+import { withStaticPageSEO } from '../../server/page-seo'
 import { StyledLink } from '../../components/StyledLink'
 import { useBodyClass, useIsMobile } from '../../hooks'
 import styles from './index.module.scss'
@@ -246,11 +247,11 @@ const Roadmap: NextPage = () => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/journey', async ({ locale = 'en' }) => {
   const lng = await serverSideTranslations(locale, ['common', 'journey'])
   return {
     props: lng,
   }
-}
+})
 
 export default Roadmap

@@ -9,12 +9,14 @@ import { KBArticle, KBCatalog, featuredArticles, articlePath } from './content'
 import type { KBMostRead } from './content'
 import styles from './home-v2.module.scss'
 import { Icon } from './Icon'
-import { ArrowButton, HubCard } from './Components'
+import { ArrowButton, HubCard, ArticleCover } from './Components'
 import { KnowledgeFooter } from './KnowledgeFooter'
 import { GuideLife } from './GuideLife'
 import { NeuronIcon } from './NeuronIcon'
-import { searchLengthBucket, trackKBEvent } from './analytics'
+import { trackKBEvent } from './analytics'
+import { trackKBSearch } from './search-analytics'
 import { useNewsletterSignup } from './useNewsletterSignup'
+import { ArticleLanguageLink } from './ArticleLanguageLink'
 
 export { Icon } from './Icon'
 
@@ -45,7 +47,6 @@ export function KnowledgeHubHome({
   mostRead: KBMostRead
 }) {
   const router = useRouter()
-  const canonicalPath = `${router.locale && router.locale !== 'en' ? `/${router.locale}` : ''}/knowledge-base`
   const [query, setQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [matches, setMatches] = useState<KBArticle[]>([])
@@ -90,7 +91,13 @@ export function KnowledgeHubHome({
     <>
       <Head>
         <title>Knowledge Base | Nervos Network</title>
-        <link rel="canonical" href={`https://www.nervos.org${canonicalPath}`} />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/knowledge-hub/guide-background.1c63b618.avif"
+          type="image/avif"
+          {...{ fetchpriority: 'high' }}
+        />
       </Head>
       <Page className={styles.page}>
         {({ renderHeader }) => (
@@ -176,10 +183,7 @@ export function KnowledgeHubHome({
                         role="search"
                         onSubmit={event => {
                           event.preventDefault()
-                          trackKBEvent('kb_search_submit', {
-                            placement: 'home_search',
-                            query_length_bucket: searchLengthBucket(query),
-                          })
+                          trackKBSearch(query, 'home_search', router.locale)
                           void router.push(`/knowledge-base/search?q=${encodeURIComponent(query)}`)
                         }}
                       >
@@ -222,31 +226,29 @@ export function KnowledgeHubHome({
                             </button>
                           </div>
                           {matches.length ? (
-                            matches.map(article => (
-                              <Link
+                            matches.map((article, index) => (
+                              <ArticleLanguageLink
+                                article={article}
                                 key={article.id}
                                 href={articlePath(article)}
                                 onClick={() =>
                                   trackKBEvent('kb_article_click', {
                                     article_id: article.id,
                                     placement: 'home_search_suggestion',
+                                    hub_id: article.hub ?? undefined,
+                                    position: index + 1,
                                   })
                                 }
                               >
                                 {article.title}
-                              </Link>
+                              </ArticleLanguageLink>
                             ))
                           ) : (
                             <p role="status">{searchStatus}</p>
                           )}
                           <Link
                             href={`/knowledge-base/search?q=${encodeURIComponent(query)}`}
-                            onClick={() =>
-                              trackKBEvent('kb_search_submit', {
-                                placement: 'home_all_search_results',
-                                query_length_bucket: searchLengthBucket(query),
-                              })
-                            }
+                            onClick={() => trackKBSearch(query, 'home_all_search_results', router.locale)}
                           >
                             View all results →
                           </Link>
@@ -265,30 +267,29 @@ export function KnowledgeHubHome({
                   </div>
                 </div>
                 <div className={styles.popularGrid}>
-                  {recommendations.map(article => (
-                    <Link
+                  {recommendations.map((article, index) => (
+                    <ArticleLanguageLink
+                      article={article}
                       className={styles.popularCard}
                       key={article.id}
                       href={articlePath(article)}
                       onClick={() =>
-                        trackKBEvent('kb_article_click', { article_id: article.id, placement: 'recommended_reading' })
+                        trackKBEvent('kb_article_click', {
+                          article_id: article.id,
+                          placement: 'recommended_reading',
+                          hub_id: article.hub ?? undefined,
+                          position: index + 1,
+                        })
                       }
                     >
-                      <div
+                      <ArticleCover
+                        src={article.coverImage}
                         className={styles.coverPlaceholder}
-                        style={
-                          article.coverImage
-                            ? {
-                                backgroundImage: `url(${JSON.stringify(article.coverImage)})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                              }
-                            : undefined
-                        }
-                        aria-label={article.coverImage ? 'Article cover' : 'Article cover placeholder'}
+                        sizes="(max-width: 540px) calc(100vw - 40px), (max-width: 750px) calc(50vw - 28px), (max-width: 950px) calc(50vw - 40px), (max-width: 1264px) calc(25vw - 28px), 288px"
+                        ariaLabel={article.coverImage ? 'Article cover' : 'Article cover placeholder'}
                       >
                         {!article.coverImage && <span>Cover image</span>}
-                      </div>
+                      </ArticleCover>
                       <h3>{article.title}</h3>
                       <div className={styles.articleMeta}>
                         <Icon name="popular-imgGroup58" size={18} />
@@ -306,7 +307,7 @@ export function KnowledgeHubHome({
                         <Icon name="popular-imgLayer15" size={12} />
                         <span>{article.readingMinutes} min read</span>
                       </div>
-                    </Link>
+                    </ArticleLanguageLink>
                   ))}
                 </div>
               </div>
@@ -374,7 +375,11 @@ export function Newsletter() {
               className={styles.resourceCard}
               href="https://docs.nervos.org/"
               onClick={() =>
-                trackKBEvent('kb_resource_click', { resource_id: 'developer_docs', placement: 'signal_resources' })
+                trackKBEvent('kb_resource_click', {
+                  resource_id: 'developer_docs',
+                  placement: 'signal_resources',
+                  link_url: 'https://docs.nervos.org/',
+                })
               }
               target="_blank"
               rel="noopener noreferrer"
@@ -393,7 +398,11 @@ export function Newsletter() {
               className={styles.resourceCard}
               href="https://talk.nervos.org/"
               onClick={() =>
-                trackKBEvent('kb_resource_click', { resource_id: 'community', placement: 'signal_resources' })
+                trackKBEvent('kb_resource_click', {
+                  resource_id: 'community',
+                  placement: 'signal_resources',
+                  link_url: 'https://talk.nervos.org/',
+                })
               }
               target="_blank"
               rel="noopener noreferrer"
@@ -418,7 +427,11 @@ export function Newsletter() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() =>
-                trackKBEvent('kb_resource_click', { resource_id: 'ckba_membership', placement: 'signal_resources' })
+                trackKBEvent('kb_resource_click', {
+                  resource_id: 'ckba_membership',
+                  placement: 'signal_resources',
+                  link_url: 'https://www.ckba.build/',
+                })
               }
             >
               <Icon name="newsletter-imgLayer1" size={60} />

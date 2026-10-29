@@ -12,11 +12,12 @@ import React, {
 } from 'react'
 import { BehaviorSubject } from 'rxjs'
 import { sample } from '../../utils/array'
-import { useDevicePixelRatio, useElementSize, useInterval, useIsMobile } from '../../hooks'
+import { useDevicePixelRatio, useElementSize, useInterval, useIsMobile, useMemoizedFn } from '../../hooks'
 import { clampNumber } from '../../utils/number'
 import { patterns, GOLPattern } from './patterns'
 import { GameController, GameState, patternToCellLifeStates, Point, Rect, stepGame } from './utils'
 import { mouseEventOffset } from '../../utils'
+import { scheduleGameStartup } from './idle-startup'
 import styles from './index.module.scss'
 
 export type { GameController, GameState } from './utils'
@@ -28,10 +29,14 @@ export const ConwayGameOfLife = forwardRef<
 >(function ConwayGameOfLife(props, ref) {
   const isMobile = useIsMobile(true)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const startupRef = useRef<ReturnType<typeof scheduleGameStartup> | null>(null)
+  const preserveInitialViewport = useRef(false)
 
   const [gameStateHistory, setGameStateHistory] = useState<GameState[]>([])
   const [gameState, _setGameState] = useState<GameState>({ cellLifeStates: {} })
   const setGameState: Dispatch<SetStateAction<GameState>> = useCallback(value => {
+    // A user's first draw/step/clear takes priority over delayed automatic startup.
+    startupRef.current?.start()
     _setGameState(oldValue => {
       const newValue = typeof value === 'function' ? value(oldValue) : value
       setGameStateHistory(history => [...history, oldValue])
@@ -160,7 +165,7 @@ export const ConwayGameOfLife = forwardRef<
   const [running, setRunning] = useState(props.defaultRunning ?? false)
   useInterval(
     () => {
-      if (!running) return
+      if (!running || !startupRef.current?.started) return
       setGameState(state => stepGame(state, numberOfCellsAllowedWithinRadius))
     },
     stepIntervalTime,
@@ -215,6 +220,9 @@ export const ConwayGameOfLife = forwardRef<
         return (gameState.cellLifeStates[row]?.[col] ?? 0) !== 0
       },
       setCellLiving(row, col, value) {
+        // Mouse coordinates were measured before startup. Do not move the camera
+        // underneath the first stroke if the user draws before the idle callback.
+        if (!startupRef.current?.started) preserveInitialViewport.current = true
         setGameState(state => ({
           ...state,
           cellLifeStates: {
@@ -228,13 +236,16 @@ export const ConwayGameOfLife = forwardRef<
       },
 
       zoomIn() {
+        startupRef.current?.start()
         setZoomLevel(level => Math.min(level + 1, 3))
       },
       zoomOut() {
+        startupRef.current?.start()
         setZoomLevel(level => Math.max(level - 1, -3))
       },
 
       addCameraOffset(x, y) {
+        startupRef.current?.start()
         setOffsetWithClamp(offset => ({
           x: offset.x - x / zoom,
           y: offset.y - y / zoom,
@@ -274,7 +285,7 @@ export const ConwayGameOfLife = forwardRef<
     ],
   )
 
-  useEffect(() => {
+  const initializeGame = useMemoizedFn(() => {
     const pattern = sample(patterns)
     if (pattern == null) return
     setGameState(gameState => {
@@ -283,9 +294,17 @@ export const ConwayGameOfLife = forwardRef<
         cellLifeStates: patternToCellLifeStates(pattern),
       }
     })
-    setOffsetToIndicator(pattern)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (!preserveInitialViewport.current) setOffsetToIndicator(pattern)
+  })
+
+  useEffect(() => {
+    const startup = scheduleGameStartup(initializeGame)
+    startupRef.current = startup
+    return () => {
+      startup.cancel()
+      startupRef.current = null
+    }
+  }, [initializeGame])
 
   return <canvas ref={canvasRef} className={styles.game} />
 })

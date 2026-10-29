@@ -3,10 +3,18 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import matter from 'gray-matter'
+import { readSlugMigrations, rewriteKBUrl } from './migrate-kb-slugs.mjs'
 
 // Sidecar migration: never rename folders or rewrite article bodies/frontmatter.
 const root = path.resolve(process.argv[2] || 'public/education_hub_articles')
 const handoff = JSON.parse(fs.readFileSync(path.join(root, 'metadata/handoff.json'), 'utf8'))
+const renames = fs.existsSync(path.join(root, 'metadata/slug-migrations.json')) ? readSlugMigrations(root) : new Map()
+const originalIds = new Map([...renames].map(([from, to]) => [to, from]))
+const catalogPath = path.join(root, 'metadata/catalog.json')
+const previous = fs.existsSync(catalogPath) ? JSON.parse(fs.readFileSync(catalogPath, 'utf8')) : null
+const previousArticles = new Map(
+  (previous?.articles ?? []).map(article => [`${renames.get(article.id) ?? article.id}:${article.language}`, article]),
+)
 const sha = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 const hash = value => crypto.createHash('sha256').update(value).digest('hex')
 const candidatePath = value => {
@@ -38,6 +46,7 @@ for (const folder of fs.readdirSync(root).sort()) {
     const match = /^index(?:[_-]([a-z]{2}))?\.md$/.exec(file)
     if (!match) continue
     const language = match[1] || 'en'
+    const existing = previousArticles.get(`${folder}:${language}`)
     const sourceFile = `${folder}/${file}`
     const raw = fs.readFileSync(path.join(root, sourceFile), 'utf8')
     let parsed
@@ -49,14 +58,18 @@ for (const folder of fs.readdirSync(root).sort()) {
     const { data, content } = parsed
     // Existing website route: /knowledge-base/[slug], with Next locale prefix.
     const canonicalPath = `${language === 'en' ? '' : `/${language}`}/knowledge-base/${folder}`
-    let matches = candidates.filter(c => c.language === language && c.path === canonicalPath)
+    // D-18 changes only the approved filesystem identities. Match the original
+    // handoff evidence using its original identity, not fuzzy slug normalization.
+    const originalId = originalIds.get(folder) ?? folder
+    const originalPath = `${language === 'en' ? '' : `/${language}`}/knowledge-base/${originalId}`
+    let matches = candidates.filter(c => c.language === language && c.path === originalPath)
     let matchMethod = 'exact-path'
     if (!matches.length) {
-      matches = candidates.filter(c => c.language === language && groupingKey(c.key) === groupingKey(folder))
+      matches = candidates.filter(c => c.language === language && groupingKey(c.key) === groupingKey(originalId))
       matchMethod = 'historical-grouping-proposal'
     }
     if (!matches.length && language !== 'en') {
-      matches = candidates.filter(c => c.language === 'en' && groupingKey(c.key) === groupingKey(folder))
+      matches = candidates.filter(c => c.language === 'en' && groupingKey(c.key) === groupingKey(originalId))
       matchMethod = 'same-source-translation-proposal'
     }
     const distinct = new Set(matches.map(c => JSON.stringify([c.hub, c.subjects, c.internalTags])))
@@ -64,8 +77,10 @@ for (const folder of fs.readdirSync(root).sort()) {
     matches.forEach(c => used.add(candidates.indexOf(c)))
     const warnings = []
     if (!proposal) warnings.push(matches.length ? 'conflicting-candidates' : 'no-exact-candidate')
-    const hub = proposal?.hub || null
-    const subjects = proposal?.subjects || []
+    // Regeneration refreshes source metadata, not already reviewed editorial
+    // choices. In particular, an explicit null classification is intentional.
+    const hub = existing ? existing.hub : proposal?.hub || null
+    const subjects = existing ? existing.subjects : proposal?.subjects || []
     if (
       hub &&
       (!handoff.hubs.some(h => h.id === hub) ||
@@ -97,6 +112,7 @@ for (const folder of fs.readdirSync(root).sort()) {
     if (typeof data.title !== 'string' || !data.title.trim()) warnings.push('missing-title')
     const title = typeof data.title === 'string' ? data.title.trim() : folder
     const subtitle = typeof data.subtitle === 'string' ? data.subtitle.trim() : ''
+    const description = typeof data.description === 'string' ? data.description.trim() : ''
     const text = content
       .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
       .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
@@ -112,19 +128,20 @@ for (const folder of fs.readdirSync(root).sort()) {
       sourceSHA256: hash(raw),
       title,
       subtitle,
+      ...(description ? { description } : {}),
       date,
       coverImage,
       authors,
       hub,
       subjects,
-      internalTags: [...new Set(proposal?.internalTags || [])],
+      internalTags: existing?.internalTags ?? [...new Set(proposal?.internalTags || [])],
       legacyTags: data.category ?? null,
-      librarySection: hub ? 'hub' : 'general',
-      reviewStatus: 'pending-editorial',
-      matchMethod: proposal ? matchMethod : 'unmatched',
-      candidateKeys: matches.map(c => c.key),
-      relatedArticleIds: [],
-      excludedFromRecommendations: false,
+      librarySection: existing?.librarySection ?? (hub ? 'hub' : 'general'),
+      reviewStatus: existing?.reviewStatus ?? 'pending-editorial',
+      matchMethod: existing?.matchMethod ?? (proposal ? matchMethod : 'unmatched'),
+      candidateKeys: existing?.candidateKeys ?? matches.map(c => c.key),
+      relatedArticleIds: (existing?.relatedArticleIds ?? []).map(id => renames.get(id) ?? id),
+      excludedFromRecommendations: existing?.excludedFromRecommendations ?? false,
       draft: data.draft === true || data.published === false,
       readingMinutes: Math.max(1, Math.ceil(text.length / (language === 'zh' ? 500 : 1300))),
       bodySHA256: hash(content),
@@ -135,10 +152,21 @@ for (const folder of fs.readdirSync(root).sort()) {
 }
 const paths = articles.map(a => a.canonicalPath)
 if (new Set(paths).size !== paths.length) throw new Error('Duplicate locale routes')
-const featured = handoff.featured.map(f => ({
-  ...f,
-  articleId: articles.find(a => a.canonicalPath === candidatePath(f.url) && a.language === f.language)?.id || null,
-}))
+// Preserve editorial order and explicit unresolved pins; D-18 must not turn a
+// historical explainCKBot URL into a newly selected featured article.
+const featured = previous
+  ? previous.featured.map(f => ({
+      ...f,
+      url: rewriteKBUrl(f.url, renames),
+      articleId: renames.get(f.articleId) ?? f.articleId,
+    }))
+  : handoff.featured.map(f => ({
+      ...f,
+      url: rewriteKBUrl(f.url, renames),
+      articleId:
+        articles.find(a => a.canonicalPath === rewriteKBUrl(candidatePath(f.url), renames) && a.language === f.language)
+          ?.id || null,
+    }))
 const manifest = {
   schemaVersion: 1,
   sourceCommit: sha,

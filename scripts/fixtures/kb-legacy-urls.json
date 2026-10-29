@@ -1,0 +1,1607 @@
+{
+  "sourceWorkbook": "Nervos-Website-Fixes-Dev-Handoff-2026-09-24 (2).xlsx",
+  "sourceSheet": "04_dev_Redirects_All_URLs",
+  "articleCommit": "421a3670674ab7529863f59e71bfa0ead0ea6ded",
+  "notes": {
+    "destinations": "D-18 tab 06 approved migrations are applied to final destinations; audited sources and row numbers stay unchanged. Missing translations resolve directly to English.",
+    "row467": "Unlocking_CKB_Liquid_iCKB is a typo, not an explainCKBot URL or a tab 05 explicit rule; keep unmapped despite the incorrect catch-all note.",
+    "trailingSlashNormalization": "Four excluded URLs already normalize to valid historical paths via Next's existing trailing-slash rule. No new special rule or global normalization change."
+  },
+  "redirects": [
+    [
+      5,
+      "/knowledge-base/Unbreakable_SHA256_Why_Even_Quantum_Computers_Cannot_Do_It_(explainCKBot)",
+      "/knowledge-base/unbreakable_sha256_why_even_quantum_computers_cannot_do_it"
+    ],
+    [6, "/knowledge-base/secp256k1_a_key%20algorithm_(explainCKBot)", "/knowledge-base/secp256k1_a_key_algorithm"],
+    [7, "/zh/knowledge-base/what_is_a_seed_phrase_(explainCKBot)", "/zh/knowledge-base/what_is_a_seed_phrase"],
+    [
+      8,
+      "/knowledge-base/What_is_a_digital_signature_%20in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_digital_signature_in_blockchain"
+    ],
+    [9, "/knowledge-base/what_are_blobs_in_ethereum_(explainCKBot)", "/knowledge-base/what_are_blobs_in_ethereum"],
+    [10, "/zh/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)", "/zh/knowledge-base/what_is_a_multisig_wallet"],
+    [11, "/zh/knowledge-base/understanding_ECDSA_(explainCKBot)", "/zh/knowledge-base/understanding_ecdsa"],
+    [
+      12,
+      "/zh/knowledge-base/sybil_attacks_consensus_mechanisms_(explainCKBot)",
+      "/zh/knowledge-base/sybil_attacks_consensus_mechanisms"
+    ],
+    [13, "/zh/knowledge-base/BFT_consensus_mechanisms_(explainCKBot)", "/zh/knowledge-base/bft_consensus_mechanisms"],
+    [
+      14,
+      "/knowledge-base/SHA256_most_used_hash_function_(explainCKBot)",
+      "/knowledge-base/sha256_most_used_hash_function"
+    ],
+    [15, "/knowledge-base/crypto_mining_hardware_(explainCKBot)", "/knowledge-base/crypto_mining_hardware"],
+    [16, "/knowledge-base/BFT_consensus_mechanisms_(explainCKBot)", "/knowledge-base/bft_consensus_mechanisms"],
+    [
+      17,
+      "/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [
+      18,
+      "/knowledge-base/difference_between_miner_full_node_(explainCKBot)",
+      "/knowledge-base/difference_between_miner_full_node"
+    ],
+    [19, "/zh/knowledge-base/crypto_mining_hardware_(explainCKBot)", "/zh/knowledge-base/crypto_mining_hardware"],
+    [20, "/knowledge-base/what_is-RIPEMD160_(explainCKBot)", "/knowledge-base/what_is_ripemd160"],
+    [21, "/knowledge-base/what_is_keccak256_(explainCKBot)", "/knowledge-base/what_is_keccak256"],
+    [
+      22,
+      "/zh/knowledge-base/secp256k1_a_key%20algorithm_(explainCKBot)",
+      "/zh/knowledge-base/secp256k1_a_key_algorithm"
+    ],
+    [
+      23,
+      "/knowledge-base/what_is_lightning_network_url_(explainCKBot)",
+      "/knowledge-base/what_is_lightning_network_url"
+    ],
+    [24, "/knowledge-base/block_time_in_blockchain_(explainCKBot)", "/knowledge-base/block_time_in_blockchain"],
+    [
+      25,
+      "/knowledge-base/What_is_Proposer_Builder_Separation%20_in_Ethereum_(explainCKBot)",
+      "/knowledge-base/what_is_proposer_builder_separation_in_ethereum"
+    ],
+    [26, "/knowledge-base/what_are_blockchain_intents_(explainCKBot)", "/knowledge-base/what_are_blockchain_intents"],
+    [
+      27,
+      "/zh/knowledge-base/SHA256_most_used_hash_function_(explainCKBot)",
+      "/zh/knowledge-base/sha256_most_used_hash_function"
+    ],
+    [28, "/knowledge-base/what_is_SPV_(explainCKBot)", "/knowledge-base/what_is_spv"],
+    [29, "/es/knowledge-base/what_is_riscv_(explainCKBot)", "/es/knowledge-base/what_is_riscv"],
+    [
+      30,
+      "/knowledge-base/What_is_a_Block_Builder_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_block_builder_in_blockchain"
+    ],
+    [
+      31,
+      "/es/knowledge-base/secp256k1_a_key%20algorithm_(explainCKBot)",
+      "/es/knowledge-base/secp256k1_a_key_algorithm"
+    ],
+    [
+      32,
+      "/knowledge-base/What_is_the_Longest_Chain_Rule_in_Bitcoin_and_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_the_longest_chain_rule_in_bitcoin_and_blockchain"
+    ],
+    [
+      33,
+      "/zh/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)",
+      "/zh/knowledge-base/what_is_a_blockchain_gas_fee"
+    ],
+    [34, "/zh/knowledge-base/what_is_a_cold_wallet_(explainCKBot)", "/zh/knowledge-base/what_is_a_cold_wallet"],
+    [
+      35,
+      "/zh/knowledge-base/what_is_a_hard_fork_soft_fork_(explainCKBot)",
+      "/zh/knowledge-base/what_is_a_hard_fork_soft_fork"
+    ],
+    [36, "/knowledge-base/what_is_a_VM_in_blockchain_(explainCKBot)", "/knowledge-base/what_is_a_vm_in_blockchain"],
+    [37, "/zh/knowledge-base/block_time_in_blockchain_(explainCKBot)", "/zh/knowledge-base/block_time_in_blockchain"],
+    [
+      38,
+      "/zh/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses_(explainCKBot)",
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses"
+    ],
+    [39, "/knowledge-base/merkle_patricia_trie_(explainCKBot)", "/knowledge-base/merkle_patricia_trie"],
+    [40, "/knowledge-base/understanding_ECDSA_(explainCKBot)", "/knowledge-base/understanding_ecdsa"],
+    [41, "/knowledge-base/state_and_state_change_(explainCKBot)", "/knowledge-base/state_and_state_change"],
+    [
+      42,
+      "/zh/knowledge-base/cryptocurrency_mining_pools_(explainCKBot)",
+      "/zh/knowledge-base/cryptocurrency_mining_pools"
+    ],
+    [
+      43,
+      "/zh/knowledge-base/decentralized_storage_systems_(explainCKBot)",
+      "/zh/knowledge-base/decentralized_storage_systems"
+    ],
+    [
+      44,
+      "/zh/knowledge-base/transaction_confirmation_in_blockchain_(explainCKBot)",
+      "/zh/knowledge-base/transaction_confirmation_in_blockchain"
+    ],
+    [45, "/zh/knowledge-base/pow_vs_pos_unravelling_(explainCKBot)", "/zh/knowledge-base/pow_vs_pos_unravelling"],
+    [46, "/knowledge-base/what_are-precompiles_(explainCKBot)", "/knowledge-base/what_are_precompiles"],
+    [
+      47,
+      "/knowledge-base/transaction_confirmation_in_blockchain_(explainCKBot)",
+      "/knowledge-base/transaction_confirmation_in_blockchain"
+    ],
+    [48, "/zh/knowledge-base/what_is_keccak256_(explainCKBot)", "/zh/knowledge-base/what_is_keccak256"],
+    [
+      49,
+      "/knowledge-base/How_to_Check_Smart_Contract_Security_(explainCKBot)",
+      "/knowledge-base/how_to_check_smart_contract_security"
+    ],
+    [50, "/knowledge-base/what_is_a_reentrancy_attack_(explainCKBot)", "/knowledge-base/what_is_a_reentrancy_attack"],
+    [51, "/es/knowledge-base/what_is_keccak256_(explainCKBot)", "/es/knowledge-base/what_is_keccak256"],
+    [
+      52,
+      "/knowledge-base/what_is_the_mimblewimble_protocol_(explainCKBot)",
+      "/knowledge-base/what_is_the_mimblewimble_protocol"
+    ],
+    [53, "/knowledge-base/what_are_opcodes_%28explainCKBot%29", "/knowledge-base/what_are_opcodes"],
+    [54, "/knowledge-base/slashing_in_PoS_(explainCKBot)", "/knowledge-base/slashing_in_pos"],
+    [
+      55,
+      "/knowledge-base/BLS_Signatures_use_cryptocurrency_(explainCKBot)",
+      "/knowledge-base/bls_signatures_use_cryptocurrency"
+    ],
+    [56, "/knowledge-base/What_is_merge_mining_(explainCKBot)", "/knowledge-base/what_is_merge_mining"],
+    [57, "/knowledge-base/what_are_flash_loans_(explainCKBot)", "/knowledge-base/what_are_flash_loans"],
+    [
+      58,
+      "/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [59, "/zh/knowledge-base/mempool_in_cryptocurrency_(explainCKBot)", "/zh/knowledge-base/mempool_in_cryptocurrency"],
+    [
+      60,
+      "/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints_(explainCKBot)",
+      "/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints"
+    ],
+    [
+      61,
+      "/knowledge-base/The_Difference_Between_Parallel_and_Sequential_Transaction_Execution_in_Crypto_%28explainCKBot%29",
+      "/knowledge-base/the_difference_between_parallel_and_sequential_transaction_execution_in_crypto"
+    ],
+    [62, "/knowledge-base/what_is_a_seed_phrase_(explainCKBot)", "/knowledge-base/what_is_a_seed_phrase"],
+    [63, "/knowledge-base/What_are_bitcoin_drivechains_(explainCKBot)", "/knowledge-base/what_are_bitcoin_drivechains"],
+    [64, "/knowledge-base/what_are-precompiles_%28explainCKBot%29", "/knowledge-base/what_are_precompiles"],
+    [
+      65,
+      "/zh/knowledge-base/cryptocurrency_mining_difficulty_(explainCKBot)",
+      "/zh/knowledge-base/cryptocurrency_mining_difficulty"
+    ],
+    [
+      66,
+      "/knowledge-base/The_Difference_Between_Parallel_and_Sequential_Transaction_Execution_in_Crypto_(explainCKBot)",
+      "/knowledge-base/the_difference_between_parallel_and_sequential_transaction_execution_in_crypto"
+    ],
+    [
+      67,
+      "/knowledge-base/what_is_replace_by_fee_%20in_bitcoin_(explainCKBot)",
+      "/knowledge-base/what_is_replace_by_fee_in_bitcoin"
+    ],
+    [
+      68,
+      "/knowledge-base/what_is_data_%20availability_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_in_blockchain"
+    ],
+    [
+      69,
+      "/knowledge-base/What_is_sharding_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_sharding_in_blockchain"
+    ],
+    [70, "/es/knowledge-base/BFT_consensus_mechanisms_(explainCKBot)", "/es/knowledge-base/bft_consensus_mechanisms"],
+    [71, "/knowledge-base/bitcoin_script_(explainCKBot)", "/knowledge-base/bitcoin_script"],
+    [72, "/knowledge-base/what_is_a_light_client_(explainCKBot)", "/knowledge-base/what_is_a_light_client"],
+    [73, "/es/knowledge-base/understanding_ECDSA_(explainCKBot)", "/es/knowledge-base/understanding_ecdsa"],
+    [74, "/knowledge-base/What_is_finality_crypto_(explainCKBot)", "/knowledge-base/what_is_finality_crypto"],
+    [
+      75,
+      "/es/knowledge-base/difference_between_miner_full_node_(explainCKBot)",
+      "/es/knowledge-base/difference_between_miner_full_node"
+    ],
+    [76, "/es/knowledge-base/what_is_a_cold_wallet_(explainCKBot)", "/es/knowledge-base/what_is_a_cold_wallet"],
+    [
+      77,
+      "/zh/knowledge-base/what_are_blockchain_bridges_(explainCKBot)",
+      "/zh/knowledge-base/what_are_blockchain_bridges"
+    ],
+    [
+      78,
+      "/zh/knowledge-base/decentralized_identifiers_DIDs_(explainCKBot)",
+      "/zh/knowledge-base/decentralized_identifiers_dids"
+    ],
+    [79, "/knowledge-base/state_bloat_blockchain_(explainCKBot)", "/knowledge-base/state_bloat_blockchain"],
+    [
+      80,
+      "/es/knowledge-base/decentralized_storage_systems_(explainCKBot)",
+      "/es/knowledge-base/decentralized_storage_systems"
+    ],
+    [
+      81,
+      "/knowledge-base/Understanding_Bitcoin_layer2_%28explainCKBot%29",
+      "/knowledge-base/understanding_bitcoin_layer2"
+    ],
+    [
+      82,
+      "/knowledge-base/what_is_a_slippage_in_trading_(explainCKBot)",
+      "/knowledge-base/what_is_a_slippage_in_trading"
+    ],
+    [
+      83,
+      "/knowledge-base/understanding_Token_standards_erc20_(explainCKBot)",
+      "/knowledge-base/understanding_token_standards_erc20"
+    ],
+    [
+      84,
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses_(explainCKBot)",
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses"
+    ],
+    [85, "/knowledge-base/what_is_nakamoto_coefficient_(explainCKBot)", "/knowledge-base/what_is_nakamoto_coefficient"],
+    [86, "/knowledge-base/what_is_webassembly_(explainCKBot)", "/knowledge-base/what_is_webassembly"],
+    [
+      87,
+      "/knowledge-base/difference_block_subsidy_block_reward_(explainCKBot)",
+      "/knowledge-base/difference_block_subsidy_block_reward"
+    ],
+    [88, "/knowledge-base/Understanding_Bitcoin_layer2_(explainCKBot)", "/knowledge-base/understanding_bitcoin_layer2"],
+    [
+      89,
+      "/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [90, "/knowledge-base/schnorr_signatures_(explainCKBot)", "/knowledge-base/schnorr_signatures"],
+    [91, "/knowledge-base/what_is_riscv_(explainCKBot)", "/knowledge-base/what_is_riscv"],
+    [92, "/knowledge-base/what_is_an_eclipse_attack_(explainCKBot)", "/knowledge-base/what_is_an_eclipse_attack"],
+    [
+      93,
+      "/es/knowledge-base/what_are_optimistic_rollups",
+      "/es/knowledge-base/what_are_optimistic_rollups_everything_you_need_to_know"
+    ],
+    [94, "/zh/knowledge-base/zero_knowledge_proofs_(explainCKBot)", "/zh/knowledge-base/zero_knowledge_proofs"],
+    [95, "/zh/knowledge-base/bitcoin_script_(explainCKBot)", "/zh/knowledge-base/bitcoin_script"],
+    [
+      96,
+      "/knowledge-base/cryptocurrency_mining_difficulty_(explainCKBot)",
+      "/knowledge-base/cryptocurrency_mining_difficulty"
+    ],
+    [
+      97,
+      "/knowledge-base/what_is_a_coinbase_transaction_(explainCKBot)",
+      "/knowledge-base/what_is_a_coinbase_transaction"
+    ],
+    [
+      98,
+      "/knowledge-base/sybil_attacks_consensus_mechanisms_(explainCKBot)",
+      "/knowledge-base/sybil_attacks_consensus_mechanisms"
+    ],
+    [
+      99,
+      "/zh/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/zh/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [
+      100,
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion_(explainCKBot)",
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion"
+    ],
+    [101, "/knowledge-base/what_are_%20privacy_coins_(explainCKBot)", "/knowledge-base/what_are_privacy_coins"],
+    [
+      102,
+      "/knowledge-base/decentralized_storage_systems_(explainCKBot)",
+      "/knowledge-base/decentralized_storage_systems"
+    ],
+    [
+      103,
+      "/es/knowledge-base/Unbreakable_SHA256_Why_Even_Quantum_Computers_Cannot_Do_It_(explainCKBot)",
+      "/knowledge-base/unbreakable_sha256_why_even_quantum_computers_cannot_do_it"
+    ],
+    [104, "/knowledge-base/What_are_sovereign_rollups_(explainCKBot)", "/knowledge-base/what_are_sovereign_rollups"],
+    [
+      105,
+      "/es/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)",
+      "/es/knowledge-base/what_is_a_multisig_wallet"
+    ],
+    [106, "/knowledge-base/mempool_in_cryptocurrency_(explainCKBot)", "/knowledge-base/mempool_in_cryptocurrency"],
+    [107, "/knowledge-base/what_is_a_lightning_invoice_(explainCKBot)", "/knowledge-base/what_is_a_lightning_invoice"],
+    [
+      108,
+      "/es/knowledge-base/what_is_a_hard_fork_soft_fork_(explainCKBot)",
+      "/es/knowledge-base/what_is_a_hard_fork_soft_fork"
+    ],
+    [
+      109,
+      "/zh/knowledge-base/difference_between_miner_full_node_(explainCKBot)",
+      "/zh/knowledge-base/difference_between_miner_full_node"
+    ],
+    [
+      110,
+      "/knowledge-base/what_is_client_side_validation_(explainCKBot)",
+      "/knowledge-base/what_is_client_side_validation"
+    ],
+    [
+      111,
+      "/zh/knowledge-base/what_is_a_coinbase_transaction_(explainCKBot)",
+      "/knowledge-base/what_is_a_coinbase_transaction"
+    ],
+    [112, "/zh/knowledge-base/schnorr_signatures_(explainCKBot)", "/zh/knowledge-base/schnorr_signatures"],
+    [
+      113,
+      "/zh/knowledge-base/what_are_optimistic_rollups",
+      "/zh/knowledge-base/what_are_optimistic_rollups_everything_you_need_to_know"
+    ],
+    [114, "/knowledge-base/testnet_mainnet_blockchain_(explainCKBot)", "/knowledge-base/testnet_mainnet_blockchain"],
+    [115, "/es/knowledge-base/understanding_mpc_wallets_(explainCKBot)", "/knowledge-base/understanding_mpc_wallets"],
+    [116, "/zh/knowledge-base/what_are_seedless_wallets_(explainCKBot)", "/knowledge-base/what_are_seedless_wallets"],
+    [117, "/zh/knowledge-base/what_is_riscv_(explainCKBot)", "/zh/knowledge-base/what_is_riscv"],
+    [
+      118,
+      "/knowledge-base/what_is_a_point_time_locked_contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_point_time_locked_contract"
+    ],
+    [
+      119,
+      "/es/knowledge-base/non-custodial_crypto_wallet_(explainCKBot)",
+      "/es/knowledge-base/non_custodial_crypto_wallet"
+    ],
+    [
+      120,
+      "/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it_(explainCKBot)",
+      "/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it"
+    ],
+    [
+      121,
+      "/knowledge-base/what_are_fraud_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_fraud_proofs_in_blockchain"
+    ],
+    [122, "/knowledge-base/understanding_webAuthn_(explainCKBot)", "/knowledge-base/understanding_webauthn"],
+    [
+      123,
+      "/knowledge-base/what_are_validity_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_validity_proofs_in_blockchain"
+    ],
+    [
+      124,
+      "/zh/knowledge-base/What_is_a_digital_signature_%20in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_digital_signature_in_blockchain"
+    ],
+    [125, "/knowledge-base/what_are_oracles_(explainCKBot)", "/knowledge-base/what_are_oracles"],
+    [
+      126,
+      "/knowledge-base/decentralized_identifiers_DIDs_(explainCKBot)",
+      "/knowledge-base/decentralized_identifiers_dids"
+    ],
+    [
+      127,
+      "/knowledge-base/difference_blockchain_computation_verification_(explainCKBot)",
+      "/knowledge-base/difference_blockchain_computation_verification"
+    ],
+    [128, "/zh/knowledge-base/seed_phrases_(explainCKBot)", "/knowledge-base/seed_phrases"],
+    [129, "/knowledge-base/what_is_OPCAT_(explainCKBot)", "/knowledge-base/what_is_opcat"],
+    [130, "/zh/knowledge-base/what_are_oracles_(explainCKBot)", "/knowledge-base/what_are_oracles"],
+    [131, "/zh/knowledge-base/understanding_mpc_wallets_(explainCKBot)", "/knowledge-base/understanding_mpc_wallets"],
+    [
+      132,
+      "/zh/knowledge-base/What_are_Blockchain_Transaction_Fees_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_transaction_fees"
+    ],
+    [133, "/zh/knowledge-base/state_and_state_change_(explainCKBot)", "/zh/knowledge-base/state_and_state_change"],
+    [
+      134,
+      "/knowledge-base/what_are_quantum_resistant_wallets_(explainCKBot)",
+      "/knowledge-base/what_are_quantum_resistant_wallets"
+    ],
+    [135, "/zh/knowledge-base/slashing_in_PoS_(explainCKBot)", "/zh/knowledge-base/slashing_in_pos"],
+    [136, "/knowledge-base/pow_vs_pos_unravelling_(explainCKBot)", "/knowledge-base/pow_vs_pos_unravelling"],
+    [
+      137,
+      "/knowledge-base/What_are_implications_of_forks_%28explainCKBot%29",
+      "/knowledge-base/what_are_implications_of_forks"
+    ],
+    [138, "/knowledge-base/cryptocurrency_mining_pools_(explainCKBot)", "/knowledge-base/cryptocurrency_mining_pools"],
+    [139, "/knowledge-base/what_are_blockchain_bridges_(explainCKBot)", "/knowledge-base/what_are_blockchain_bridges"],
+    [
+      140,
+      "/knowledge-base/long_range_attacks_explained_(explainCKBot)",
+      "/knowledge-base/long_range_attacks_explained"
+    ],
+    [
+      141,
+      "/knowledge-base/what_is_a_hard_fork_soft_fork_(explainCKBot)",
+      "/knowledge-base/what_is_a_hard_fork_soft_fork"
+    ],
+    [142, "/knowledge-base/what_is_a_cold_wallet_(explainCKBot)", "/knowledge-base/what_is_a_cold_wallet"],
+    [143, "/es/knowledge-base/what_are_%20privacy_coins_(explainCKBot)", "/knowledge-base/what_are_privacy_coins"],
+    [144, "/knowledge-base/what_are_bitcoin_covenants_(explainCKBot)", "/knowledge-base/what_are_bitcoin_covenants"],
+    [
+      145,
+      "/zh/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [
+      146,
+      "/zh/knowledge-base/The_Difference_Between_Parallel_and_Sequential_Transaction_Execution_in_Crypto_(explainCKBot)",
+      "/knowledge-base/the_difference_between_parallel_and_sequential_transaction_execution_in_crypto"
+    ],
+    [147, "/es/knowledge-base/state_and_state_change_(explainCKBot)", "/es/knowledge-base/state_and_state_change"],
+    [
+      148,
+      "/knowledge-base/What_are_optimistic_rollups_(explainCKBot)",
+      "/knowledge-base/what_are_optimistic_rollups_everything_you_need_to_know"
+    ],
+    [149, "/knowledge-base/zero_knowledge_proofs_(explainCKBot)", "/knowledge-base/zero_knowledge_proofs"],
+    [150, "/knowledge-base/What_are_Native_Rollups_(explainCKBot)", "/knowledge-base/what_are_native_rollups"],
+    [
+      151,
+      "/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)",
+      "/knowledge-base/what_is_a_blockchain_gas_fee"
+    ],
+    [
+      152,
+      "/zh/knowledge-base/difference_blockchain_computation_verification_(explainCKBot)",
+      "/zh/knowledge-base/difference_blockchain_computation_verification"
+    ],
+    [153, "/knowledge-base/state_bloat_blockchain_%28explainCKBot%29", "/knowledge-base/state_bloat_blockchain"],
+    [
+      154,
+      "/knowledge-base/what_are_optimistic_rollups",
+      "/knowledge-base/what_are_optimistic_rollups_everything_you_need_to_know"
+    ],
+    [
+      155,
+      "/knowledge-base/What_are_optimistic_rollups_%28explainCKBot%29",
+      "/knowledge-base/what_are_optimistic_rollups_everything_you_need_to_know"
+    ],
+    [
+      156,
+      "/zh/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it_(explainCKBot)",
+      "/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it"
+    ],
+    [157, "/knowledge-base/coinjoin_explained_(explainCKBot)", "/knowledge-base/coinjoin_explained"],
+    [
+      158,
+      "/zh/knowledge-base/non-custodial_crypto_wallet_(explainCKBot)",
+      "/zh/knowledge-base/non_custodial_crypto_wallet"
+    ],
+    [
+      159,
+      "/zh/knowledge-base/what_is_blockchain_interoperability_(explainCKBot)",
+      "/zh/knowledge-base/what_is_blockchain_interoperability"
+    ],
+    [160, "/zh/knowledge-base/what_is_a_light_client_(explainCKBot)", "/zh/knowledge-base/what_is_a_light_client"],
+    [
+      161,
+      "/es/knowledge-base/What_are_Blockchain_Transaction_Fees_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_transaction_fees"
+    ],
+    [
+      162,
+      "/knowledge-base/account_abstraction_where_were_going",
+      "/knowledge-base/account_abstraction_where_we_are_going"
+    ],
+    [163, "/es/knowledge-base/zero_knowledge_proofs_(explainCKBot)", "/es/knowledge-base/zero_knowledge_proofs"],
+    [
+      164,
+      "/es/knowledge-base/what_is_blockchain_interoperability_(explainCKBot)",
+      "/es/knowledge-base/what_is_blockchain_interoperability"
+    ],
+    [
+      165,
+      "/zh/knowledge-base/what_is_lightning_network_url_(explainCKBot)",
+      "/knowledge-base/what_is_lightning_network_url"
+    ],
+    [
+      166,
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_(explainCKBot)",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [167, "/knowledge-base/What_are_BRC20_tokens_(explainCKBot)", "/knowledge-base/what_are_brc20_tokens"],
+    [168, "/knowledge-base/what_are-airdrops_(explainCKBot)", "/knowledge-base/what_are_airdrops"],
+    [
+      169,
+      "/zh/knowledge-base/What_is_the_Longest_Chain_Rule_in_Bitcoin_and_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_the_longest_chain_rule_in_bitcoin_and_blockchain"
+    ],
+    [
+      170,
+      "/es/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses_(explainCKBot)",
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses"
+    ],
+    [171, "/zh/knowledge-base/what_are-precompiles_(explainCKBot)", "/knowledge-base/what_are_precompiles"],
+    [172, "/zh/knowledge-base/what_is_a_finney_attack_(explainCKBot)", "/knowledge-base/what_is_a_finney_attack"],
+    [
+      173,
+      "/es/knowledge-base/what_are_blockchain_bridges_(explainCKBot)",
+      "/es/knowledge-base/what_are_blockchain_bridges"
+    ],
+    [174, "/zh/knowledge-base/state_bloat_blockchain_(explainCKBot)", "/zh/knowledge-base/state_bloat_blockchain"],
+    [175, "/zh/knowledge-base/secp256k1_a_key%20algorithm", "/zh/knowledge-base/secp256k1_a_key_algorithm"],
+    [176, "/knowledge-base/understanding_mpc_wallets_(explainCKBot)", "/knowledge-base/understanding_mpc_wallets"],
+    [
+      177,
+      "/zh/knowledge-base/what_is_replace_by_fee_%20in_bitcoin_(explainCKBot)",
+      "/knowledge-base/what_is_replace_by_fee_in_bitcoin"
+    ],
+    [178, "/zh/knowledge-base/what_is_a_sandwich_attack_(explainCKBot)", "/knowledge-base/what_is_a_sandwich_attack"],
+    [179, "/ko/knowledge-base/what_is_proof_of_history_(explainCKBot)", "/knowledge-base/what_is_proof_of_history"],
+    [
+      180,
+      "/knowledge-base/what_are_penalty_transactions_(explainCKBot)",
+      "/knowledge-base/what_are_penalty_transactions"
+    ],
+    [181, "/es/knowledge-base/pow_vs_pos_unravelling_(explainCKBot)", "/es/knowledge-base/pow_vs_pos_unravelling"],
+    [182, "/knowledge-base/lightning_watchtowers_(explainCKBot)", "/knowledge-base/lightning_watchtowers"],
+    [
+      183,
+      "/es/knowledge-base/decentralized_identifiers_DIDs_(explainCKBot)",
+      "/es/knowledge-base/decentralized_identifiers_dids"
+    ],
+    [184, "/ko/knowledge-base/introduction_to_x402_(explainCKBot)", "/knowledge-base/introduction_to_x402"],
+    [185, "/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)", "/knowledge-base/what_is_a_multisig_wallet"],
+    [
+      186,
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion_%28explainCKBot%29",
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion"
+    ],
+    [187, "/knowledge-base/what_is_abstraction_(explainCKBot)", "/knowledge-base/what_is_abstraction"],
+    [
+      188,
+      "/knowledge-base/becoming-money-stablecoins-on-lightning-the-next-step-in-bitcoins-journey",
+      "/knowledge-base/becoming_money_stablecoins_on_lightning_the_next_step_in_bitcoins_journey"
+    ],
+    [
+      189,
+      "/zh/knowledge-base/the_nothing_at_stake_problem_(explainCKBot)",
+      "/knowledge-base/the_nothing_at_stake_problem"
+    ],
+    [190, "/zh/knowledge-base/what_are_%20privacy_coins_(explainCKBot)", "/knowledge-base/what_are_privacy_coins"],
+    [
+      191,
+      "/zh/knowledge-base/what_is_a_smart_contract_wallet_(explainCKBot)",
+      "/knowledge-base/what_is_a_smart_contract_wallet"
+    ],
+    [
+      192,
+      "/es/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [193, "/zh/knowledge-base/what_is-RIPEMD160_(explainCKBot)", "/knowledge-base/what_is_ripemd160"],
+    [
+      194,
+      "/fr/knowledge-base/what_is_a_bribery_attack_in_proof_of_stake_(explainCKBot)",
+      "/knowledge-base/what_is_a_bribery_attack_in_proof_of_stake"
+    ],
+    [
+      195,
+      "/zh/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_(explainCKBot)",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [
+      196,
+      "/knowledge-base/what_are_cryptographic_nonces_(explainCKBot)",
+      "/knowledge-base/what_are_cryptographic_nonces"
+    ],
+    [
+      197,
+      "/zh/knowledge-base/account_abstraction_where_were_going",
+      "/zh/knowledge-base/account_abstraction_where_we_are_going"
+    ],
+    [198, "/zh/knowledge-base/modular_vs_monolithic_(explainCKBot)", "/zh/knowledge-base/modular_vs_monolithic"],
+    [199, "/knowledge-base/zero_knowledge_proofs_%28explainCKBot%29", "/knowledge-base/zero_knowledge_proofs"],
+    [
+      200,
+      "/zh/knowledge-base/integer_overflow_and_underflow_attacks_(explainCKBot)",
+      "/knowledge-base/integer_overflow_and_underflow_attacks"
+    ],
+    [201, "/fr/knowledge-base/what_is_an_eclipse_attack_(explainCKBot)", "/knowledge-base/what_is_an_eclipse_attack"],
+    [
+      202,
+      "/knowledge-base/what_is_decentralized_computing_(explainCKBot)",
+      "/knowledge-base/what_is_decentralized_computing"
+    ],
+    [
+      203,
+      "/knowledge-base/verifiable_delay_functions_explained_(explainCKBot)",
+      "/knowledge-base/verifiable_delay_functions_explained"
+    ],
+    [204, "/fr/knowledge-base/what_are_seedless_wallets_(explainCKBot)", "/knowledge-base/what_are_seedless_wallets"],
+    [
+      205,
+      "/es/knowledge-base/integer_overflow_and_underflow_attacks_(explainCKBot)",
+      "/knowledge-base/integer_overflow_and_underflow_attacks"
+    ],
+    [
+      206,
+      "/es/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_(explainCKBot)",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [207, "/knowledge-base/real_world_assets_explained_(explainCKBot)", "/knowledge-base/real_world_assets_explained"],
+    [
+      208,
+      "/knowledge-base/what_is_lattice_based_cryptography_(explainCKBot)",
+      "/knowledge-base/what_is_lattice_based_cryptography"
+    ],
+    [209, "/knowledge-base/non-custodial_crypto_wallet_(explainCKBot)", "/knowledge-base/non_custodial_crypto_wallet"],
+    [210, "/knowledge-base/What_are_Based_Rollups_(explainCKBot)", "/knowledge-base/what_are_based_rollups"],
+    [211, "/knowledge-base/what_are_%20wrapped_tokens_(explainCKBot)", "/knowledge-base/what_are_wrapped_tokens"],
+    [
+      212,
+      "/knowledge-base/what_is_weak_subjectivity_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_weak_subjectivity_in_blockchain"
+    ],
+    [213, "/knowledge-base/What_is_Danksharding_(explainCKBot)", "/knowledge-base/what_is_danksharding"],
+    [214, "/knowledge-base/seed_phrases_(explainCKBot)", "/knowledge-base/seed_phrases"],
+    [
+      215,
+      "/knowledge-base/the_nothing_at_stake_problem_(explainCKBot)",
+      "/knowledge-base/the_nothing_at_stake_problem"
+    ],
+    [216, "/zh/knowledge-base/testnet_mainnet_blockchain_(explainCKBot)", "/knowledge-base/testnet_mainnet_blockchain"],
+    [
+      217,
+      "/tr/knowledge-base/integer_overflow_and_underflow_attacks_(explainCKBot)",
+      "/knowledge-base/integer_overflow_and_underflow_attacks"
+    ],
+    [
+      218,
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_(explainCKBot)",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [219, "/fr/knowledge-base/what_is_a_light_client_(explainCKBot)", "/knowledge-base/what_is_a_light_client"],
+    [220, "/es/knowledge-base/bitcoin_script_(explainCKBot)", "/knowledge-base/bitcoin_script"],
+    [221, "/knowledge-base/what_are_blockchain_reorgs_(explainCKBot)", "/knowledge-base/what_are_blockchain_reorgs"],
+    [222, "/knowledge-base/secp256k1_a_key%20algorithm", "/knowledge-base/secp256k1_a_key_algorithm"],
+    [223, "/knowledge-base/erc8004_explained_(explainCKBot)", "/knowledge-base/erc8004_explained"],
+    [
+      224,
+      "/es/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)",
+      "/knowledge-base/what_is_a_blockchain_gas_fee"
+    ],
+    [
+      225,
+      "/knowledge-base/difference_blockchain_computation_verification_%28explainCKBot%29",
+      "/knowledge-base/difference_blockchain_computation_verification"
+    ],
+    [
+      226,
+      "/zh/knowledge-base/BLS_Signatures_use_cryptocurrency_(explainCKBot)",
+      "/knowledge-base/bls_signatures_use_cryptocurrency"
+    ],
+    [
+      227,
+      "/knowledge-base/BLS_Signatures_use_cryptocurrency_%28explainCKBot%29",
+      "/knowledge-base/bls_signatures_use_cryptocurrency"
+    ],
+    [
+      228,
+      "/fr/knowledge-base/what_is_a_coinbase_transaction_(explainCKBot)",
+      "/knowledge-base/what_is_a_coinbase_transaction"
+    ],
+    [
+      229,
+      "/tr/knowledge-base/what_is_weak_subjectivity_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_weak_subjectivity_in_blockchain"
+    ],
+    [
+      230,
+      "/fr/knowledge-base/what_is_lattice_based_cryptography_(explainCKBot)",
+      "/knowledge-base/what_is_lattice_based_cryptography"
+    ],
+    [
+      231,
+      "/es/knowledge-base/what_is_lightning_network_url_(explainCKBot)",
+      "/knowledge-base/what_is_lightning_network_url"
+    ],
+    [
+      232,
+      "/zh/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_(explainCKBot)",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [233, "/knowledge-base/What_is_finality_crypto_%28explainCKBot%29", "/knowledge-base/what_is_finality_crypto"],
+    [
+      234,
+      "/es/knowledge-base/what_is_nakamoto_coefficient_(explainCKBot)",
+      "/knowledge-base/what_is_nakamoto_coefficient"
+    ],
+    [235, "/knowledge-base/BFT_consensus_mechanisms_%28explainCKBot%29", "/knowledge-base/bft_consensus_mechanisms"],
+    [
+      236,
+      "/knowledge-base/What_are_implications_of_forks_(explainCKBot)",
+      "/knowledge-base/what_are_implications_of_forks"
+    ],
+    [237, "/knowledge-base/modular_vs_monolithic_(explainCKBot)", "/knowledge-base/modular_vs_monolithic"],
+    [
+      238,
+      "/fr/knowledge-base/what_is_data_availability_sampling_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_sampling"
+    ],
+    [
+      239,
+      "/zh/knowledge-base/What_are_implications_of_forks_(explainCKBot)",
+      "/knowledge-base/what_are_implications_of_forks"
+    ],
+    [240, "/knowledge-base/what_is_a_sandwich_attack_(explainCKBot)", "/knowledge-base/what_is_a_sandwich_attack"],
+    [
+      241,
+      "/knowledge-base/What_are_Sniper_Bots_in_Crypto_(explainCKBot)",
+      "/knowledge-base/what_are_sniper_bots_in_crypto"
+    ],
+    [
+      242,
+      "/zh/knowledge-base/long_range_attacks_explained_(explainCKBot)",
+      "/knowledge-base/long_range_attacks_explained"
+    ],
+    [
+      243,
+      "/fr/knowledge-base/what_is_gas_abstraction_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_gas_abstraction_in_blockchain"
+    ],
+    [
+      244,
+      "/es/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it_(explainCKBot)",
+      "/knowledge-base/what_is_selfish_mining_and_how_protocols_deter_it"
+    ],
+    [245, "/zh/knowledge-base/what_are_%20wrapped_tokens_(explainCKBot)", "/knowledge-base/what_are_wrapped_tokens"],
+    [
+      246,
+      "/es/knowledge-base/what_is_a_partially_signed_bitcoin_transacion_(explainCKBot)",
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion"
+    ],
+    [
+      247,
+      "/zh/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [
+      248,
+      "/ko/knowledge-base/what_are_penalty_transactions_(explainCKBot)",
+      "/knowledge-base/what_are_penalty_transactions"
+    ],
+    [249, "/fr/knowledge-base/what_are_depins_(explainCKBot)", "/knowledge-base/what_are_depins"],
+    [250, "/zh/knowledge-base/what_is_a_VM_in_blockchain_(explainCKBot)", "/knowledge-base/what_is_a_vm_in_blockchain"],
+    [
+      251,
+      "/zh/knowledge-base/What_are_bitcoin_drivechains_(explainCKBot)",
+      "/knowledge-base/what_are_bitcoin_drivechains"
+    ],
+    [252, "/knowledge-base/introduction_to_x402_(explainCKBot)", "/knowledge-base/introduction_to_x402"],
+    [
+      253,
+      "/zh/knowledge-base/verkle_trees_vs_merkle_trees_(explainCKBot)",
+      "/knowledge-base/verkle_trees_vs_merkle_trees"
+    ],
+    [
+      254,
+      "/es/knowledge-base/what_is_replace_by_fee_%20in_bitcoin_(explainCKBot)",
+      "/knowledge-base/what_is_replace_by_fee_in_bitcoin"
+    ],
+    [
+      255,
+      "/fr/knowledge-base/BLS_Signatures_use_cryptocurrency_(explainCKBot)",
+      "/knowledge-base/bls_signatures_use_cryptocurrency"
+    ],
+    [
+      256,
+      "/knowledge-base/difference_between_miner_full_node_%28explainCKBot%29",
+      "/knowledge-base/difference_between_miner_full_node"
+    ],
+    [
+      257,
+      "/fr/knowledge-base/what_are_on_chain_reputation_systems_(explainCKBot)",
+      "/knowledge-base/what_are_on_chain_reputation_systems"
+    ],
+    [258, "/fr/knowledge-base/what_is_keccak256_(explainCKBot)", "/knowledge-base/what_is_keccak256"],
+    [
+      259,
+      "/knowledge-base/verkle_trees_vs_merkle_trees_(explainCKBot)",
+      "/knowledge-base/verkle_trees_vs_merkle_trees"
+    ],
+    [260, "/fr/knowledge-base/bitcoin_script_(explainCKBot)", "/knowledge-base/bitcoin_script"],
+    [261, "/ko/knowledge-base/slashing_in_PoS_(explainCKBot)", "/knowledge-base/slashing_in_pos"],
+    [262, "/fr/knowledge-base/what_are-precompiles_(explainCKBot)", "/knowledge-base/what_are_precompiles"],
+    [
+      263,
+      "/es/knowledge-base/what_are_validity_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_validity_proofs_in_blockchain"
+    ],
+    [
+      264,
+      "/es/knowledge-base/difference_block_subsidy_block_reward_(explainCKBot)",
+      "/knowledge-base/difference_block_subsidy_block_reward"
+    ],
+    [265, "/es/knowledge-base/secp256k1_a_key%20algorithm", "/es/knowledge-base/secp256k1_a_key_algorithm"],
+    [
+      266,
+      "/ko/knowledge-base/What_are_bitcoin_drivechains_(explainCKBot)",
+      "/knowledge-base/what_are_bitcoin_drivechains"
+    ],
+    [
+      267,
+      "/zh/knowledge-base/what_is_client_side_validation_(explainCKBot)",
+      "/knowledge-base/what_is_client_side_validation"
+    ],
+    [268, "/knowledge-base/What_is_domainkeys_(explainCKBot)", "/knowledge-base/what_is_domainkeys"],
+    [269, "/knowledge-base/what_are-passkeys_(explainCKBot)", "/knowledge-base/what_are_passkeys"],
+    [
+      270,
+      "/knowledge-base/what_is_blockchain_interoperability_(explainCKBot)",
+      "/knowledge-base/what_is_blockchain_interoperability"
+    ],
+    [
+      271,
+      "/knowledge-base/Cross_Chain_Solutions_A_Complete_Guide_(explainCKBot)",
+      "/knowledge-base/cross_chain_solutions_a_complete_guide"
+    ],
+    [
+      272,
+      "/zh/knowledge-base/what_is_a_partially_signed_bitcoin_transacion_(explainCKBot)",
+      "/knowledge-base/what_is_a_partially_signed_bitcoin_transacion"
+    ],
+    [
+      273,
+      "/es/knowledge-base/account_abstraction_where_were_going",
+      "/es/knowledge-base/account_abstraction_where_we_are_going"
+    ],
+    [274, "/ko/knowledge-base/what_is_an_eclipse_attack_(explainCKBot)", "/knowledge-base/what_is_an_eclipse_attack"],
+    [275, "/knowledge-base/what_are_%20privacy_coins_%28explainCKBot%29", "/knowledge-base/what_are_privacy_coins"],
+    [
+      276,
+      "/zh/knowledge-base/what_are_fraud_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_fraud_proofs_in_blockchain"
+    ],
+    [
+      277,
+      "/zh/knowledge-base/what_is_nakamoto_coefficient_(explainCKBot)",
+      "/knowledge-base/what_is_nakamoto_coefficient"
+    ],
+    [278, "/es/knowledge-base/block_time_in_blockchain_(explainCKBot)", "/knowledge-base/block_time_in_blockchain"],
+    [279, "/es/knowledge-base/what_are_%20wrapped_tokens_(explainCKBot)", "/knowledge-base/what_are_wrapped_tokens"],
+    [
+      280,
+      "/zh/knowledge-base/what_are_validity_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_validity_proofs_in_blockchain"
+    ],
+    [
+      281,
+      "/fr/knowledge-base/integer_overflow_and_underflow_attacks_(explainCKBot)",
+      "/knowledge-base/integer_overflow_and_underflow_attacks"
+    ],
+    [282, "/knowledge-base/introduction_to_l402_(explainCKBot)", "/knowledge-base/introduction_to_l402"],
+    [
+      283,
+      "/tr/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [284, "/zh/knowledge-base/what_is_SPV_(explainCKBot)", "/knowledge-base/what_is_spv"],
+    [
+      285,
+      "/zh/knowledge-base/what_are_on_chain_reputation_systems_(explainCKBot)",
+      "/knowledge-base/what_are_on_chain_reputation_systems"
+    ],
+    [286, "/fr/knowledge-base/what_are_%20privacy_coins_(explainCKBot)", "/knowledge-base/what_are_privacy_coins"],
+    [
+      287,
+      "/knowledge-base/what_is_oracle_extractable_value_(explainCKBot)",
+      "/knowledge-base/what_is_oracle_extractable_value"
+    ],
+    [288, "/knowledge-base/what_are_depins_(explainCKBot)", "/knowledge-base/what_are_depins"],
+    [
+      289,
+      "/tr/knowledge-base/what_is_a_point_time_locked_contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_point_time_locked_contract"
+    ],
+    [290, "/zh/knowledge-base/introduction_to_l402_(explainCKBot)", "/knowledge-base/introduction_to_l402"],
+    [291, "/es/knowledge-base/modular_vs_monolithic_(explainCKBot)", "/es/knowledge-base/modular_vs_monolithic"],
+    [
+      292,
+      "/es/knowledge-base/what_is_a_crypto_prediction_market_(explainCKBot)",
+      "/knowledge-base/what_is_a_crypto_prediction_market"
+    ],
+    [
+      293,
+      "/zh/knowledge-base/what_is_the_mimblewimble_protocol_(explainCKBot)",
+      "/knowledge-base/what_is_the_mimblewimble_protocol"
+    ],
+    [
+      294,
+      "/fr/knowledge-base/What_are_Blockchain_Transaction_Fees_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_transaction_fees"
+    ],
+    [
+      295,
+      "/knowledge-base/what_is_gas_abstraction_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_gas_abstraction_in_blockchain"
+    ],
+    [296, "/es/knowledge-base/what_are_bitcoin_covenants_(explainCKBot)", "/knowledge-base/what_are_bitcoin_covenants"],
+    [
+      297,
+      "/fr/knowledge-base/what_are_fraud_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_fraud_proofs_in_blockchain"
+    ],
+    [
+      298,
+      "/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security_(explainCKBot)",
+      "/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security"
+    ],
+    [299, "/zh/knowledge-base/understanding_webAuthn_(explainCKBot)", "/knowledge-base/understanding_webauthn"],
+    [
+      300,
+      "/es/knowledge-base/understanding_Token_standards_erc20_(explainCKBot)",
+      "/knowledge-base/understanding_token_standards_erc20"
+    ],
+    [
+      301,
+      "/fr/knowledge-base/what_is_nakamoto_coefficient_(explainCKBot)",
+      "/knowledge-base/what_is_nakamoto_coefficient"
+    ],
+    [
+      302,
+      "/es/knowledge-base/hash_based_cryptographic_algorithms_for_post_quantum_security_(explainCKBot)",
+      "/knowledge-base/hash_based_cryptographic_algorithms_for_post_quantum_security"
+    ],
+    [303, "/fr/knowledge-base/what_are_oracles_(explainCKBot)", "/knowledge-base/what_are_oracles"],
+    [
+      304,
+      "/fr/knowledge-base/difference_block_subsidy_block_reward_(explainCKBot)",
+      "/knowledge-base/difference_block_subsidy_block_reward"
+    ],
+    [
+      305,
+      "/fr/knowledge-base/what_is_blockchain_as_a_service_(explainCKBot)",
+      "/knowledge-base/what_is_blockchain_as_a_service"
+    ],
+    [
+      306,
+      "/knowledge-base/What_are_Blockchain_Transaction_Fees_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_transaction_fees"
+    ],
+    [
+      307,
+      "/knowledge-base/what_is_a_crypto_prediction_market_(explainCKBot)",
+      "/knowledge-base/what_is_a_crypto_prediction_market"
+    ],
+    [
+      308,
+      "/fr/knowledge-base/What_is_a_digital_signature_%20in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_digital_signature_in_blockchain"
+    ],
+    [
+      309,
+      "/ko/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_(explainCKBot)",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [310, "/tr/knowledge-base/what_is_an_eclipse_attack_(explainCKBot)", "/knowledge-base/what_is_an_eclipse_attack"],
+    [311, "/tr/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)", "/knowledge-base/what_is_a_multisig_wallet"],
+    [
+      312,
+      "/es/knowledge-base/difference_blockchain_computation_verification_(explainCKBot)",
+      "/es/knowledge-base/difference_blockchain_computation_verification"
+    ],
+    [
+      313,
+      "/zh/knowledge-base/Cross_Chain_Solutions_A_Complete_Guide_(explainCKBot)",
+      "/knowledge-base/cross_chain_solutions_a_complete_guide"
+    ],
+    [
+      314,
+      "/knowledge-base/hash_based_cryptographic_algorithms_for_post_quantum_security_(explainCKBot)",
+      "/knowledge-base/hash_based_cryptographic_algorithms_for_post_quantum_security"
+    ],
+    [
+      315,
+      "/knowledge-base/what_are_on_chain_reputation_systems_(explainCKBot)",
+      "/knowledge-base/what_are_on_chain_reputation_systems"
+    ],
+    [
+      316,
+      "/ko/knowledge-base/what_is_decentralized_cloud_storage_(explainCKBot)",
+      "/knowledge-base/what_is_decentralized_cloud_storage"
+    ],
+    [317, "/knowledge-base/what_is_proof_of_history_(explainCKBot)", "/knowledge-base/what_is_proof_of_history"],
+    [318, "/zh/knowledge-base/what_are-passkeys_(explainCKBot)", "/knowledge-base/what_are_passkeys"],
+    [
+      319,
+      "/es/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms_(explainCKBot)",
+      "/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms"
+    ],
+    [320, "/knowledge-base/pow_vs_pos_unravelling_%28explainCKBot%29", "/knowledge-base/pow_vs_pos_unravelling"],
+    [321, "/knowledge-base/what_are_opcodes_(explainCKBot)", "/knowledge-base/what_are_opcodes"],
+    [322, "/knowledge-base/state_and_state_change_%28explainCKBot%29", "/knowledge-base/state_and_state_change"],
+    [
+      323,
+      "/ko/knowledge-base/verifiable_delay_functions_explained_(explainCKBot)",
+      "/knowledge-base/verifiable_delay_functions_explained"
+    ],
+    [
+      324,
+      "/ko/knowledge-base/what_is_weak_subjectivity_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_weak_subjectivity_in_blockchain"
+    ],
+    [
+      325,
+      "/ko/knowledge-base/what_is_data_availability_sampling_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_sampling"
+    ],
+    [326, "/knowledge-base/crypto_mining_hardware_%28explainCKBot%29", "/knowledge-base/crypto_mining_hardware"],
+    [
+      327,
+      "/knowledge-base/what_is_a_bribery_attack_in_proof_of_stake_(explainCKBot)",
+      "/knowledge-base/what_is_a_bribery_attack_in_proof_of_stake"
+    ],
+    [
+      328,
+      "/knowledge-base/what_is_a_smart_contract_wallet_(explainCKBot)",
+      "/knowledge-base/what_is_a_smart_contract_wallet"
+    ],
+    [
+      329,
+      "/tr/knowledge-base/what_is_data_%20availability_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_in_blockchain"
+    ],
+    [
+      330,
+      "/knowledge-base/what_is_a_hard_fork_soft_fork_%28explainCKBot%29",
+      "/knowledge-base/what_is_a_hard_fork_soft_fork"
+    ],
+    [331, "/es/knowledge-base/slashing_in_PoS_(explainCKBot)", "/knowledge-base/slashing_in_pos"],
+    [
+      332,
+      "/zh/knowledge-base/What_is_a_Block_Builder_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_block_builder_in_blockchain"
+    ],
+    [333, "/es/knowledge-base/pow_vs_pos_unravelling_%28explainCKBot%29", "/es/knowledge-base/pow_vs_pos_unravelling"],
+    [
+      334,
+      "/ko/knowledge-base/what_are_validity_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_validity_proofs_in_blockchain"
+    ],
+    [335, "/es/knowledge-base/what_is_SPV_(explainCKBot)", "/knowledge-base/what_is_spv"],
+    [
+      336,
+      "/es/knowledge-base/becoming-money-stablecoins-on-lightning-the-next-step-in-bitcoins-journey",
+      "/knowledge-base/becoming_money_stablecoins_on_lightning_the_next_step_in_bitcoins_journey"
+    ],
+    [
+      337,
+      "/tr/knowledge-base/what_are_validity_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_validity_proofs_in_blockchain"
+    ],
+    [338, "/zh/knowledge-base/what_is_OPCAT_(explainCKBot)", "/knowledge-base/what_is_opcat"],
+    [
+      339,
+      "/zh/knowledge-base/what_is_a_reentrancy_attack_(explainCKBot)",
+      "/knowledge-base/what_is_a_reentrancy_attack"
+    ],
+    [
+      340,
+      "/ko/knowledge-base/what_are_quantum_resistant_wallets_(explainCKBot)",
+      "/knowledge-base/what_are_quantum_resistant_wallets"
+    ],
+    [
+      341,
+      "/zh/knowledge-base/real_world_assets_explained_(explainCKBot)",
+      "/knowledge-base/real_world_assets_explained"
+    ],
+    [
+      342,
+      "/zh/knowledge-base/becoming-money-stablecoins-on-lightning-the-next-step-in-bitcoins-journey",
+      "/knowledge-base/becoming_money_stablecoins_on_lightning_the_next_step_in_bitcoins_journey"
+    ],
+    [343, "/fr/knowledge-base/introduction_to_l402_(explainCKBot)", "/knowledge-base/introduction_to_l402"],
+    [
+      344,
+      "/es/knowledge-base/What_is_a_Block_Builder_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_block_builder_in_blockchain"
+    ],
+    [345, "/fr/knowledge-base/BFT_consensus_mechanisms_(explainCKBot)", "/knowledge-base/bft_consensus_mechanisms"],
+    [346, "/zh/knowledge-base/what_is_abstraction_(explainCKBot)", "/knowledge-base/what_is_abstraction"],
+    [347, "/zh/knowledge-base/what_are_opcodes_(explainCKBot)", "/knowledge-base/what_are_opcodes"],
+    [348, "/es/knowledge-base/merkle_patricia_trie_(explainCKBot)", "/knowledge-base/merkle_patricia_trie"],
+    [
+      349,
+      "/ko/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms_(explainCKBot)",
+      "/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms"
+    ],
+    [
+      350,
+      "/ko/knowledge-base/what_are_cryptographic_nonces_(explainCKBot)",
+      "/knowledge-base/what_are_cryptographic_nonces"
+    ],
+    [
+      351,
+      "/es/knowledge-base/verkle_trees_vs_merkle_trees_(explainCKBot)",
+      "/knowledge-base/verkle_trees_vs_merkle_trees"
+    ],
+    [352, "/knowledge-base/what_are_seedless_wallets_(explainCKBot)", "/knowledge-base/what_are_seedless_wallets"],
+    [353, "/es/knowledge-base/state_bloat_blockchain_(explainCKBot)", "/knowledge-base/state_bloat_blockchain"],
+    [
+      354,
+      "/fr/knowledge-base/what_are_blockchain_bridges_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_bridges"
+    ],
+    [355, "/zh/knowledge-base/what_is_webassembly_(explainCKBot)", "/knowledge-base/what_is_webassembly"],
+    [356, "/es/knowledge-base/what_is_a_light_client_(explainCKBot)", "/knowledge-base/what_is_a_light_client"],
+    [
+      357,
+      "/es/knowledge-base/What_are_implications_of_forks_(explainCKBot)",
+      "/knowledge-base/what_are_implications_of_forks"
+    ],
+    [
+      358,
+      "/knowledge-base/cryptocurrency_mining_pools_%28explainCKBot%29",
+      "/knowledge-base/cryptocurrency_mining_pools"
+    ],
+    [
+      359,
+      "/tr/knowledge-base/Unbreakable_SHA256_Why_Even_Quantum_Computers_Cannot_Do_It_(explainCKBot)",
+      "/knowledge-base/unbreakable_sha256_why_even_quantum_computers_cannot_do_it"
+    ],
+    [360, "/zh/knowledge-base/merkle_patricia_trie_(explainCKBot)", "/knowledge-base/merkle_patricia_trie"],
+    [
+      361,
+      "/es/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security_(explainCKBot)",
+      "/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security"
+    ],
+    [
+      362,
+      "/fr/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [363, "/tr/knowledge-base/bitcoin_script_(explainCKBot)", "/knowledge-base/bitcoin_script"],
+    [364, "/es/knowledge-base/testnet_mainnet_blockchain_(explainCKBot)", "/knowledge-base/testnet_mainnet_blockchain"],
+    [
+      365,
+      "/ko/knowledge-base/what_is_a_hard_fork_soft_fork_(explainCKBot)",
+      "/knowledge-base/what_is_a_hard_fork_soft_fork"
+    ],
+    [
+      366,
+      "/tr/knowledge-base/How_to_Check_Smart_Contract_Security_(explainCKBot)",
+      "/knowledge-base/how_to_check_smart_contract_security"
+    ],
+    [
+      367,
+      "/zh/knowledge-base/what_is_decentralized_cloud_storage_(explainCKBot)",
+      "/knowledge-base/what_is_decentralized_cloud_storage"
+    ],
+    [368, "/fr/knowledge-base/state_bloat_blockchain_(explainCKBot)", "/knowledge-base/state_bloat_blockchain"],
+    [
+      369,
+      "/fr/knowledge-base/difference_between_miner_full_node_(explainCKBot)",
+      "/knowledge-base/difference_between_miner_full_node"
+    ],
+    [370, "/knowledge-base/what_is_SPV_%28explainCKBot%29", "/knowledge-base/what_is_spv"],
+    [
+      371,
+      "/zh/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses_%28explainCKBot%29",
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses"
+    ],
+    [
+      372,
+      "/es/knowledge-base/SHA256_most_used_hash_function_(explainCKBot)",
+      "/knowledge-base/sha256_most_used_hash_function"
+    ],
+    [
+      373,
+      "/fr/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [
+      374,
+      "/fr/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [375, "/knowledge-base/what_is_a_light_client_%28explainCKBot%29", "/knowledge-base/what_is_a_light_client"],
+    [
+      376,
+      "/fr/knowledge-base/verkle_trees_vs_merkle_trees_(explainCKBot)",
+      "/knowledge-base/verkle_trees_vs_merkle_trees"
+    ],
+    [377, "/ko/knowledge-base/what_is_a_light_client_(explainCKBot)", "/knowledge-base/what_is_a_light_client"],
+    [
+      378,
+      "/tr/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [379, "/zh/knowledge-base/introduction_to_x402_(explainCKBot)", "/knowledge-base/introduction_to_x402"],
+    [380, "/fr/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)", "/knowledge-base/what_is_a_multisig_wallet"],
+    [
+      381,
+      "/knowledge-base/transaction_confirmation_in_blockchain_%28explainCKBot%29",
+      "/knowledge-base/transaction_confirmation_in_blockchain"
+    ],
+    [
+      382,
+      "/ko/knowledge-base/What_are_Sniper_Bots_in_Crypto_(explainCKBot)",
+      "/knowledge-base/what_are_sniper_bots_in_crypto"
+    ],
+    [383, "/zh/knowledge-base/lightning_watchtowers_(explainCKBot)", "/knowledge-base/lightning_watchtowers"],
+    [
+      384,
+      "/zh/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints_(explainCKBot)",
+      "/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints"
+    ],
+    [
+      385,
+      "/es/knowledge-base/long_range_attacks_explained_(explainCKBot)",
+      "/knowledge-base/long_range_attacks_explained"
+    ],
+    [386, "/es/knowledge-base/what_are-precompiles_(explainCKBot)", "/knowledge-base/what_are_precompiles"],
+    [
+      387,
+      "/fr/knowledge-base/what_are_quantum_resistant_wallets_(explainCKBot)",
+      "/knowledge-base/what_are_quantum_resistant_wallets"
+    ],
+    [
+      388,
+      "/knowledge-base/How_to_Check_Smart_Contract_Security_%28explainCKBot%29",
+      "/knowledge-base/how_to_check_smart_contract_security"
+    ],
+    [389, "/tr/knowledge-base/what_are-precompiles_(explainCKBot)", "/knowledge-base/what_are_precompiles"],
+    [390, "/tr/knowledge-base/what_is_a_finney_attack_(explainCKBot)", "/knowledge-base/what_is_a_finney_attack"],
+    [391, "/zh/knowledge-base/coinjoin_explained_(explainCKBot)", "/knowledge-base/coinjoin_explained"],
+    [
+      392,
+      "/zh/knowledge-base/understanding_Token_standards_erc20_(explainCKBot)",
+      "/knowledge-base/understanding_token_standards_erc20"
+    ],
+    [
+      393,
+      "/es/knowledge-base/what_are_penalty_transactions_(explainCKBot)",
+      "/knowledge-base/what_are_penalty_transactions"
+    ],
+    [
+      394,
+      "/es/knowledge-base/what_is_data_availability_sampling_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_sampling"
+    ],
+    [
+      395,
+      "/fr/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security_(explainCKBot)",
+      "/knowledge-base/multivariate_polynomial_cryptographic_algorithms_for_post_quantum_security"
+    ],
+    [
+      396,
+      "/tr/knowledge-base/what_are_quantum_resistant_wallets_(explainCKBot)",
+      "/knowledge-base/what_are_quantum_resistant_wallets"
+    ],
+    [
+      397,
+      "/es/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [398, "/es/knowledge-base/erc8004_explained_(explainCKBot)", "/knowledge-base/erc8004_explained"],
+    [
+      399,
+      "/es/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_(explainCKBot)",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [
+      400,
+      "/es/knowledge-base/what_are_fraud_proofs_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_are_fraud_proofs_in_blockchain"
+    ],
+    [
+      401,
+      "/es/knowledge-base/what_is_blockchain_as_a_service_(explainCKBot)",
+      "/knowledge-base/what_is_blockchain_as_a_service"
+    ],
+    [
+      402,
+      "/zh/knowledge-base/what_is_data_%20availability_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_in_blockchain"
+    ],
+    [403, "/es/knowledge-base/what_are_stateless_clients_(explainCKBot)", "/knowledge-base/what_are_stateless_clients"],
+    [404, "/knowledge-base/bitcoin_script_%28explainCKBot%29", "/knowledge-base/bitcoin_script"],
+    [
+      405,
+      "/knowledge-base/difference_block_subsidy_block_reward_%28explainCKBot%29",
+      "/knowledge-base/difference_block_subsidy_block_reward"
+    ],
+    [406, "/knowledge-base/modular_vs_monolithic_%28explainCKBot%29", "/knowledge-base/modular_vs_monolithic"],
+    [407, "/ko/knowledge-base/What_is_Danksharding_(explainCKBot)", "/knowledge-base/what_is_danksharding"],
+    [408, "/ko/knowledge-base/introduction_to_l402_(explainCKBot)", "/knowledge-base/introduction_to_l402"],
+    [
+      409,
+      "/zh/knowledge-base/how_blockchains_empower_ai_agents_(explainCKBot)",
+      "/knowledge-base/how_blockchains_empower_ai_agents"
+    ],
+    [
+      410,
+      "/zh/knowledge-base/what_are_blockchain_intents_(explainCKBot)",
+      "/knowledge-base/what_are_blockchain_intents"
+    ],
+    [411, "/zh/knowledge-base/what_are_blockchain_reorgs_(explainCKBot)", "/knowledge-base/what_are_blockchain_reorgs"],
+    [412, "/zh/knowledge-base/what_are_stateless_clients_(explainCKBot)", "/knowledge-base/what_are_stateless_clients"],
+    [413, "/es/knowledge-base/coinjoin_explained_(explainCKBot)", "/knowledge-base/coinjoin_explained"],
+    [414, "/es/knowledge-base/introduction_to_l402_(explainCKBot)", "/knowledge-base/introduction_to_l402"],
+    [
+      415,
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses_%28explainCKBot%29",
+      "/knowledge-base/bitcoin_legacy_vs_segwit_vs_taproot_addresses"
+    ],
+    [416, "/knowledge-base/coinjoin_explained_%28explainCKBot%29", "/knowledge-base/coinjoin_explained"],
+    [417, "/knowledge-base/what_is_keccak256_%28explainCKBot%29", "/knowledge-base/what_is_keccak256"],
+    [
+      418,
+      "/ko/knowledge-base/what_is_data_%20availability_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_data_availability_in_blockchain"
+    ],
+    [
+      419,
+      "/ko/knowledge-base/what_is_lightning_network_url_(explainCKBot)",
+      "/knowledge-base/what_is_lightning_network_url"
+    ],
+    [
+      420,
+      "/es/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [
+      421,
+      "/fr/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)",
+      "/knowledge-base/what_is_a_blockchain_gas_fee"
+    ],
+    [
+      422,
+      "/knowledge-base/What_is_sharding_in_blockchain_%28explainCKBot%29",
+      "/knowledge-base/what_is_sharding_in_blockchain"
+    ],
+    [423, "/knowledge-base/understanding_webAuthn_%28explainCKBot%29", "/knowledge-base/understanding_webauthn"],
+    [
+      424,
+      "/zh/knowledge-base/difference_block_subsidy_block_reward_(explainCKBot)",
+      "/knowledge-base/difference_block_subsidy_block_reward"
+    ],
+    [
+      425,
+      "/es/knowledge-base/what_is_decentralized_cloud_storage_(explainCKBot)",
+      "/knowledge-base/what_is_decentralized_cloud_storage"
+    ],
+    [426, "/knowledge-base/what_are_flash_loans_%28explainCKBot%29", "/knowledge-base/what_are_flash_loans"],
+    [
+      427,
+      "/knowledge-base/what_is_replace_by_fee_%20in_bitcoin_%28explainCKBot%29",
+      "/knowledge-base/what_is_replace_by_fee_in_bitcoin"
+    ],
+    [
+      428,
+      "/ko/knowledge-base/What_is_a_Hashed_Timelock_Contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_hashed_timelock_contract"
+    ],
+    [
+      429,
+      "/zh/knowledge-base/what_is_a_point_time_locked_contract_(explainCKBot)",
+      "/knowledge-base/what_is_a_point_time_locked_contract"
+    ],
+    [430, "/es/knowledge-base/what_are_blockchain_reorgs_(explainCKBot)", "/knowledge-base/what_are_blockchain_reorgs"],
+    [431, "/fr/knowledge-base/what_are_stateless_clients_(explainCKBot)", "/knowledge-base/what_are_stateless_clients"],
+    [
+      432,
+      "/knowledge-base/SHA256_most_used_hash_function_%28explainCKBot%29",
+      "/knowledge-base/sha256_most_used_hash_function"
+    ],
+    [
+      433,
+      "/knowledge-base/Unbreakable_SHA256_Why_Even_Quantum_Computers_Cannot_Do_It_%28explainCKBot%29",
+      "/knowledge-base/unbreakable_sha256_why_even_quantum_computers_cannot_do_it"
+    ],
+    [434, "/knowledge-base/block_time_in_blockchain_%28explainCKBot%29", "/knowledge-base/block_time_in_blockchain"],
+    [
+      435,
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_%28explainCKBot%29",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [
+      436,
+      "/ko/knowledge-base/difference_between_miner_full_node_(explainCKBot)",
+      "/knowledge-base/difference_between_miner_full_node"
+    ],
+    [437, "/ko/knowledge-base/what_is_a_multisig_wallet_(explainCKBot)", "/knowledge-base/what_is_a_multisig_wallet"],
+    [
+      438,
+      "/ko/knowledge-base/what_is_client_side_validation_(explainCKBot)",
+      "/knowledge-base/what_is_client_side_validation"
+    ],
+    [439, "/tr/knowledge-base/What_are_Native_Rollups_(explainCKBot)", "/knowledge-base/what_are_native_rollups"],
+    [440, "/tr/knowledge-base/what_is_a_VM_in_blockchain_(explainCKBot)", "/knowledge-base/what_is_a_vm_in_blockchain"],
+    [
+      442,
+      "/zh/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_%28explainCKBot%29",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [
+      443,
+      "/zh/knowledge-base/what_is_blockchain_as_a_service_(explainCKBot)",
+      "/knowledge-base/what_is_blockchain_as_a_service"
+    ],
+    [444, "/es/knowledge-base/what_are_%20privacy_coins_%28explainCKBot%29", "/knowledge-base/what_are_privacy_coins"],
+    [445, "/fr/knowledge-base/state_and_state_change_(explainCKBot)", "/knowledge-base/state_and_state_change"],
+    [
+      446,
+      "/fr/knowledge-base/transaction_confirmation_in_blockchain_(explainCKBot)",
+      "/knowledge-base/transaction_confirmation_in_blockchain"
+    ],
+    [
+      447,
+      "/knowledge-base/What_are_bitcoin_drivechains_%28explainCKBot%29",
+      "/knowledge-base/what_are_bitcoin_drivechains"
+    ],
+    [
+      448,
+      "/knowledge-base/What_is_a_digital_signature_%20in_Blockchain_%28explainCKBot%29",
+      "/knowledge-base/what_is_a_digital_signature_in_blockchain"
+    ],
+    [
+      449,
+      "/knowledge-base/cryptocurrency_mining_difficulty_%28explainCKBot%29",
+      "/knowledge-base/cryptocurrency_mining_difficulty"
+    ],
+    [
+      450,
+      "/knowledge-base/difference_between_crypto_miners_validators_%28explainCKBot%29",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [451, "/knowledge-base/erc8004_explained_%28explainCKBot%29", "/knowledge-base/erc8004_explained"],
+    [
+      453,
+      "/knowledge-base/what_is_a_lightning_invoice_%28explainCKBot%29",
+      "/knowledge-base/what_is_a_lightning_invoice"
+    ],
+    [
+      454,
+      "/ko/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_(explainCKBot)",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [
+      455,
+      "/tr/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [
+      456,
+      "/tr/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)",
+      "/knowledge-base/what_is_a_blockchain_gas_fee"
+    ],
+    [
+      459,
+      "/es/knowledge-base/What_are_Blockchain_Transaction_Fees_%28explainCKBot%29",
+      "/knowledge-base/what_are_blockchain_transaction_fees"
+    ],
+    [
+      460,
+      "/es/knowledge-base/What_is_a_digital_signature_%20in_Blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_a_digital_signature_in_blockchain"
+    ],
+    [
+      461,
+      "/es/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms_%28explainCKBot%29",
+      "/knowledge-base/comparison_of_post_quantum_cryptographic_algorithms"
+    ],
+    [
+      462,
+      "/es/knowledge-base/cryptocurrency_mining_difficulty_(explainCKBot)",
+      "/knowledge-base/cryptocurrency_mining_difficulty"
+    ],
+    [
+      463,
+      "/es/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees_%28explainCKBot%29",
+      "/knowledge-base/how_does_the_bitcoin_lightning_network_charge_fees"
+    ],
+    [
+      464,
+      "/es/knowledge-base/understanding_change_addresses_in_bitcoin_transactions_%28explainCKBot%29",
+      "/knowledge-base/understanding_change_addresses_in_bitcoin_transactions"
+    ],
+    [
+      468,
+      "/knowledge-base/What_Does_Determinism_Mean_in_Blockchain_%28explainCKBot%29",
+      "/knowledge-base/what_does_determinism_mean_in_blockchain"
+    ],
+    [
+      473,
+      "/knowledge-base/testnet_mainnet_blockchain_%28explainCKBot%29",
+      "/knowledge-base/testnet_mainnet_blockchain"
+    ],
+    [477, "/knowledge-base/what_are-airdrops_%28explainCKBot%29", "/knowledge-base/what_are_airdrops"],
+    [
+      478,
+      "/knowledge-base/what_are_blockchain_bridges_%28explainCKBot%29",
+      "/knowledge-base/what_are_blockchain_bridges"
+    ],
+    [
+      479,
+      "/knowledge-base/what_are_blockchain_intents_%28explainCKBot%29",
+      "/knowledge-base/what_are_blockchain_intents"
+    ],
+    [
+      480,
+      "/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints_%28explainCKBot%29",
+      "/knowledge-base/what_are_rpc_nodes_and_rpc_endpoints"
+    ],
+    [481, "/knowledge-base/what_is_a_cold_wallet_%28explainCKBot%29", "/knowledge-base/what_is_a_cold_wallet"],
+    [
+      482,
+      "/knowledge-base/what_is_a_slippage_in_trading_%28explainCKBot%29",
+      "/knowledge-base/what_is_a_slippage_in_trading"
+    ],
+    [483, "/knowledge-base/what_is_an_eclipse_attack_%28explainCKBot%29", "/knowledge-base/what_is_an_eclipse_attack"],
+    [
+      485,
+      "/knowledge-base/what_is_lightning_network_url_%28explainCKBot%29",
+      "/knowledge-base/what_is_lightning_network_url"
+    ],
+    [
+      486,
+      "/knowledge-base/what_is_nakamoto_coefficient_%28explainCKBot%29",
+      "/knowledge-base/what_is_nakamoto_coefficient"
+    ],
+    [
+      487,
+      "/ko/knowledge-base/difference_between_crypto_miners_validators_(explainCKBot)",
+      "/knowledge-base/difference_between_crypto_miners_validators"
+    ],
+    [488, "/ko/knowledge-base/introduction_to_x402_%28explainCKBot%29", "/knowledge-base/introduction_to_x402"],
+    [
+      489,
+      "/ko/knowledge-base/what_is_decentralized_cloud_storage_%28explainCKBot%29",
+      "/knowledge-base/what_is_decentralized_cloud_storage"
+    ],
+    [492, "/zh/knowledge-base/What_are_sovereign_rollups_(explainCKBot)", "/knowledge-base/what_are_sovereign_rollups"],
+    [
+      495,
+      "/zh/knowledge-base/the_nothing_at_stake_problem_%28explainCKBot%29",
+      "/knowledge-base/the_nothing_at_stake_problem"
+    ],
+    [
+      497,
+      "/zh/knowledge-base/what_are_seedless_wallets_%28explainCKBot%29",
+      "/knowledge-base/what_are_seedless_wallets"
+    ],
+    [
+      503,
+      "/zh/knowledge-base/what_is_gas_abstraction_in_blockchain_(explainCKBot)",
+      "/knowledge-base/what_is_gas_abstraction_in_blockchain"
+    ]
+  ],
+  "unmapped": [
+    [441, "/zh-cn/knowledge-base/what_is_a_seed_phrase_(explainCKBot)"],
+    [452, "/knowledge-base/what_is-a-seed-phrase-(explainCKBot)"],
+    [457, "/zh/knowledge-base/what_is-a-cold-wallet_(explainCKBot)"],
+    [458, "/docs/sdk-and-devtool/ccc"],
+    [465, "/es/knowledge-base/what_is-a-hash-function"],
+    [466, "/es/knowledge-base/what_is_a-hard-fork-soft-fork_(explainCKBot)"],
+    [467, "/knowledge-base/Unlocking_CKB_Liquid_iCKB"],
+    [469, "/knowledge-base/What_is_the_Longest_Chain_Rule_in_Blockchain_Convergence"],
+    [470, "/knowledge-base/block_time_in_blockchain_(explainCKBot)/"],
+    [471, "/knowledge-base/multivariate-polynomial-cryptographic-algorithms-for-post-quantum-security"],
+    [472, "/knowledge-base/nervos_overview_of_layered_blockchain"],
+    [474, "/knowledge-base/transaction_confirmation_in_blockchain_(explainCKBot/"],
+    [475, "/knowledge-base/ultimate_guide-to-payment-channels"],
+    [476, "/knowledge-base/ultimate_guide_to_rgb_rgbpp-and-client-side-validation"],
+    [484, "/knowledge-base/what_is_lattice-based_cryptography"],
+    [490, "/zh)"],
+    [491, "/zh/ckbpage)"],
+    [493, "/zh/knowledge-base/block_time_in_blockchain_(explainCKBot))"],
+    [494, "/zh/knowledge-base/crypto_mining_hardware_(explainCKBot)/"],
+    [496, "/zh/knowledge-base/what-is-a-blockchain-gas-fee_(explainCKBot)"],
+    [498, "/zh/knowledge-base/what_is-51_attack"],
+    [499, "/zh/knowledge-base/what_is-a-hash-function"],
+    [500, "/zh/knowledge-base/what_is_a-cold-wallet_(explainCKBot)"],
+    [501, "/zh/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)/"],
+    [502, "/zh/knowledge-base/what_is_a_cold_wallet_(explainCKBot)/"]
+  ],
+  "trailingSlashNormalization": [
+    "/knowledge-base/block_time_in_blockchain_(explainCKBot)/",
+    "/zh/knowledge-base/crypto_mining_hardware_(explainCKBot)/",
+    "/zh/knowledge-base/what_is_a_blockchain_gas_fee_(explainCKBot)/",
+    "/zh/knowledge-base/what_is_a_cold_wallet_(explainCKBot)/"
+  ]
+}

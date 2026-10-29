@@ -6,12 +6,22 @@ import { trackKBEvent } from './analytics'
 
 // Observe the menu's actual open state so pointer and keyboard activation are
 // counted alike, without counting close actions or component renders.
-function FilterOpenTracker({ open, placement }: { open: boolean; placement: string }) {
+function FilterOpenTracker({
+  open,
+  placement,
+  pageType,
+  hubId,
+}: {
+  open: boolean
+  placement: string
+  pageType?: 'all_articles' | 'search' | 'hub'
+  hubId?: string
+}) {
   const wasOpen = useRef(false)
   useEffect(() => {
-    if (open && !wasOpen.current) trackKBEvent('kb_filter_open', { placement })
+    if (open && !wasOpen.current) trackKBEvent('kb_filter_open', { placement, page_type: pageType, hub_id: hubId })
     wasOpen.current = open
-  }, [open, placement])
+  }, [open, placement, pageType, hubId])
   return null
 }
 
@@ -19,10 +29,14 @@ export function ArticleGridControls({
   density,
   onDensityChange,
   placement = 'article_grid',
+  pageType,
+  hubId,
 }: {
   density: number
   onDensityChange: (value: number) => void
   placement?: string
+  pageType?: 'all_articles' | 'search' | 'hub'
+  hubId?: string
 }) {
   const changeDensity = (value: number) => {
     if (value !== density) trackKBEvent('kb_layout_change', { placement, layout: 'grid', columns: value })
@@ -45,7 +59,7 @@ export function ArticleGridControls({
       <Menu as="div" className={styles.filterMenu}>
         {({ open }) => (
           <>
-            <FilterOpenTracker open={open} placement={placement} />
+            <FilterOpenTracker open={open} placement={placement} pageType={pageType} hubId={hubId} />
             <MenuButton className={styles.filterButton}>
               <Icon name="topicBody-imgInterfaceSlider03" size={24} />
               Filter

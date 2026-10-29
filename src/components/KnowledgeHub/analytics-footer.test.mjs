@@ -51,20 +51,67 @@ function nodes(node) {
   return [node, ...nodes(node.props?.children)]
 }
 
-test('footer navigation emits bounded IDs without changing destinations or opening behavior', () => {
+test('footer navigation emits existing IDs plus visible text and URL without changing destinations or opening behavior', () => {
   const { tree, events } = renderFooter()
   const navigation = nodes(tree).find(node => node.props?.['aria-label'] === 'Footer navigation')
   const links = nodes(navigation).filter(node => node.props?.href)
+  const destinations = [
+    ['CKB', '/ckbpage'],
+    ['Mining', '/mining'],
+    ['Wallets', '/wallets'],
+    ['Wiki', 'https://en.wikipedia.org/wiki/Nervos_Network'],
+    ['Press Kit', '/media-kit'],
+    ['Developers', '/developers'],
+    ['Documentation', 'https://docs.nervos.org/'],
+    ['Github', 'https://github.com/nervosnetwork/'],
+    ['Explorer', 'https://explorer.nervos.org/'],
+    ['Ecosystem', 'https://ckbdapps.com/ecosystem'],
+    ['Nervos Foundation', '/foundation'],
+    ['Cryptape', 'https://cryptape.com/'],
+    ['Godwoken', 'https://godwoken.com/'],
+    ['Nervina Labs', 'https://nervina.io/'],
+    ['Tunnel Vision Labs', 'https://tunnelvisionlabs.xyz/'],
+    ['Community', '/community'],
+    ['Community Fund DAO', 'https://dao.ckb.community/'],
+    ['Nervos Talk Forum', 'https://talk.nervos.org/'],
+    ['RFCs', 'https://github.com/nervosnetwork/rfcs/'],
+    ['Learn', '/learn'],
+    ['Knowledge Base', '/knowledge-base'],
+    ['Blog', 'https://archive.nervos.org/blog'],
+    ['Medium', 'https://medium.com/nervosnetwork'],
+    ['Youtube', 'https://www.youtube.com/c/NervosNetwork'],
+  ]
   assert.equal(links.length, 24)
+  assert.deepEqual(
+    links.map(link => [link.props.children[0], link.props.href]),
+    destinations,
+  )
   assert.equal(events.length, 0, 'Rendering alone must not count as navigation')
+  const resourceIds = { Documentation: 'developer_docs', Github: 'github', Explorer: 'explorer' }
   for (const link of links) {
     assert.equal(link.props.target, '_blank')
     assert.equal(link.props.rel, 'noopener noreferrer')
+    const before = events.length
     link.props.onClick()
+    const resourceId = resourceIds[link.props.children[0]]
+    assert.equal(events.length - before, resourceId ? 2 : 1)
+    assert.equal(events[before].name, 'kb_footer_link_click')
+    if (resourceId) {
+      assert.deepEqual(events[before + 1], {
+        name: 'kb_resource_click',
+        data: { resource_id: resourceId, placement: 'footer', link_url: link.props.href },
+      })
+    }
   }
-  assert.equal(events.length, links.length)
+  const footerEvents = events.filter(event => event.name === 'kb_footer_link_click')
+  assert.equal(footerEvents.length, links.length)
+  assert.equal(events.length, links.length + 3)
   assert.deepEqual(
-    events.map(event => event.data.link_id),
+    footerEvents.map(event => [event.data.link_text, event.data.link_url]),
+    destinations,
+  )
+  assert.deepEqual(
+    footerEvents.map(event => event.data.link_id),
     [
       'ckb',
       'mining',
@@ -92,25 +139,46 @@ test('footer navigation emits bounded IDs without changing destinations or openi
       'youtube',
     ],
   )
-  for (const event of events) {
+  for (const event of footerEvents) {
     assert.equal(event.name, 'kb_footer_link_click')
-    assert.deepEqual(Object.keys(event.data).sort(), ['group', 'link_id'])
+    assert.deepEqual(Object.keys(event.data).sort(), ['group', 'link_id', 'link_text', 'link_url'])
     assert.match(event.data.group, /^(discover|developers|ecosystem|community|learn)$/)
   }
 })
 
-test('footer social links identify the selected network, not its URL', () => {
+test('footer social links include the selected network and real URL without changing destinations', () => {
   const { tree, events } = renderFooter()
   const links = nodes(tree).filter(node => node.props?.href && node.props?.['aria-label'])
+  const destinations = [
+    'https://x.com/NervosNetwork',
+    'https://discord.gg/FKh8Zzvwqa',
+    'https://t.me/NervosNetwork',
+    'https://www.linkedin.com/company/nervos',
+    'https://www.reddit.com/r/NervosNetwork/',
+    'https://www.youtube.com/c/NervosNetwork',
+    'https://talk.nervos.org/',
+  ]
   assert.equal(links.length, 7)
-  for (const link of links) link.props.onClick()
+  assert.deepEqual(
+    links.map(link => link.props.href),
+    destinations,
+  )
+  for (const link of links) {
+    assert.equal(link.props.target, '_blank')
+    assert.equal(link.props.rel, 'noopener noreferrer')
+    link.props.onClick()
+  }
+  assert.deepEqual(
+    events.map(event => event.data.link_url),
+    destinations,
+  )
   assert.deepEqual(
     events.map(event => event.data.network),
     ['twitter', 'discord', 'telegram', 'linkedin', 'reddit', 'youtube', 'talk'],
   )
   for (const event of events) {
     assert.equal(event.name, 'kb_social_click')
-    assert.deepEqual(Object.keys(event.data).sort(), ['network', 'placement'])
+    assert.deepEqual(Object.keys(event.data).sort(), ['link_url', 'network', 'placement'])
     assert.equal(event.data.placement, 'footer')
   }
 })

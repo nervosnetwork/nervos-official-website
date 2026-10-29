@@ -8,10 +8,50 @@
   transform: translate(140px, -50%);
 }
 
+.embellishedLeft {
+  top: 146px;
+  right: 484px;
+
+  > svg {
+    width: 744px;
+    height: 420px;
+  }
+}
+
+.embellishedRight {
+  top: 397px;
+  left: 210px;
+
+  > svg {
+    width: 744px;
+    height: 459px;
+  }
+}
+
 @media (max-width: $mobileBreakPoint) {
   .icons {
     top: calc(100% + 80px);
     left: 0;
     transform: unset;
+  }
+
+  .embellishedLeft {
+    top: 151px;
+    right: -49px;
+
+    > svg {
+      width: 430px;
+      height: 242px;
+    }
+  }
+
+  .embellishedRight {
+    top: 443px;
+    left: -81px;
+
+    > svg {
+      width: 430px;
+      height: 265px;
+    }
   }
 }

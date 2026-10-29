@@ -36,6 +36,16 @@
   font-size: 24px;
 }
 
+.articleActions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.desktopLanguage {
+  display: flex;
+}
+
 .writeArticle {
   min-height: 30px;
   padding: 5px 8px;
@@ -205,6 +215,13 @@
   padding: 32px 78px;
   overflow: hidden;
   background: var(--kbDark) url('/images/knowledge-hub/discover-banner-background.jpg') center / cover no-repeat;
+
+  // Preserve the original crop/resolution and JPEG for older browsers.
+  background-image: image-set(
+    url('/images/knowledge-hub/discover-banner-background.f824b2b2.avif') type('image/avif'),
+    url('/images/knowledge-hub/discover-banner-background.cb4683e2.webp') type('image/webp'),
+    url('/images/knowledge-hub/discover-banner-background.jpg') type('image/jpeg')
+  );
   border-radius: 9px;
   isolation: isolate;
 }
@@ -286,6 +303,13 @@
   padding: 48px 24px;
   overflow: hidden;
   background: var(--kbAccent) url('/images/knowledge-hub/discover-background.jpg') center / cover no-repeat;
+
+  // This below-fold decoration is not preloaded ahead of the article cover.
+  background-image: image-set(
+    url('/images/knowledge-hub/discover-background.292dffa2.avif') type('image/avif'),
+    url('/images/knowledge-hub/discover-background.51d08613.webp') type('image/webp'),
+    url('/images/knowledge-hub/discover-background.jpg') type('image/jpeg')
+  );
   isolation: isolate;
 }
 
@@ -429,6 +453,10 @@
 
 /* Stack the article before the sidebar starts squeezing the reading column. */
 @media (width <= 900px) {
+  .desktopLanguage {
+    display: none;
+  }
+
   .articleNav {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

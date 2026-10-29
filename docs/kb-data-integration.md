@@ -36,6 +36,21 @@ branch, then update the website gitlink to that commit. Do not rerun blindly ove
 manual metadata edits. The application fails on mismatched source hashes rather
 than silently loading stale metadata.
 
+### Independent SEO description (D-08)
+
+Article writers can add a plain-text `description` string to the frontmatter
+of each language's Markdown file. It is independent of `subtitle`, which
+remains the visible page summary. Do not shorten or replace `subtitle` for SEO.
+
+The preparation command above carries a nonblank `description` into the catalog;
+the website uses it for the ordinary, Open Graph and Twitter descriptions.
+When absent or blank, those tags use the same article's `subtitle`. Only the
+rendered metadata is whitespace-normalized and limited to 155 Unicode characters
+at a word boundary where possible; the stored copy and visible summary stay
+intact. Missing descriptions and subtitles remain empty, not generated prose.
+After a source update, regenerate/review the catalog and update the content pin
+as usual; adding descriptions does not require another template code change.
+
 ## Implemented routes
 
 - `/knowledge-base`: actual Hub counts, manually referenced starter picks with same-Hub

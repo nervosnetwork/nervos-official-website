@@ -3,10 +3,10 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useTranslation, Trans } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { withStaticPageSEO } from '../../server/page-seo'
 import { BaseSeparatePage } from '../../components/BaseSeparatePage'
 import { StyledLink } from '../../components/StyledLink'
 import { Author, BASE_URL, fetchContributors, LastAuthor, lastContributor, REPO } from '../../utils'
-import { useIsMobile } from '../../hooks'
 import EmbellishedLeft from './embellished_left.svg'
 import EmbellishedRight from './embellished_right.svg'
 
@@ -25,7 +25,6 @@ interface PageProps {
 const Mining: NextPage<PageProps> = ({ contributors, author }) => {
   const [t, { language }] = useTranslation(['mining', 'common'])
   const { pathname } = useRouter()
-  const isMobile = useIsMobile()
 
   const floatIcons = (
     <div className={styles.icons}>
@@ -144,25 +143,16 @@ const Mining: NextPage<PageProps> = ({ contributors, author }) => {
         <title>{pageTitle}</title>
       </Head>
       <BaseSeparatePage
-        embellishedElements={
-          isMobile
-            ? [
-                { content: <EmbellishedLeft width={430} height={242} />, top: 151, right: -49 },
-                {
-                  content: <EmbellishedRight width={430} height={265} style={{ transform: 'rotate(180deg)' }} />,
-                  top: 443,
-                  left: -81,
-                },
-              ]
-            : [
-                { content: <EmbellishedLeft width={744} height={420} />, top: 146, right: 484 },
-                {
-                  content: <EmbellishedRight width={744} height={459} style={{ transform: 'rotate(180deg)' }} />,
-                  top: 397,
-                  left: 210,
-                },
-              ]
-        }
+        embellishedElements={[
+          {
+            content: <EmbellishedLeft width={744} height={420} />,
+            className: styles.embellishedLeft,
+          },
+          {
+            content: <EmbellishedRight width={744} height={459} style={{ transform: 'rotate(180deg)' }} />,
+            className: styles.embellishedRight,
+          },
+        ]}
         editLink={pageLink}
         title={title}
         floatIcons={floatIcons}
@@ -189,7 +179,7 @@ const Mining: NextPage<PageProps> = ({ contributors, author }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/mining', async ({ locale = 'en' }) => {
   const contributors = await fetchContributors()
   const author = await lastContributor(pagePath)
   const lng = await serverSideTranslations(locale, ['common', 'mining'])
@@ -200,6 +190,6 @@ export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
       contributors,
     },
   }
-}
+})
 
 export default Mining

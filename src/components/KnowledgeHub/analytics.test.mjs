@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import kbHubs from '../../../scripts/fixtures/load-kb-hubs.mjs'
 
 const require = createRequire(import.meta.url)
 const assert = require('node:assert/strict')
@@ -13,6 +14,7 @@ const React = require('react')
 const directory = path.dirname(fileURLToPath(import.meta.url))
 
 function load(file, imports, globals = {}) {
+  imports = { '../../utils/kb-hubs': kbHubs, ...imports }
   const { outputText } = ts.transpileModule(fs.readFileSync(path.join(directory, file), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: true },
   })
@@ -44,7 +46,14 @@ function tracker({ production = true, browser = true, track } = {}) {
   return {
     sent,
     mockedWindow,
-    ...load('analytics.ts', { '../../utils/env': { IS_PROD: production } }, browser ? { window: mockedWindow } : {}),
+    ...load(
+      'analytics.ts',
+      {
+        '../../utils/env': { IS_PROD: production },
+        '../../utils/ga': { GA_ENABLED: false },
+      },
+      browser ? { window: mockedWindow } : {},
+    ),
   }
 }
 
@@ -134,6 +143,7 @@ function components() {
     ...load('Components.tsx', {
       './analytics': { trackKBEvent: (name, data) => sent.push({ name, data }) },
       './Icon': { Icon: () => null },
+      './ArticleLanguageLink': { ArticleLanguageLink: 'a' },
       './components.module.scss': {},
       './content': { articlePath: article => article.canonicalPath, formatArticleDate: () => 'Date' },
       'next/link': 'a',
@@ -167,6 +177,7 @@ test('both article card layouts send one contextual event on click, not on rende
       analyticsContext: { placement: 'more_from_ckb' },
     })
     assert.equal(card.props.href, article.canonicalPath)
+    assert.equal(card.props.article, article)
     const count = sent.length
     card.props.onClick()
     assert.equal(sent.length, count + 1)

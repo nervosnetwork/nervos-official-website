@@ -32,7 +32,7 @@ function localized(language) {
 }
 const ids = selection => Array.from(selection.articles, article => article.id)
 const englishTopFour = [
-  'Unbreakable_SHA256_Why_Even_Quantum_Computers_Cannot_Do_It',
+  'unbreakable_sha256_why_even_quantum_computers_cannot_do_it',
   'block_time_in_blockchain',
   'secp256k1_a_key_algorithm',
   'zk_rollup_vs_optimistic_rollup',
@@ -75,6 +75,26 @@ test('each language uses only real translations, with no invented article or edi
   )
   assert.equal(unrankedOnly.articles.length, 1)
   assert.deepEqual(ids(getKBMostRead(unrankedOnly)), [])
+})
+
+test('D-18 retains all ten measured concepts in the same order, including renamed fallback articles', () => {
+  const input = localized('en')
+  const ranked = []
+  for (;;) {
+    const next = ids(getKBMostRead(input))
+    if (!next.length) break
+    ranked.push(...next)
+    input.articles = input.articles.filter(article => !next.includes(article.id))
+  }
+  assert.deepEqual(ranked, [
+    ...englishTopFour,
+    'comparing_blockchain_virtual_machines',
+    'what_is_secp256r1',
+    'slashing_in_pos',
+    'what_is_finality_crypto',
+    'what_is_sharding_in_blockchain',
+    'what_is_nakamoto_consensus',
+  ])
 })
 
 test('excluded and unavailable articles are skipped in favor of the next verified ranked articles', () => {

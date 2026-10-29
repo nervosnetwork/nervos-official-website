@@ -1,9 +1,11 @@
 export interface KBArticle {
   id: string
   language: string
+  availableLanguages?: string[]
   canonicalPath: string
   title: string
   subtitle: string
+  description?: string
   date: string | null
   coverImage: string | null
   authors: string[]
@@ -27,7 +29,7 @@ export interface KBCatalog {
   featured: { hub: string; language: string; order: number; articleId: string | null }[]
 }
 export function articlePath(article: KBArticle) {
-  // Catalogs contain only the current locale; Next Link adds that locale prefix.
+  // Article links select their locale explicitly; keep the route unprefixed.
   const localePrefix = `/${article.language}`
   return article.language !== 'en' && article.canonicalPath.startsWith(`${localePrefix}/knowledge-base/`)
     ? article.canonicalPath.slice(localePrefix.length)

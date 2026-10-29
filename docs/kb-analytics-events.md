@@ -1,85 +1,84 @@
 # 知识库自定义事件清单
 
-更新：2026-09-28。当前代码共 **18 个显式自定义事件：原有 2 个 + KB 事件 16 个**。邮箱表单已接入现有 SendGrid 订阅接口，原预览提交事件已停用。
+更新：2026-10-23（D-20）。**GA4 共 17 个自定义事件**，另有标准 `page_view`；原有 Umami 保留兼容上报及 `kb_newsletter_result` 诊断事件。代码和本地 mock 测试不代表 GA 管理后台已经配置或收到事件。
 
-## 接入与统计口径
+## 接入与环境
 
-- 这些自定义事件均发送给现有 **Umami**，并未同步发送给 GA4。GA4 `G-WVH440CNZ3` 的现有接入保持不变；自动 pageview / enhanced measurement 事件不包含在本清单中。Twitter pixel 仅保留原初始化。
-- 仅 `NEXT_PUBLIC_VERCEL_ENV === 'production'` 时启用。开发和预览环境不发送；Umami 未加载、被拦截或发送失败时，不影响按钮、表单或导航。不缓存补发。
-- 新增事件入口为 `src/components/KnowledgeHub/analytics.ts`：逐事件参数白名单，舍弃未知字段；不读取邮箱，不传搜索原文、文章标题、目标完整 URL。搜索仅传长度区间。
-- 新事件使用 Umami 自定义 payload 回调，页面上下文只保留当前 `pathname`（去 query/hash）、固定标题 `Knowledge Base`、空 referrer，以及 SDK 的 website/hostname/language/screen。接口依据：[Umami Tracker functions](https://docs.umami.is/docs/tracker-functions)。
-- 上述清理只针对新增 `kb_*` 事件。**原有 GA/Umami 自动采集和两个旧事件未在本次改造中调整，不能据此认定所有历史埋点都已过滤 URL 查询参数。**
-- 普通左键、触摸、键盘激活走相同 React 处理器；不专门捕获右键菜单或中键打开。一个链接可能同时触发通用 `link_click` 和一个业务 `kb_*` 事件，二者分析维度不同，不能相加当作点击人数。
-- 埋点不更改 UI、文章旧地址、内容筛选、推荐排序或点赞／分享开关。两个邮箱表单复用原有 SendGrid 订阅服务和同一名单，详见 [订阅接入说明](./kb-newsletter-integration.md)。
+- `src/utils/ga.ts` 负责 GA4 初始化、页面浏览和公共上下文；`src/components/KnowledgeHub/analytics.ts` 使用逐事件白名单，将现有调用参数映射成下面的 GA4 参数。未知字段不会被原样展开到事件。
+- 生产沿用 `G-WVH440CNZ3`，可通过 `NEXT_PUBLIC_GA_MEASUREMENT_ID` 显式配置。预览必须配置 `NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID`，并拒绝与正式 ID 相同；本地还需 `NEXT_PUBLIC_GA_DEBUG=true`。未配置时不加载 SDK、不请求额外搜索计数。预览事件带 `debug_mode: true`，生产不带。
+- **预览 ID 必须属于独立测试属性。** 不同数据流可能仍属于同一属性；`debug_mode` 不是数据隔离。独立属性配置由 GA 管理员确认。本轮没有向 GA 发送测试流量。
+- GA SDK 使用 `afterInteractive` 加载，加载前的交互进入标准 `dataLayer` 队列。不存在、被拦截或同步抛错时，不影响导航和订阅。既有 Umami / Twitter 仍只在 production 初始化；没有添加新的 GTM 容器。
+- GA 初始化设置 `send_page_view: false`，初次页面和 SPA 路由变化由统一组件发送一次 `page_view`；StrictMode 重跑及 hash-only 变化不重复发送。Query 导航仍是独立浏览，但不会原样发送查询参数。
+- **部署时必须关闭重复的增强衡量 history page view，并检查 Site search / Form interactions 自动采集。** 自定义输入清理不控制其他自动标签；不能因此声称所有历史埋点均已过滤敏感信息。[Google 页面浏览文档](https://developers.google.com/analytics/devguides/collection/ga4/views)，[增强衡量文档](https://support.google.com/analytics/answer/9216061)。
 
-## 全部事件
+## GA4 全部自定义事件
 
-| 事件名                 | 状态 | 触发时机／覆盖位置                                                                                                               | 自定义参数                                                                                                                       |
-| ---------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `link_click`           | 原有 | 全站 HTTP(S) 锚点点击（包括站内锚点解析为 HTTP(S) 后的点击）                                                                     | `destination_category`: internal / documentation / community / source_repository / other                                         |
-| `scroll_depth`         | 原有 | 整页滚动达到 25 / 50 / 75 / 90 / 100%，每个 `router.asPath` 生命周期各一次                                                       | `percent_scrolled`, `page_path`, `page_title`                                                                                    |
-| `kb_cta_click`         | 新增 | Take the guide、See all articles、Browse all articles、Discover CKB、面包屑返回 KB                                               | `cta_id`, `placement`                                                                                                            |
-| `kb_hub_click`         | 新增 | 首页 Hub 标题／文章数、Related hubs、文章侧栏 Hub 分类                                                                           | `hub_id`, `placement`                                                                                                            |
-| `kb_subject_select`    | 新增 | Hub 页实际切换 Subject（含 View all）、文章侧栏 Subject 跳转                                                                     | `hub_id`, `subject_id`, `placement`                                                                                              |
-| `kb_article_click`     | 新增 | 首页 Hub 精选、Recommended reading、搜索建议／结果、Start here 延伸阅读、Hub 文章列表、All articles、More from CKB、Recent posts | `article_id`, `placement`；有相应上下文时加 `hub_id`, `subject_id`, `step`                                                       |
-| `kb_search_submit`     | 新增 | 首页搜索提交／View all results、搜索页表单提交；实时输入本身不触发                                                               | `placement`, `query_length_bucket`: empty / 1-10 / 11-30 / 31-plus（trim 后长度）                                                |
-| `kb_layout_change`     | 新增 | Hub／All articles 列数实际变更，搜索页 Grid/List 实际切换；恢复本地偏好不触发                                                    | `placement`, `layout`: grid / list；列数变化另加 `columns`: 3 / 4 / 5                                                            |
-| `kb_filter_open`       | 新增 | Hub／All articles 的 Filter 菜单从关闭变为打开（含键盘）；关闭和重渲染不触发                                                     | `placement`                                                                                                                      |
-| `kb_pagination_click`  | 新增 | All articles／搜索结果的上一页或下一页                                                                                           | `placement`, `page`（目标页码）                                                                                                  |
-| `kb_step_select`       | 新增 | Start here 的步骤导航点击；随滚动自动激活不触发                                                                                  | `step`: 1–4                                                                                                                      |
-| `kb_toc_click`         | 新增 | 文章桌面目录点击或移动端目录选择；滚动高亮不触发                                                                                 | `article_id`, `section_index`（目录项序号，从 1 开始）, `placement`: desktop / mobile                                            |
-| `kb_resource_click`    | 新增 | Build on CKB、Join the CKB Community、Become a CKBA Member、Write an article                                                     | `resource_id`, `placement`                                                                                                       |
-| `kb_footer_link_click` | 新增 | 页脚 24 个导航链接（含可点击栏目标题）                                                                                           | `group`, `link_id`（固定标签的小写下划线 ID，栏目标题加 `_heading`）                                                             |
-| `kb_social_click`      | 新增 | 页脚 7 个社交图标点击                                                                                                            | `network`: twitter / discord / telegram / linkedin / reddit / youtube / talk；`placement`: footer                                |
-| `kb_newsletter_submit` | 新增 | 两个邮箱表单校验通过、实际调用既有 `newsLetter.signup` 前；请求中重复点击不触发                                                  | `placement`: signal / footer；不包含邮箱                                                                                         |
-| `kb_newsletter_result` | 新增 | 实际订阅请求返回或失败                                                                                                           | `placement`: signal / footer；`outcome`: accepted / error；accepted 仅表示 SendGrid 已受理异步导入，不代表邮件送达或最终订阅状态 |
-| `kb_back_to_top`       | 新增 | 真实文章页返回顶部链接点击                                                                                                       | `article_id`                                                                                                                     |
+| 事件                   | 触发位置 / 时机                                                                       | GA4 自定义参数                                    |
+| ---------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `kb_article_click`     | Hub 精选、Most read、搜索建议/结果、Start here、文章列表、More from CKB、Recent posts | `article_slug`, `hub`, `click_source`, `position` |
+| `kb_hub_click`         | 首页 Hub 标题/文章数、Related hubs、文章侧栏 Hub                                      | `hub`, `click_source`                             |
+| `kb_subject_select`    | Hub Subject 实际切换、文章侧栏 Subject                                                | `hub`, `subject`                                  |
+| `kb_cta_click`         | Take the guide、See/Browse all articles、Discover CKB、KB 面包屑                      | `cta_name`, `cta_location`                        |
+| `kb_step_select`       | Start here 步骤导航点击，非滚动自动高亮                                               | `step_number`, `step_name`                        |
+| `kb_resource_click`    | Build on CKB、Join the CKB Community、Become a CKBA Member、Write an article          | `resource`, `link_url`                            |
+| `kb_social_click`      | 页脚 7 个社交入口                                                                     | `network`, `link_url`                             |
+| `kb_search_submit`     | 搜索提交 / View all results，非逐字输入                                               | `search_term`, `results_count`                    |
+| `kb_pagination_click`  | 文章列表和搜索结果上一页/下一页                                                       | `direction`, `page_number`, `page_type`           |
+| `link_click`           | 全站 HTTP(S) 锚点激活                                                                 | `link_url`, `link_domain`, `outbound`             |
+| `scroll_depth`         | 整个页面达到 25 / 50 / 75 / 90 / 100%                                                 | `percent_scrolled`                                |
+| `kb_footer_link_click` | 页脚 24 个导航链接，含可点击栏目标题                                                  | `link_text`, `link_url`                           |
+| `kb_toc_click`         | 桌面目录点击、移动端目录选择                                                          | `article_slug`, `heading_text`                    |
+| `kb_layout_change`     | 列数实际变化、搜索 Grid/List 实际切换                                                 | `layout`, `columns`                               |
+| `kb_filter_open`       | Filter 从关闭变为打开                                                                 | `page_type`, `hub`                                |
+| `kb_back_to_top`       | 文章返回顶部                                                                          | `article_slug`                                    |
+| `kb_newsletter_submit` | 实际订阅接口成功受理后；失败、校验失败、等待中不发送                                  | `form_location`, `status: accepted`               |
 
-旧 `scroll_depth` 包括首屏高度，针对整个文档而非文章正文；目录 hash 变化可能重置旧事件档位。不能把 100% 直接当作全文阅读完成。
+参数细则：
 
-已停用的 `kb_newsletter_submit_preview` 只代表旧版本的本地预览点击；不要将其历史数据与真实订阅请求合并。客户端校验失败不发送订阅事件；服务端校验或服务错误归为 `error`，不上传具体错误、邮箱或名字。
+- `position` 为当前展示列表从 1 开始的位置，不是整个目录的全局排名。`hub` 来自被点击文章的分类；无分类使用 `unassigned`，无 Hub 上下文的 Filter 使用 `none`。
+- `direction` 为 `previous` / `next`；`page_number` 为目标页。`page_type` 为 `hub` / `all_articles` / `search`；它与上文导航来源、下文页面分组是不同维度。Subject 的 View all 保留 `all`。
+- `layout` 为 `grid` / `list`；列表列数为 1，搜索网格为 4，现有列数控件按实际选中的 3 / 4 / 5 上报。恢复本地偏好不算用户切换。
+- `resource` 使用 `docs` / `github` / `community` / `membership` / `write_article` / `explorer`；页脚 Documentation / Github / Explorer 在保留 `kb_footer_link_click` 的同时上报资源事件，没有增加新入口。
+- `results_count` 为完整匹配数，不能使用最多 5 条的建议列表长度。首页通过既有搜索 API 的 `X-Total-Count` 获取；搜索页可复用同一查询的服务端总数。计数异步进行，不阻塞导航；失败或缺少可靠计数时省略该字段，不伪造 0。每次提交独立捕获查询，避免快速提交后的计数串用。
+- `form_location` 为 `signal` / `footer`。`accepted` 仅表示现有 SendGrid 接口已受理异步导入，**不是订阅已确认、导入已完成或邮件已送达**。详见 [订阅说明](./kb-newsletter-integration.md)。
 
-## 来源参数对照
+## 页面分组与隐私边界
 
-### 文章点击 `placement`
+每个手动 `page_view` 均含 `content_group`：
 
-| 值                       | 对应模块                 | 附加上下文                                  |
-| ------------------------ | ------------------------ | ------------------------------------------- |
-| `hub_featured`           | 首页 6 个 Hub 内精选文章 | `hub_id`                                    |
-| `recommended_reading`    | 首页 Recommended reading | —                                           |
-| `home_search_suggestion` | 首页实时搜索建议         | —                                           |
-| `search_results`         | 搜索结果页文章           | —                                           |
-| `start_here_reading`     | Start here / Go deeper   | `step`                                      |
-| `topic_articles`         | Hub / Subject 下文章     | `hub_id`, `subject_id`（View all 为 `all`） |
-| `archive_articles`       | All articles             | —                                           |
-| `more_from_ckb`          | 正文下 More from CKB     | —                                           |
-| `recent_posts`           | 文章侧栏 Recent posts    | —                                           |
+| 值             | 页面                                          |
+| -------------- | --------------------------------------------- |
+| `kb_home`      | KB 首页                                       |
+| `hub`          | Hub 页面（含当前 query 路由与未来 path 路由） |
+| `article`      | 文章正文                                      |
+| `start_here`   | Start here                                    |
+| `all_articles` | All articles 与搜索结果                       |
+| `core`         | 其他官网页面                                  |
 
-`article_id` 是内容仓库现有稳定 ID。`hub_id`、`subject_id` 是分类目录 ID，不改变文章地址。
+- 事件的 `page_location`、`page_referrer` 和 `link_url` 去除 query/hash，拒绝非 HTTP(S)、URL credentials 和明显邮箱路径。SPA referrer 使用上一个已报告页面的安全地址，直接进入且无来源时为空。已有公开页面标题保留；搜索页固定为 Knowledge Base，不将搜索内容混入页面标题。
+- `search_term` trim / 合并空白，最多 100 个字符。明显邮箱、URL、常见钱包地址、长数字序列或控制字符改为 `[redacted]`；其他文字参数也做长度限制及常见敏感格式过滤。**这是尽力过滤，不是任意个人信息检测器**；管理员仍需核对自动采集和数据政策。
+- 不读取/上报邮箱表单值、姓名、API 响应错误内容或凭据。GA4 和 Umami 均不使用任意传入对象作为事件 payload。
+- 一个点击可能同时产生通用 `link_click` 与业务事件，不能相加当作人数。当前普通点击、触摸、键盘激活沿用现有事件处理器；不专门捕获右键菜单或中键打开。
+- 滚动深度包含首屏、针对整个文档，不等于文章读完。每个路由/query 浏览周期每档一次；目录 hash 不重置，真实路由切换重置。StrictMode 的 RAF 清理不会阻止后续滚动上报。
 
-### 其他来源
+## Umami 兼容与分析口径
 
-- CTA：`start_here` / `home_hero`；`all_articles` / `home_recommended` 或 `search`；`discover_ckb` / `article_sidebar_banner` 或 `article_bottom_banner`；`kb_home` / `breadcrumb`。
-- Hub：`home_hub_heading`、`home_hub_count`、`related_hubs`、`article_categories`。
-- Subject：`topic`、`article_categories`。
-- 搜索：`home_search`、`home_all_search_results`、`search`。
-- 列表控件／分页：`topic`、`archive`、`search`（只在存在对应控件的页面触发）。
-- 资源：`developer_docs`、`community`、`ckba_membership` 对应 `signal_resources`；`write_article` 对应 `article_nav`。
+生产继续使用原来的 `placement`、`article_id`、`hub_id`、`subject_id`、`step`、`cta_id`、`resource_id` 等字段。GA4 才使用上表的映射字段；不要将两套参数名混为一谈。Umami 搜索仍只发送 `query_length_bucket`，不发搜索原文。通用链接只保留 `destination_category`，滚动只保留百分比；显式事件上下文去 query/hash，使用固定标题与空 referrer。
 
-## 如何用于内容分析
+`kb_newsletter_result {placement, outcome: accepted|error}` 仅作为 Umami 诊断；它不属于 GA4 的 17 个事件。`kb_newsletter_submit` 的历史口径由“请求前尝试”变为“成功受理后”，分析跨版本数据必须分段，不能直接计算同口径转化。原 `kb_newsletter_submit_preview` 不再发送。
 
-- 对 `kb_article_click` 按 `placement` 和 `article_id` 聚合，可以分别比较 Start here、Hub 精选、Recommended reading、More from CKB 的点击量。
-- 点击量不是收藏数，也不是点击率：当前没有启用真正的收藏／点赞功能，没有卡片曝光分母，不能称为收藏排行榜或 CTR。
-- 订阅可按 `kb_newsletter_submit` 和 `kb_newsletter_result` 的 `accepted` / `error` 分析请求漏斗。`accepted` 不等于已确认订阅、发信或送达；SendGrid 最终导入结果、退订及投递状态仍需后台核对。没有分享成功、收藏、下载、搜索成功或搜索无结果事件。
-- 首页此区域已使用 2025-09-28 至 2026-09-27 的 GA4 Views 快照，标题按用户确认的设计文案显示 Most read this year（数据仍为近 12 个月，不是自然年累计）；按文章归并历史路径和语言版本后排序。为保持统计连续性，`recommended_reading`、`home_recommended` placement 不改名。详见 `kb-most-read.md`，当前不自动刷新榜单。
+GA4 `click_source` 保留原 placement 值：`hub_featured`、`recommended_reading`、`home_search_suggestion`、`search_results`、`start_here_reading`、`topic_articles`、`archive_articles`、`more_from_ckb`、`recent_posts`。其中 `recommended_reading` 对应当前 Most read this year 模块，保留名字用于统计连续性。
 
-## 验证
+本轮不更改 UI、推荐名单、榜单排序、地址或文章内容。Most Read 的既有近 12 个月 GA4 Views 快照不因接入事件而自动刷新。点击不是收藏数，没有卡片曝光分母，也不能计算真实 CTR；具体榜单口径见 [Most Read 数据说明](./kb-most-read.md)。
 
-本地单元测试使用隔离的 SDK、tRPC 和 SendGrid mock，覆盖环境开关、参数白名单、URL 上下文清理、失败隔离、文章卡片两种布局、步骤链接、页脚导航／社交／邮箱、Subject 切换、布局变化、Filter 打开、搜索提交和翻页。订阅测试还覆盖邮箱校验、姓名省略兼容、并发点击、成功受理、失败和超时；未向生产统计库注入测试事件，也未创建真实订阅。
+## 验证与上线待办
+
+隔离测试使用真实组件/Hook/映射函数及 SDK、tRPC mock，覆盖 17 项 payload、环境切换、页面分组、SPA/hash 去重、参数清理、SDK 阻断、搜索总数、订阅时机、滚动 RAF 和原有链接行为。没有连接 GA 或创建真实订阅。
 
 ```sh
+node --test src/utils/ga.test.mjs src/components/GoogleAnalytics/*.test.mjs
 node --test src/components/KnowledgeHub/*.test.cjs src/components/KnowledgeHub/*.test.mjs
 node --test src/server/api/routers/newsletter.test.mjs
 ```
 
-上线后还需在 Umami 后台用真实交互核对事件名称、参数及数量。SDK 被拦截时会漏报；本地通过不等于后台已经收到事件。
+预览属性 DebugView 验收、GA 自定义维度/指标及 key event 配置、重复自动事件排查和正式统计抽查均待有权限人员完成，见 [上线清单](./kb-release-checklist.md)。

@@ -1,0 +1,41 @@
+.switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: stretch;
+  height: 30px;
+  overflow: hidden;
+  border: 1px solid var(--kbText);
+  border-radius: 3px;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 47px;
+    color: var(--kbPlaceholder);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    background: var(--kbSurface);
+
+    &:lang(zh) {
+      font-size: 12px;
+    }
+
+    &[aria-current='page'] {
+      color: var(--kbInverseText);
+      background: var(--kbText);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--kbAccent);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.mobile {
+  height: 25px;
+}

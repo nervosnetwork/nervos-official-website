@@ -97,6 +97,25 @@ $defaultHeaderHeight: 90px;
   }
 }
 
+.mobileActions {
+  display: none;
+}
+
+@media (width <= 900px) {
+  .knowledgeHub.withMobileActions {
+    .mobileActions {
+      display: flex;
+      order: 1;
+      margin-left: auto;
+    }
+
+    .menuPopover {
+      order: 2;
+      margin-left: 20px;
+    }
+  }
+}
+
 .knowledgeHub {
   position: relative;
   flex-direction: row;

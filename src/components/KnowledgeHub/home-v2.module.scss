@@ -66,6 +66,14 @@
   margin-top: 64px;
   padding: 32px 48px;
   background: #111 url('/images/knowledge-hub/guide-background.jpg') center / cover no-repeat;
+
+  // Keep the original geometry and texture resolution. The AVIF URL matches
+  // the single, typed preload on the KB homepage; older browsers retain JPEG.
+  background-image: image-set(
+    url('/images/knowledge-hub/guide-background.1c63b618.avif') type('image/avif'),
+    url('/images/knowledge-hub/guide-background.420c8299.webp') type('image/webp'),
+    url('/images/knowledge-hub/guide-background.jpg') type('image/jpeg')
+  );
   isolation: isolate;
 }
 

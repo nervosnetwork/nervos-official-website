@@ -104,7 +104,7 @@ function submission(email = ' reader@example.test ') {
 }
 
 for (const placement of ['signal', 'footer']) {
-  test(`${placement} uses the shared API and only emits submit/accepted events without the email`, async () => {
+  test(`${placement} uses the shared API and only emits accepted signup events without the email`, async () => {
     const form = signup(placement)
     const input = submission()
     await form.render().onSubmit(input.event)
@@ -112,7 +112,7 @@ for (const placement of ['signal', 'footer']) {
     assert.equal(input.resets(), 1)
     assert.equal(input.prevented(), 1)
     assert.deepEqual(form.events, [
-      { name: 'kb_newsletter_submit', data: { placement } },
+      { name: 'kb_newsletter_submit', data: { placement, status: 'accepted' } },
       { name: 'kb_newsletter_result', data: { placement, outcome: 'accepted' } },
     ])
     assert.equal(form.render().status, 'Thanks! Your signup request was received.')
@@ -132,6 +132,7 @@ test('pending submissions are disabled and duplicate clicks before rerender cann
   assert.equal(form.calls.length, 1)
   assert.equal(form.render().isSubmitting, true)
   assert.equal(form.render().status, 'Submitting…')
+  assert.deepEqual(form.events, [], 'A pending request is not an accepted signup')
   resolve({ success: true, status: 'accepted' })
   await pending
   assert.equal(form.render().isSubmitting, false)
@@ -147,7 +148,7 @@ test('invalid input produces feedback without sending a request or analytics eve
   assert.equal(form.events.length, 0)
 })
 
-test('API rejection and network failures keep the email, show a retryable error and never emit accepted', async () => {
+test('API rejection and network failures keep the email, show a retryable error and never emit submit', async () => {
   for (const mutate of [
     async () => ({ success: false }),
     async () => {
@@ -162,13 +163,25 @@ test('API rejection and network failures keep the email, show a retryable error 
     assert.equal(form.render().isInvalid, false, 'A service failure does not mean the email is invalid')
     assert.equal(input.resets(), 0)
     assert.equal(form.render().status, 'Unable to submit. Please try again or contact media@nervos.org.')
-    assert.deepEqual(form.events[1], {
-      name: 'kb_newsletter_result',
-      data: { placement: 'footer', outcome: 'error' },
-    })
+    assert.deepEqual(form.events, [{ name: 'kb_newsletter_result', data: { placement: 'footer', outcome: 'error' } }])
     await form.render().onSubmit(input.event)
     assert.equal(form.calls.length, 2, 'The user can explicitly retry a failed submission')
+    assert.ok(form.events.every(event => event.name !== 'kb_newsletter_submit'))
   }
+})
+
+test('a failed signup followed by a successful retry emits submit exactly once after acceptance', async () => {
+  let attempts = 0
+  const form = signup('signal', async () => ({ success: ++attempts > 1, status: 'accepted' }))
+  const input = submission()
+  await form.render().onSubmit(input.event)
+  assert.equal(form.events.filter(event => event.name === 'kb_newsletter_submit').length, 0)
+  await form.render().onSubmit(input.event)
+  assert.equal(input.resets(), 1)
+  assert.deepEqual(
+    form.events.filter(event => event.name === 'kb_newsletter_submit'),
+    [{ name: 'kb_newsletter_submit', data: { placement: 'signal', status: 'accepted' } }],
+  )
 })
 
 test('Blockchain Signal keeps its initial copy and wires the real shared signup with pending controls', () => {
@@ -192,11 +205,13 @@ test('Blockchain Signal keeps its initial copy and wires the real shared signup 
     './content': {},
     './home-v2.module.scss': { default: {} },
     './Icon': { Icon: () => null },
+    './ArticleLanguageLink': { ArticleLanguageLink: 'a' },
     './Components': {},
     './KnowledgeFooter': {},
     './GuideLife': {},
     './NeuronIcon': {},
     './analytics': {},
+    './search-analytics': {},
     './useNewsletterSignup': {
       useNewsletterSignup: placement => {
         assert.equal(placement, 'signal')

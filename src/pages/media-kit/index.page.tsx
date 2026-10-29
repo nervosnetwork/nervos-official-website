@@ -5,10 +5,12 @@ import Head from 'next/head'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { BASE_URL } from 'src/utils'
+import { withStaticPageSEO } from '../../server/page-seo'
 import { Page } from '../../components/Page'
 import { StyledLink } from '../../components/StyledLink'
-import EmbellishedLeft from './embellished/left.svg'
-import EmbellishedRight from './embellished/right.svg'
+import { ExternalSvg } from '../../components/ExternalSvg'
+import embellishedLeft from './embellished/left.svg?url'
+import embellishedRight from './embellished/right.svg?url'
 import illustration from './illustration'
 import styles from './index.module.scss'
 
@@ -212,8 +214,18 @@ const MediaKit: NextPage = () => {
         })}
       >
         <div className={styles.container}>
-          <EmbellishedLeft className={styles.embellished} data-position="left" />
-          <EmbellishedRight className={styles.embellished} data-position="right" />
+          <ExternalSvg
+            src={embellishedLeft}
+            className={styles.embellished}
+            data-position="left"
+            style={{ mixBlendMode: 'difference' }}
+          />
+          <ExternalSvg
+            src={embellishedRight}
+            className={styles.embellished}
+            data-position="right"
+            style={{ mixBlendMode: 'difference' }}
+          />
           <section className={styles.banner}>
             <h1>{t('banner')}</h1>
             <h2>{t('slogan')}</h2>
@@ -251,11 +263,11 @@ const MediaKit: NextPage = () => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/media-kit', async ({ locale = 'en' }) => {
   const lng = await serverSideTranslations(locale, ['common', 'media-kit'])
   return {
     props: lng,
   }
-}
+})
 
 export default MediaKit

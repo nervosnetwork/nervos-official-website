@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
-import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../../../../components/ConwayGameOfLife'
+import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../../../../components/ConwayGameOfLife/constants'
 import { SubscribeWrap } from './SubscribeWrap'
 import { XIcon, DiscordIcon, TelegramIcon, LinkedInIcon, RedditIcon, YoutubeIcon, TIcon } from './icons'
 

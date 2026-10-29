@@ -115,11 +115,13 @@ function loadServerModule(filename, dependencies = {}) {
 }
 const source = loadServerModule('src/server/kb-content.ts')
 const headings = loadServerModule('src/components/KnowledgeHub/markdown-headings.ts')
+const images = loadServerModule('src/server/kb-images.ts')
 const translationRequests = []
 const { articleStaticPaths, articleStaticProps } = loadServerModule('src/server/kb-article-page.ts', {
   '../components/KnowledgeHub/content': content,
   '../components/KnowledgeHub/markdown-headings': headings,
   './kb-content': source,
+  './kb-images': images,
   remark: { remark },
   'next-i18next/serverSideTranslations': {
     serverSideTranslations: async language => {
@@ -149,8 +151,8 @@ assert.deepEqual(
   new Set(locales.flatMap(locale => source.getKBCatalog(locale).articles.map(article => `${locale}:${article.id}`))),
   'Preview routes must include only actual translations',
 )
-const originalEnglish = englishArticles.find(article => /[A-Z]/.test(article.id) && article.id.includes('_'))
-assert(originalEnglish, 'Expected an existing mixed-case, underscore article to exercise legacy paths')
+const originalEnglish = englishArticles.find(article => article.id === 'bft_consensus_mechanisms')
+assert(originalEnglish, 'Expected the stable BFT fixture with real Chinese and Spanish translations')
 const englishContext = { params: { slug: originalEnglish.id }, locale: 'en' }
 const englishPage = await articleStaticProps('canonical')(englishContext)
 assert('props' in englishPage && !('redirect' in englishPage), 'Existing English URLs must continue serving directly')
@@ -243,6 +245,7 @@ const fixtureRoutes = loadServerModule('src/server/kb-article-page.ts', {
   '../components/KnowledgeHub/content': content,
   '../components/KnowledgeHub/markdown-headings': headings,
   './kb-content': fixtureSource,
+  './kb-images': images,
   remark: { remark },
   'next-i18next/serverSideTranslations': { serverSideTranslations: async () => ({}) },
 })

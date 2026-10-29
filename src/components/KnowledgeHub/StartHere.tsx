@@ -8,11 +8,11 @@ import styles from './pages-v2.module.scss'
 import type { KBCatalog } from './content'
 import { trackKBEvent } from './analytics'
 
-// Approved editorial selections in order; preserve existing source IDs and URLs.
+// Approved editorial selections in order, using the D-18 canonical IDs.
 const readingIds = [
   ['nervos_overview_of_a_layered_blockchain', 'tokenomics_of_nervos_network'],
   ['comparing_blockchain_virtual_machines', 'account_abstraction_where_we_are_going'],
-  ['what_is_fiber', 'the-case-for-rgbpp'],
+  ['what_is_fiber', 'the_case_for_rgbpp'],
   ['blockchain_crypto_agility', 'ckb_blockchain_developers_dream'],
 ]
 
@@ -54,7 +54,13 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
   } as CSSProperties
 
   return (
-    <PreviewPage title="Start Here" revision headerClassName={styles.scrollingHeader}>
+    <PreviewPage
+      title="Start Here"
+      description="Nervos CKB explores what becomes possible when Bitcoin’s design principles meet open-ended programmability. Discover a blockchain built for people who want to push the technology further."
+      canonicalPath="/knowledge-base/start-here"
+      revision
+      headerClassName={styles.scrollingHeader}
+    >
       <div className={styles.container} style={fadeStyle}>
         <div className={styles.breadcrumbDock} ref={breadcrumbRef}>
           <Breadcrumb current="Start here" revision />
@@ -84,7 +90,7 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
                 step={index + 1}
                 href={`#${step.id}`}
                 selected={active === step.id}
-                onClick={() => trackKBEvent('kb_step_select', { step: index + 1 })}
+                onClick={() => trackKBEvent('kb_step_select', { step: index + 1, step_name: step.title })}
               />
             ))}
           </nav>

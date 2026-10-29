@@ -15,6 +15,7 @@ import matter from 'gray-matter'
 import ts from 'typescript'
 import * as sass from 'sass'
 import postcss from 'postcss'
+import kbHubs from '../../../scripts/fixtures/load-kb-hubs.mjs'
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const require = createRequire(import.meta.url)
@@ -144,12 +145,19 @@ function loadArticle() {
       useActiveSection: () => '',
     },
     './Components': { ArticleCard: () => null },
+    './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
+    './ArticleLanguageLink': {
+      ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
+      ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>
+        element('a', props),
+    },
     './content': { articlePath: article => article.canonicalPath, formatArticleDate: () => 'Existing date' },
     './article-v2.module.scss': { default: styles },
     './pages-v2.module.scss': { default: styles },
     './markdown-headings': headingModule,
     './article-features': { articleSocialActionsEnabled: false },
     './analytics': { trackKBEvent: () => undefined },
+    '../../utils/kb-hubs': kbHubs,
   }).ContentArticle
 }
 

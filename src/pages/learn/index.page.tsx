@@ -6,9 +6,9 @@ import { BaseSeparatePage } from 'src/components/BaseSeparatePage'
 import { StyledLink } from 'src/components/StyledLink'
 import { REPO, Author, fetchContributors, lastContributor, LastAuthor, BASE_URL } from 'src/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { withStaticPageSEO } from '../../server/page-seo'
 import EmbellishedLeft from './embellished_left.svg'
 import EmbellishedRight from './embellished_right.svg'
-import { useIsMobile } from '../../hooks'
 
 import styles from './index.module.scss'
 
@@ -25,7 +25,6 @@ interface PageProps {
 const Learn: NextPage<PageProps> = ({ contributors, author }) => {
   const [t, { language }] = useTranslation(['learn', 'common'])
   const { pathname } = useRouter()
-  const isMobile = useIsMobile()
 
   const floatIcons = (
     <div className={styles.icons}>
@@ -93,17 +92,16 @@ const Learn: NextPage<PageProps> = ({ contributors, author }) => {
         <title>{pageTitle}</title>
       </Head>
       <BaseSeparatePage
-        embellishedElements={
-          isMobile
-            ? [
-                { content: <EmbellishedLeft width={374} height={196} />, top: 467, right: -17 },
-                { content: <EmbellishedRight width={581} height={311} />, top: 65, left: -74 },
-              ]
-            : [
-                { content: <EmbellishedLeft width={595} height={310} />, top: 525, right: 420 },
-                { content: <EmbellishedRight width={940} height={503} />, top: -40, left: 100 },
-              ]
-        }
+        embellishedElements={[
+          {
+            content: <EmbellishedLeft width={595} height={310} />,
+            className: styles.embellishedLeft,
+          },
+          {
+            content: <EmbellishedRight width={940} height={503} />,
+            className: styles.embellishedRight,
+          },
+        ]}
         editLink={pageLink}
         title={title}
         floatIcons={floatIcons}
@@ -129,7 +127,7 @@ const Learn: NextPage<PageProps> = ({ contributors, author }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/learn', async ({ locale = 'en' }) => {
   const contributors = await fetchContributors()
   const author = await lastContributor(pagePath)
   const lng = await serverSideTranslations(locale, ['common', 'learn'])
@@ -140,6 +138,6 @@ export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
       contributors,
     },
   }
-}
+})
 
 export default Learn

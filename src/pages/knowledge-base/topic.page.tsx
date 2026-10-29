@@ -1,7 +1,6 @@
-import { Topic, type TopicProps } from '../../components/KnowledgeHub/Topic'
-import { libraryProps } from '../../server/kb-page'
+import { legacyTopicPageProps } from '../../server/kb-topic-page'
 
-export default function TopicPage(props: TopicProps) {
-  return <Topic key={`${props.hubId}:${props.subjectId ?? ''}`} {...props} />
+export default function LegacyTopicPage() {
+  return null
 }
-export const getServerSideProps = libraryProps('topic')
+export const getServerSideProps = legacyTopicPageProps

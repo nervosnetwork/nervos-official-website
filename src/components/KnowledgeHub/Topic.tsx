@@ -10,6 +10,7 @@ import { ArticleGridControls } from './ArticleGridControls'
 import { useHeroScroll } from './useHeroScroll'
 import { byDate, type KBCatalog } from './content'
 import { trackKBEvent } from './analytics'
+import { kbHubPath } from '../../utils/kb-hubs'
 
 const subjectPresentation: Record<string, { icon: string; description?: string }> = {
   'hash-functions': { icon: 'subject-hash-functions' },
@@ -61,6 +62,10 @@ export interface TopicProps {
 export function Topic({ catalog, hubId, subjectId }: TopicProps) {
   const hub = catalog.hubs.find(item => item.id === hubId)
   const heading = hub?.heading ?? 'Blockchain Scalability'
+  const description =
+    hub && hub.id !== 'blockchain-scalability'
+      ? hubs.find(item => item.name === hub.name)?.description
+      : 'Blockchain scalability is the study of how blockchain networks increase throughput, reduce costs, and support more complex applications. This hub covers Layer 1 and Layer 2 approaches, including rollups, payment channels, Lightning, RGB++, and Fiber, and how Nervos CKB scales without sacrificing security or decentralization.'
   const subjects = [
     ...catalog.subjects
       .filter(item => item.hub === hubId)
@@ -88,12 +93,19 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
     icon: 'topics-imgGroup59',
     description: 'Browse all articles in this topic.',
   }
-  const posts = catalog.articles
-    .filter(post => post.hub === hubId && (subject.id === 'all' || post.subjects.includes(subject.id)))
-    .sort(byDate)
+  // Keep one set of cards in the HTML; the existing subject controls toggle their visibility.
+  const hubPosts = catalog.articles.filter(post => post.hub === hubId).sort(byDate)
+  const visiblePosts = hubPosts.filter(post => subject.id === 'all' || post.subjects.includes(subject.id))
+  const visiblePositions = new Map(visiblePosts.map((post, index) => [post.id, index + 1]))
 
   return (
-    <PreviewPage title={heading} revision headerClassName={styles.scrollingHeader}>
+    <PreviewPage
+      title={heading}
+      description={description}
+      canonicalPath={kbHubPath(hubId) ?? '/knowledge-base'}
+      revision
+      headerClassName={styles.scrollingHeader}
+    >
       <div
         className={styles.container}
         style={{ '--heroFade': heroFade, '--breadcrumbHeight': `${breadcrumbHeight}px` } as CSSProperties}
@@ -103,11 +115,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
         </div>
         <header className={styles.topicHero}>
           <h1>{heading}</h1>
-          <p>
-            {hub && hub.id !== 'blockchain-scalability'
-              ? hubs.find(item => item.name === hub.name)?.description
-              : 'Blockchain scalability is the study of how blockchain networks increase throughput, reduce costs, and support more complex applications. This hub covers Layer 1 and Layer 2 approaches, including rollups, payment channels, Lightning, RGB++, and Fiber, and how Nervos CKB scales without sacrificing security or decentralization.'}
-          </p>
+          <p>{description}</p>
         </header>
         <div className={styles.topicRail} style={{ paddingTop: `${48 * (1 - heroFade)}px` }}>
           <h2 className={styles.subjectsLabel}>
@@ -138,17 +146,33 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
               <h2 id="subject-title">{subject.name === 'View all' ? 'All subjects' : subject.name}</h2>
               <p>{subject.description}</p>
             </div>
-            <ArticleGridControls density={density} onDensityChange={setDensity} placement="topic" />
+            <ArticleGridControls
+              density={density}
+              onDensityChange={setDensity}
+              placement="topic"
+              pageType="hub"
+              hubId={hubId}
+            />
           </div>
         </div>
         <section className={styles.topicArticles} aria-labelledby="subject-title">
           <div className={clsx(styles.topicGrid, styles[`density${density}`])}>
-            {posts.map(post => (
+            {hubPosts.map(post => (
               <ArticleCard
                 key={post.id}
                 title={post.title}
                 article={post}
-                analyticsContext={{ placement: 'topic_articles', hub_id: hubId, subject_id: subject.id }}
+                hidden={!visiblePositions.has(post.id)}
+                analyticsContext={
+                  visiblePositions.has(post.id)
+                    ? {
+                        placement: 'topic_articles',
+                        hub_id: hubId,
+                        subject_id: subject.id,
+                        position: visiblePositions.get(post.id),
+                      }
+                    : undefined
+                }
                 tag={
                   subject.id === 'all' ? catalog.subjects.find(item => item.id === post.subjects[0])?.name : undefined
                 }
@@ -156,13 +180,13 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
               />
             ))}
           </div>
-          {posts.length === 0 && (
+          {visiblePosts.length === 0 && (
             <p role="status" className={styles.empty}>
               No articles in this subject yet.
             </p>
           )}
           <p className={styles.srOnly} aria-live="polite">
-            Showing {posts.length} articles, latest to oldest
+            Showing {visiblePosts.length} articles, latest to oldest
           </p>
         </section>
         <RelatedHubs revision />

@@ -16,6 +16,10 @@ import contentStyles from './pages-v2.module.scss'
 import { headingPlugin } from './markdown-headings'
 import { articleSocialActionsEnabled } from './article-features'
 import { trackKBEvent } from './analytics'
+import { kbHubPath } from '../../utils/kb-hubs'
+import type { KBImageDimensions } from '../../server/kb-images'
+import { ArticleLanguageSwitch } from './ArticleLanguageSwitch'
+import { ArticleContentLink, ArticleLanguageLink } from './ArticleLanguageLink'
 
 export function ContentArticle({
   article,
@@ -26,6 +30,8 @@ export function ContentArticle({
   subjects,
   headings,
   preview = true,
+  imageDimensions = {},
+  languagesByArticle = {},
 }: {
   article: KBArticle
   markdown: string
@@ -35,6 +41,8 @@ export function ContentArticle({
   subjects: KBCatalog['subjects']
   headings: { id: string; label: string }[]
   preview?: boolean
+  imageDimensions?: KBImageDimensions
+  languagesByArticle?: Record<string, string[]>
 }) {
   const router = useRouter()
   const contents = headings.map(heading => ({ ...heading, id: `user-content-${heading.id}` }))
@@ -53,19 +61,62 @@ export function ContentArticle({
     /^(https?:)?\/\//.test(src) || src.startsWith('/')
       ? src
       : `/education_hub_articles/${encodeURIComponent(article.id)}/${src}`
+  const renderImage = (src: string, alt: string, hero = false) => {
+    let dimensions = imageDimensions[src]
+    if (!dimensions && src.startsWith('/') && !src.startsWith('//')) {
+      try {
+        const pathname = new URL(src, 'https://kb.invalid').pathname
+        dimensions = imageDimensions[pathname] ?? imageDimensions[decodeURI(pathname)]
+      } catch {
+        // Unknown sources keep the previous raw-image fallback.
+      }
+    }
+    const className = hero ? contentStyles.articleCover : undefined
+    // Keep animation, SVGs and external/unknown images on their original URL.
+    if (!dimensions || !['png', 'jpg', 'webp', 'avif'].includes(dimensions.type))
+      return (
+        <img
+          src={src}
+          alt={alt}
+          className={className}
+          width={dimensions?.width}
+          height={dimensions?.height}
+          loading={hero ? undefined : 'lazy'}
+        />
+      )
+    // Match the existing reading-column breakpoints; width/height preserve
+    // intrinsic layout, while sizes controls only the downloaded resource.
+    const cap = Math.min(dimensions.width, hero ? 650 : 690)
+    const sizes = `(max-width: 900px) min(calc(100vw - 40px), ${cap}px), (max-width: 1100px) min(calc(100vw - 364px), ${cap}px), min(calc(100vw - 472px), ${cap}px)`
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        className={className}
+        width={dimensions.width}
+        height={dimensions.height}
+        style={{ aspectRatio: `${dimensions.width} / ${dimensions.height}` }}
+        sizes={sizes}
+        quality={80}
+        priority={hero}
+        fetchPriority={hero ? 'high' : undefined}
+        loading={hero ? undefined : 'lazy'}
+      />
+    )
+  }
   return (
     <PreviewPage
       title={article.title}
       newsletter={false}
       revision
       headerClassName={styles.scrollingHeader}
+      mobileHeaderActions={<ArticleLanguageSwitch article={article} mobile />}
       preview={preview}
       canonicalPath={article.canonicalPath}
-      description={article.subtitle}
       openGraph={{
         type: 'article',
         title: article.title,
-        description: article.subtitle,
+        description: article.description?.trim() || article.subtitle,
         url: `https://www.nervos.org${article.canonicalPath}`,
         site_name: 'Nervos Network',
         locale: article.language,
@@ -79,7 +130,7 @@ export function ContentArticle({
     >
       <div className={styles.articlePage} style={{ '--articleNavHeight': `${navHeight}px` } as CSSProperties}>
         <div className={styles.articleNav} ref={navRef}>
-          <Link href="/knowledge-base" className={styles.articleBrand}>
+          <Link href="/knowledge-base" locale="en" className={styles.articleBrand}>
             <span>
               <Icon name="articleNav-imgGroup" size={28} />
             </span>
@@ -89,16 +140,25 @@ export function ContentArticle({
               Education Hub
             </div>
           </Link>
-          <a
-            className={styles.writeArticle}
-            href="https://github.com/NervosEducationHub/EducationHubArticles"
-            onClick={() =>
-              trackKBEvent('kb_resource_click', { resource_id: 'write_article', placement: 'article_nav' })
-            }
-          >
-            <Icon name="articleNav-imgGroup1" size={19} />
-            Write an article
-          </a>
+          <div className={styles.articleActions}>
+            <a
+              className={styles.writeArticle}
+              href="https://github.com/NervosEducationHub/EducationHubArticles"
+              onClick={() =>
+                trackKBEvent('kb_resource_click', {
+                  resource_id: 'write_article',
+                  placement: 'article_nav',
+                  link_url: 'https://github.com/NervosEducationHub/EducationHubArticles',
+                })
+              }
+            >
+              <Icon name="articleNav-imgGroup1" size={19} />
+              Write an article
+            </a>
+            <div className={styles.desktopLanguage}>
+              <ArticleLanguageSwitch article={article} />
+            </div>
+          </div>
           {contents.length > 0 && (
             <label className={styles.mobileContents}>
               <span>Contents</span>
@@ -107,10 +167,12 @@ export function ContentArticle({
                 value={active || contents[0]?.id}
                 onChange={event => {
                   const sectionIndex = contents.findIndex(item => item.id === event.target.value)
-                  if (sectionIndex >= 0) {
+                  const heading = contents[sectionIndex]
+                  if (heading) {
                     trackKBEvent('kb_toc_click', {
                       article_id: article.id,
                       section_index: sectionIndex + 1,
+                      heading_text: heading.label,
                       placement: 'mobile',
                     })
                   }
@@ -144,7 +206,7 @@ export function ContentArticle({
               <h1>{article.title}</h1>
               {article.subtitle && <p className={styles.subhead}>{article.subtitle}</p>}
             </header>
-            {article.coverImage && <img src={article.coverImage} alt="" className={contentStyles.articleCover} />}
+            {article.coverImage && renderImage(article.coverImage, article.title, true)}
             <ReactMarkdown
               className={contentStyles.articleMarkdown}
               remarkPlugins={[remarkGfm, headingPlugin]}
@@ -167,8 +229,20 @@ export function ContentArticle({
               components={{
                 // The article title owns the page H1; body headings keep the existing H1/H2 styling.
                 h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
-                img: ({ src, alt }) => <img src={resolveImage(src)} alt={alt || ''} loading="lazy" />,
-                a: ({ href, children }) => <a href={href}>{children}</a>,
+                img: ({ src, alt }) =>
+                  renderImage(
+                    resolveImage(src),
+                    alt?.trim() && alt.trim().toLowerCase() !== 'alt_text' ? alt : article.title,
+                  ),
+                a: ({ href, children }) => (
+                  <ArticleContentLink
+                    href={href}
+                    languagesByArticle={languagesByArticle}
+                    currentLanguage={article.language}
+                  >
+                    {children}
+                  </ArticleContentLink>
+                ),
               }}
             >
               {markdown}
@@ -185,13 +259,14 @@ export function ContentArticle({
             {related.length > 0 && (
               <section className={styles.moreArticles} aria-labelledby="more-articles">
                 <h2 id="more-articles">More from CKB</h2>
-                {related.map(a => (
+                {related.map((a, index) => (
                   <ArticleCard
                     key={a.id}
                     article={a}
+                    imageSizes="(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 160px, 200px"
                     title={a.title}
                     horizontal
-                    analyticsContext={{ placement: 'more_from_ckb' }}
+                    analyticsContext={{ placement: 'more_from_ckb', position: index + 1, hub_id: a.hub ?? undefined }}
                   />
                 ))}
               </section>
@@ -213,6 +288,7 @@ export function ContentArticle({
                             trackKBEvent('kb_toc_click', {
                               article_id: article.id,
                               section_index: index + 1,
+                              heading_text: item.label,
                               placement: 'desktop',
                             })
                           }
@@ -229,12 +305,18 @@ export function ContentArticle({
               <section>
                 <h2>Recent posts:</h2>
                 <div className={styles.recentPosts}>
-                  {recent.map(item => (
-                    <Link
+                  {recent.map((item, index) => (
+                    <ArticleLanguageLink
                       key={item.id}
+                      article={item}
                       href={articlePath(item)}
                       onClick={() =>
-                        trackKBEvent('kb_article_click', { article_id: item.id, placement: 'recent_posts' })
+                        trackKBEvent('kb_article_click', {
+                          article_id: item.id,
+                          placement: 'recent_posts',
+                          position: index + 1,
+                          hub_id: item.hub ?? undefined,
+                        })
                       }
                     >
                       {item.title}
@@ -242,7 +324,7 @@ export function ContentArticle({
                         {' '}
                         →
                       </span>
-                    </Link>
+                    </ArticleLanguageLink>
                   ))}
                 </div>
               </section>
@@ -254,7 +336,7 @@ export function ContentArticle({
                   <button
                     onClick={() => {
                       trackKBEvent('kb_hub_click', { hub_id: hub.id, placement: 'article_categories' })
-                      void router.push(`/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}`)
+                      void router.push(kbHubPath(hub.id) ?? '/knowledge-base', undefined, { locale: 'en' })
                     }}
                   >
                     {hub.name}
@@ -269,7 +351,9 @@ export function ContentArticle({
                           placement: 'article_categories',
                         })
                         void router.push(
-                          `/knowledge-base/topic?hub=${encodeURIComponent(hub.id)}&subject=${encodeURIComponent(subject.id)}`,
+                          `${kbHubPath(hub.id) ?? '/knowledge-base'}?subject=${encodeURIComponent(subject.id)}`,
+                          undefined,
+                          { locale: 'en' },
                         )
                       }}
                     >

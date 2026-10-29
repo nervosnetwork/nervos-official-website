@@ -9,7 +9,8 @@ import { ArticleCard, SubjectCard } from './Components'
 import { KBCatalog } from './content'
 import styles from './pages-v2.module.scss'
 import homeStyles from './home-v2.module.scss'
-import { searchLengthBucket, trackKBEvent } from './analytics'
+import { trackKBEvent } from './analytics'
+import { trackKBSearch } from './search-analytics'
 
 export interface LibraryProps {
   catalog: KBCatalog
@@ -50,10 +51,8 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
               onSubmit={event => {
                 event.preventDefault()
                 const value = new FormData(event.currentTarget).get('q')
-                trackKBEvent('kb_search_submit', {
-                  placement: 'search',
-                  query_length_bucket: searchLengthBucket(String(value || '')),
-                })
+                const submitted = String(value || '')
+                trackKBSearch(submitted, 'search', router.locale, submitted.slice(0, 200) === query ? total : undefined)
                 void router.push(`/knowledge-base/search?q=${encodeURIComponent(String(value || ''))}`)
               }}
             >
@@ -102,7 +101,12 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
                 key={value}
                 aria-pressed={view === value}
                 onClick={() => {
-                  if (value !== view) trackKBEvent('kb_layout_change', { placement: mode, layout: value })
+                  if (value !== view)
+                    trackKBEvent('kb_layout_change', {
+                      placement: mode,
+                      layout: value,
+                      columns: value === 'grid' ? 4 : 1,
+                    })
                   setView(value)
                   try {
                     localStorage.setItem('kb-layout', value)
@@ -124,7 +128,7 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
             <div className={view === 'grid' ? clsx(styles.topicGrid, styles.density4) : undefined}>
               {catalog.articles
                 .filter(a => mode !== 'topic' || a.subjects[0] === subject.id)
-                .map(article => (
+                .map((article, index) => (
                   <ArticleCard
                     key={article.id}
                     article={article}
@@ -132,8 +136,8 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
                     horizontal={view === 'list'}
                     analyticsContext={
                       mode === 'topic'
-                        ? { placement: 'topic_articles', hub_id: hubId, subject_id: subject.id }
-                        : { placement: mode === 'search' ? 'search_results' : 'archive_articles' }
+                        ? { placement: 'topic_articles', hub_id: hubId, subject_id: subject.id, position: index + 1 }
+                        : { placement: mode === 'search' ? 'search_results' : 'archive_articles', position: index + 1 }
                     }
                   />
                 ))}
@@ -150,7 +154,14 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
             {page > 1 && (
               <Link
                 href={`/knowledge-base/${mode === 'search' ? 'search' : 'articles'}?page=${page - 1}${mode === 'search' ? `&q=${encodeURIComponent(query)}` : ''}`}
-                onClick={() => trackKBEvent('kb_pagination_click', { placement: mode, page: page - 1 })}
+                onClick={() =>
+                  trackKBEvent('kb_pagination_click', {
+                    placement: mode,
+                    page: page - 1,
+                    page_type: mode === 'search' ? 'search' : 'all_articles',
+                    direction: 'previous',
+                  })
+                }
               >
                 ← Previous
               </Link>
@@ -161,7 +172,14 @@ export function Library({ catalog, mode, hubId, query, page, total }: LibraryPro
             {page * 24 < total && (
               <Link
                 href={`/knowledge-base/${mode === 'search' ? 'search' : 'articles'}?page=${page + 1}${mode === 'search' ? `&q=${encodeURIComponent(query)}` : ''}`}
-                onClick={() => trackKBEvent('kb_pagination_click', { placement: mode, page: page + 1 })}
+                onClick={() =>
+                  trackKBEvent('kb_pagination_click', {
+                    placement: mode,
+                    page: page + 1,
+                    page_type: mode === 'search' ? 'search' : 'all_articles',
+                    direction: 'next',
+                  })
+                }
               >
                 Keep reading →
               </Link>

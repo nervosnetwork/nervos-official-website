@@ -15,7 +15,7 @@ const catalog = JSON.parse(fs.readFileSync(path.join(contentRoot, 'metadata/cata
 const approvedIds = [
   ['nervos_overview_of_a_layered_blockchain', 'tokenomics_of_nervos_network'],
   ['comparing_blockchain_virtual_machines', 'account_abstraction_where_we_are_going'],
-  ['what_is_fiber', 'the-case-for-rgbpp'],
+  ['what_is_fiber', 'the_case_for_rgbpp'],
   ['blockchain_crypto_agility', 'ckb_blockchain_developers_dream'],
 ]
 const approvedTitles = [

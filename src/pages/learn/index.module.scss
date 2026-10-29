@@ -14,11 +14,51 @@
   line-height: 135%;
 }
 
+.embellishedLeft {
+  top: 525px;
+  right: 420px;
+
+  > svg {
+    width: 595px;
+    height: 310px;
+  }
+}
+
+.embellishedRight {
+  top: -40px;
+  left: 100px;
+
+  > svg {
+    width: 940px;
+    height: 503px;
+  }
+}
+
 @media (max-width: $mobileBreakPoint) {
   .icons {
     position: absolute;
     top: calc(100% + 54px);
     left: 0;
     transform: unset;
+  }
+
+  .embellishedLeft {
+    top: 467px;
+    right: -17px;
+
+    > svg {
+      width: 374px;
+      height: 196px;
+    }
+  }
+
+  .embellishedRight {
+    top: 65px;
+    left: -74px;
+
+    > svg {
+      width: 581px;
+      height: 311px;
+    }
   }
 }

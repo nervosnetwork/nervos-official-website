@@ -4,11 +4,12 @@ import Head from 'next/head'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { BaseSeparatePage } from 'src/components/BaseSeparatePage'
+import { ExternalSvg } from 'src/components/ExternalSvg'
 import { StyledLink } from 'src/components/StyledLink'
 import { Author, BASE_URL, fetchContributors, LastAuthor, lastContributor, REPO } from 'src/utils'
-import EmbellishedLeft from './embellished_left.svg'
-import EmbellishedRight from './embellished_right.svg'
-import { useIsMobile } from '../../hooks'
+import { withStaticPageSEO } from '../../server/page-seo'
+import embellishedLeft from './embellished_left.svg?url'
+import embellishedRight from './embellished_right.svg?url'
 
 import styles from './index.module.scss'
 
@@ -47,7 +48,6 @@ interface PageProps {
 const Wallets: NextPage<PageProps> = ({ contributors, author }) => {
   const [t, { language }] = useTranslation(['wallets', 'common'])
   const { pathname } = useRouter()
-  const isMobile = useIsMobile()
 
   const floatIcons = (
     <div className={styles.icons}>
@@ -359,51 +359,23 @@ const Wallets: NextPage<PageProps> = ({ contributors, author }) => {
         <title>{pageTitle}</title>
       </Head>
       <BaseSeparatePage
-        embellishedElements={
-          isMobile
-            ? [
-                {
-                  content: (
-                    <EmbellishedLeft
-                      width={430}
-                      height={265}
-                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'right top' }}
-                    />
-                  ),
-                  top: 264,
-                  right: 8 + 265,
-                },
-                {
-                  content: (
-                    <EmbellishedRight
-                      width={374}
-                      height={196}
-                      style={{ transform: 'scaleX(-1) rotate(90deg)', transformOrigin: 'left top' }}
-                    />
-                  ),
-                  top: 70,
-                  left: 38,
-                },
-              ]
-            : [
-                {
-                  content: (
-                    <EmbellishedLeft
-                      width={744}
-                      height={459}
-                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'right top' }}
-                    />
-                  ),
-                  top: 117,
-                  right: 396 + 459,
-                },
-                {
-                  content: <EmbellishedRight width={595} height={310} style={{ transform: 'scaleX(-1)' }} />,
-                  top: 425,
-                  left: 114,
-                },
-              ]
-        }
+        embellishedElements={[
+          {
+            content: (
+              <ExternalSvg
+                src={embellishedLeft}
+                width={744}
+                height={459}
+                style={{ transform: 'rotate(-90deg)', transformOrigin: 'right top' }}
+              />
+            ),
+            className: styles.embellishedLeft,
+          },
+          {
+            content: <ExternalSvg src={embellishedRight} width={595} height={310} />,
+            className: styles.embellishedRight,
+          },
+        ]}
         editLink={pageLink}
         title={title}
         floatIcons={floatIcons}
@@ -429,7 +401,7 @@ const Wallets: NextPage<PageProps> = ({ contributors, author }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/wallets', async ({ locale = 'en' }) => {
   const contributors = await fetchContributors()
   const author = await lastContributor(pagePath)
   const lng = await serverSideTranslations(locale, ['common', 'wallets'])
@@ -440,6 +412,6 @@ export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
       contributors,
     },
   }
-}
+})
 
 export default Wallets

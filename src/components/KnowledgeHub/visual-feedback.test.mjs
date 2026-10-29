@@ -10,6 +10,7 @@ import { createElement } from 'react'
 import ts from 'typescript'
 import * as sass from 'sass'
 import postcss from 'postcss'
+import kbHubs from '../../../scripts/fixtures/load-kb-hubs.mjs'
 
 const directory = path.dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
@@ -38,10 +39,13 @@ function loadComponents() {
     'react/jsx-runtime': require('react/jsx-runtime'),
     clsx: { default: (...values) => values.filter(Boolean).join(' ') },
     'next/link': { default: 'a' },
+    'next/image': { default: 'img' },
     './Icon': { Icon: ({ name }) => createElement('img', { 'data-icon': name, alt: '' }) },
+    './ArticleLanguageLink': { ArticleLanguageLink: ({ article: _article, ...props }) => createElement('a', props) },
     './components.module.scss': { default: new Proxy({}, { get: (_, key) => key }) },
     './content': { articlePath: article => article.canonicalPath },
     './analytics': { trackKBEvent: () => undefined },
+    '../../utils/kb-hubs': kbHubs,
   }
   vm.runInNewContext(outputText, {
     exports,

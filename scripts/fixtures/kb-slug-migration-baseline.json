@@ -1,0 +1,23 @@
+{
+  "articleCommit": "421a3670674ab7529863f59e71bfa0ead0ea6ded",
+  "description": "Pre-D-18 approved catalog and reconciliation, transformed only by the exact 50-entry migration. The original hashes remain unchanged. For comparison only, the approved D-08 copy is verified against its source digest then removed, generated article/issue inventories are restored to the original source-file order, and the refreshed reconciliation sourceCommit is projected back to its recorded provenance. Editorial array order and all other fields remain protected.",
+  "approvedD08Import": {
+    "sourceWorkbookSHA256": "5390b58432a5106c81bd6e064e68fdead084507ebf26f99a7bf5e2e615bb3a8c",
+    "sourceSheet": "02_Meta_Descriptions",
+    "descriptionRange": "G5:G95",
+    "entryCount": 91,
+    "entriesSHA256": "48425bf79f450e25f12b03e409cbf004bb616c032499bacdb9d34241d5168080",
+    "reconciliationSourceCommitBeforeRegeneration": "4b96df2b13bd444ed2af2b3168050856159e74ef"
+  },
+  "renditions": 320,
+  "languages": {
+    "en": 213,
+    "es": 43,
+    "zh": 64
+  },
+  "migratedRenditions": 61,
+  "articleMetadataSHA256": "acdc000ebbd7f2f9faddebabbca195f39b075e71dfa9313500cc1affc38fc195",
+  "hubsAndSubjectsSHA256": "552d5c72d53c4c1292269ed3c92a11f28e76148ba0d8e1c8b798c6923035e823",
+  "featuredSHA256": "e6126d446773ba091c88199824cc6f2a0224db929277fbc3818e7f092471c4f0",
+  "reconciliationSHA256": "f8cfd7f6d85087933355c9a088b0147cf220cc391976118d1437bc77e0f805db"
+}

@@ -28,12 +28,12 @@ export function useNewsletterSignup(placement: 'signal' | 'footer') {
     setIsError(false)
     setIsInvalid(false)
     setStatus('Submitting…')
-    trackKBEvent('kb_newsletter_submit', { placement })
     try {
       const result = await mutateAsync({ email: input.data.email })
       if (!result.success) throw new Error('Newsletter signup was not accepted')
       setStatus('Thanks! Your signup request was received.')
       form.reset()
+      trackKBEvent('kb_newsletter_submit', { placement, status: 'accepted' })
       trackKBEvent('kb_newsletter_result', { placement, outcome: 'accepted' })
     } catch {
       setIsError(true)

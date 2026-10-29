@@ -7,6 +7,9 @@ import { isSafari, isIOS } from 'react-device-detect'
 import { Trans, useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { LanguagePopover } from 'src/components/Header'
+import { withStaticPageSEO } from '../../server/page-seo'
+import { OpenGraph } from '../../components/OpenGraph'
+import { sharingPageUrl } from '../../utils/sharing-urls'
 import { Footer } from './FoundationFooter'
 import {
   NervosLogoIcon,
@@ -117,6 +120,15 @@ const Foundation: NextPage = () => {
       <Head>
         <title>{pageTitle}</title>
       </Head>
+      <OpenGraph
+        properties={{
+          type: 'website',
+          title: pageTitle,
+          description: t('slogan').replace(/<\/?tag[12]>/g, ''),
+          url: sharingPageUrl('/foundation', language, 'en'),
+          site_name: 'Nervos Network',
+        }}
+      />
       <div className={styles.foundationPageHeader}>
         <div style={{ padding: 12, height: '100%' }}>
           <FoundationLogo style={{ height: '100%' }} />
@@ -307,13 +319,13 @@ const Foundation: NextPage = () => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/foundation', async ({ locale = 'en' }) => {
   const lng = await serverSideTranslations(locale, ['common', 'foundation'])
   return {
     props: {
       ...lng,
     },
   }
-}
+})
 
 export default Foundation
