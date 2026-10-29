@@ -32,11 +32,10 @@ let checked = 0
 let compared = 0
 async function check(pathname, expected) {
   let result = await response(origin, pathname)
-  // D-19: explicit English aliases now redirect instead of serving duplicates.
-  if (expected.redirectTo || pathname.startsWith('/en/')) {
+  if (expected.redirectTo) {
     assert.equal(result.status, 308, pathname)
     const target = new URL(result.headers.get('location'), origin)
-    assert.equal(target.href, origin + (expected.redirectTo ?? pathname.slice(3)), pathname)
+    assert.equal(target.href, origin + expected.redirectTo, pathname)
     await result.arrayBuffer()
     result = await response(origin, target.pathname + target.search)
   }

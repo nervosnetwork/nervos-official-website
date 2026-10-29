@@ -39,7 +39,7 @@ test('D-19 CKB aliases redirect directly to the correct final language, preservi
   }
 })
 
-test('D-19 explicit English is handled in raw-URL middleware, never a looping default-locale config redirect', async () => {
+test('D-19 default-English aliases never add a looping default-locale config redirect', async () => {
   assert.equal(config.skipMiddlewareUrlNormalize, true)
   for (const path of ['/', '/en', '/en/mining', '/mining', '/knowledge-base', '/en/knowledge-base']) {
     assert.equal((await route(path)).statusCode, undefined, path)

@@ -1632,3 +1632,45 @@ Branch-protection configuration and coordinated production release remain
 separate work. This integration does not close D-16 or other incomplete
 handoff tasks, merge main, modify the shared sheet or authorize production
 deployment.
+
+## October 29, 2026: Vercel default-locale redirect-loop correction
+
+PR #22's Preview build succeeded, but native Chrome reproduced
+`/knowledge-base` returning 308 with `Location: /knowledge-base` repeatedly,
+including in a clean incognito window and on the unique deployment URL.
+Local port 3001 returned 200, and the same Preview's `/zh/knowledge-base`
+rendered. Vercel's Next builder internally adds the default locale before
+custom redirects and middleware, so the raw `/en` pathname is not evidence
+that the visitor requested an English alias.
+
+Removed the raw-prefix-only redirect in middleware and the equivalent
+canonical-English Hub branch. Middleware now runs only for KB and article
+assets, retaining real historical article/asset migrations, old listing query
+cleanup, Hub selector migration and non-English Hub fallback. Raw Next data
+URLs remain enabled so client-navigation migrations still work. No UI,
+article content, canonical URL, language selector or deployment setting is
+changed.
+
+This intentionally supersedes the October 23 claim that all explicit `/en`
+aliases return 308. They now serve normally with the existing unprefixed
+canonical metadata and remain excluded from the sitemap. The general alias
+308 requirement is deferred in the release checklist; a generic Next config
+`/en/:path*` redirect would also match internally prefixed canonical requests
+and must not be substituted. The distinct `/ckb` aliases still redirect to
+their final language-specific destinations.
+
+Pre-deployment validation:
+
+- All 382 tests and TypeScript pass. Two new tests model Vercel's inferred
+  locale and re-process redirect destinations with real NextRequest and
+  NextResponse, covering canonical pages, all English articles, six Hubs,
+  50 old slugs, legacy queries and all 320 current article data endpoints.
+- An isolated production build in `.next-redirect-loop-fix` completes; its
+  server uses port 3004 without disturbing the existing 3001 environment.
+- 164 routing/header HTTP checks, 72 old listing redirects and 23 real archive
+  pages, 481 page-SEO HTTP checks (including all 320 article renditions), and
+  244 Hub HTTP checks pass. Explicit English aliases are checked for 200 and
+  unprefixed canonical metadata rather than silently omitted.
+- Native Chrome renders the isolated KB home normally. The actual newly
+  deployed Preview must still be checked; local production mode and the
+  platform-input regression tests are not deployment acceptance.

@@ -15,8 +15,9 @@ const config = {
   // Isolate a second local validation server from the active preview.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
-  // Preserve the literal /en prefix for D-19. Otherwise Next strips it before
-  // middleware and explicit English cannot be distinguished from canonical URLs.
+  // Keep data URLs intact so legacy client navigation can be migrated once.
+  // Do not infer public /en aliases from raw middleware URLs: Vercel also adds
+  // that prefix internally to canonical English requests.
   skipMiddlewareUrlNormalize: true,
   transpilePackages: ['react-tweet'],
 

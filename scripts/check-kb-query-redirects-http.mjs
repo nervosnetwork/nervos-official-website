@@ -22,15 +22,6 @@ const cases = [
 async function response(pathname) {
   return fetch(origin + pathname, { redirect: 'manual', signal: AbortSignal.timeout(45000) })
 }
-async function archiveResponse(pathname) {
-  const result = await response(pathname)
-  if (!pathname.startsWith('/en/')) return result
-  assert.equal(result.status, 308, pathname)
-  const target = new URL(result.headers.get('location'), origin)
-  assert.equal(target.href, origin + pathname.slice(3), pathname)
-  await result.arrayBuffer()
-  return response(target.pathname + target.search)
-}
 let redirects = 0
 for (const locale of ['', ...i18n.locales]) {
   const prefix = locale ? `/${locale}` : ''
@@ -72,7 +63,7 @@ for (const locale of ['', 'en', 'zh', 'es']) {
   const count = Math.max(1, Math.ceil(articles.length / 24))
   for (let page = 1; page <= count; page++) {
     const path = `${prefix}/knowledge-base/articles?page=${page}&utm_source=d07`
-    const result = await archiveResponse(path)
+    const result = await response(path)
     assert.equal(result.status, 200, path)
     assert.equal(result.headers.get('location'), null, path)
     const html = await result.text()
@@ -96,7 +87,7 @@ for (const locale of ['', 'en', 'zh', 'es']) {
     pages++
   }
   for (const page of ['0', 'broken', String(count + 1)]) {
-    const result = await archiveResponse(`${prefix}/knowledge-base/articles?page=${page}`)
+    const result = await response(`${prefix}/knowledge-base/articles?page=${page}`)
     assert.equal(result.status, 404, `${locale} invalid archive page ${page}`)
     await result.arrayBuffer()
   }

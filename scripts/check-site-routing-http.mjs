@@ -56,6 +56,17 @@ async function redirectOnce(from, to, status = 200) {
   await final.arrayBuffer()
 }
 
+async function englishAlias(path, canonical, status = 200) {
+  const result = await response(path)
+  assert.equal(result.status, status, path)
+  assert.equal(result.headers.get('location'), null, path)
+  if (status === 200) {
+    const html = await result.text()
+    const head = html.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? ''
+    assert.ok(head.includes(`rel="canonical" href="https://www.nervos.org${canonical}"`), path)
+  } else await result.arrayBuffer()
+}
+
 for (const route of [
   '/',
   '/mining',
@@ -64,17 +75,18 @@ for (const route of [
   '/knowledge-base/articles',
   '/knowledge-base/start-here',
 ]) {
-  await redirectOnce(`/en${route === '/' ? '' : route}${query}`, `${route}${query}`)
+  const canonical = await response(route)
+  assert.equal(canonical.status, 200, `${route}: canonical route stays reachable`)
+  assert.equal(canonical.headers.get('location'), null, `${route}: no self redirect`)
+  await canonical.arrayBuffer()
+  await englishAlias(`/en${route === '/' ? '' : route}${query}`, route)
 }
-await redirectOnce(
-  '/en/knowledge-base/articles?page=2&tag=one&tag=two',
-  '/knowledge-base/articles?page=2&tag=one&tag=two',
-)
+await englishAlias('/en/knowledge-base/articles?page=2&tag=one&tag=two', '/knowledge-base/articles?page=2')
 await redirectOnce(
   '/en/knowledge-base?page=2&sort_by=popular&tag=one&tag=two',
   '/knowledge-base/articles?tag=one&tag=two',
 )
-await redirectOnce('/en/knowledge-base/d19-does-not-exist', '/knowledge-base/d19-does-not-exist', 404)
+await englishAlias('/en/knowledge-base/d19-does-not-exist', '/knowledge-base/d19-does-not-exist', 404)
 for (const language of ['', 'en', 'zh', 'es', 'fr', 'tr', 'ko', 'pt']) {
   const prefix = language ? `/${language}` : ''
   const finalPrefix = language && language !== 'en' ? prefix : ''
@@ -84,9 +96,9 @@ for (const { from, to } of migrations.renames) {
   await redirectOnce(`/en/knowledge-base/${encodeURIComponent(from)}${query}`, `/knowledge-base/${to}${query}`)
 }
 for (const article of catalog.articles.filter(a => a.language === 'en').slice(0, 5)) {
-  await redirectOnce(`/en${article.canonicalPath}${query}`, article.canonicalPath + query)
+  await englishAlias(`/en${article.canonicalPath}${query}`, article.canonicalPath)
 }
-console.log('Explicit English, CKB aliases and all 50 renamed English articles redirect once, retaining query values')
+console.log('English aliases serve canonical metadata without loops; CKB aliases and 50 renamed articles redirect once')
 
 // Next data routes need the /en segment; stripping it would break navigation.
 for (const language of ['en', 'zh', 'es']) {

@@ -10,8 +10,8 @@ const { NextRequest } = require('next/server')
 const { getPageStaticInfo } = require('next/dist/build/analysis/get-page-static-info')
 const { getMiddlewareRouteMatcher } = require('next/dist/shared/lib/router/utils/middleware-route-matcher')
 const { i18n } = require('../next-i18next.config.js')
-// Match the production skipMiddlewareUrlNormalize setting: request.url keeps
-// explicit /en and Next data URLs, while HTML nextUrl.pathname omits locales.
+// Match the production skipMiddlewareUrlNormalize setting: request.url may
+// contain an explicit or inferred /en prefix and retains Next data paths.
 const previousNormalization = process.env.__NEXT_NO_MIDDLEWARE_URL_NORMALIZE
 process.env.__NEXT_NO_MIDDLEWARE_URL_NORMALIZE = 'true'
 after(() => {
@@ -164,16 +164,7 @@ test('D-07 matches only the exact KB root and exact legacy parameter names; curr
     ]) {
       const incoming = request(`${prefix}${pathname}`)
       assert.equal(legacyListingDestination(incoming), null, incoming.url)
-      if (prefix === '/en') {
-        // D-19 removes only the explicit English prefix; D-07 must leave all
-        // current query parameters and the selected archive page untouched.
-        assert.deepEqual(
-          middleware(incoming),
-          { kind: 'redirect', location: `https://www.nervos.org${pathname}`, status: 308 },
-          incoming.url,
-        )
-        assert.deepEqual(middleware(request(pathname)), { kind: 'next' })
-      } else assert.deepEqual(middleware(incoming), { kind: 'next' }, incoming.url)
+      assert.deepEqual(middleware(incoming), { kind: 'next' }, incoming.url)
     }
   }
 })
@@ -207,14 +198,15 @@ test('Next 14 actually compiles the middleware config to match KB root HTML requ
     assert.equal(middleware(incoming).kind, 'redirect')
   }
   for (const pathname of ['/blog', '/api/example', '/kb/read/BFT_consensus_mechanisms', '/unrelated']) {
-    const incoming = request(`${pathname}?page=2`)
-    // The literal /en matcher also sees Next's inferred default-locale path.
-    // The handler must distinguish it from an actual public /en prefix.
-    assert.equal(matches(`/${incoming.nextUrl.locale}${incoming.nextUrl.pathname}`, incoming, {}), true, pathname)
-    assert.deepEqual(middleware(incoming), { kind: 'next' })
-    const translated = request(`/zh${pathname}?page=2`)
-    assert.equal(matches(`/zh${translated.nextUrl.pathname}`, translated, {}), false, translated.url)
-    assert.deepEqual(middleware(translated), { kind: 'next' })
+    for (const prefix of prefixes) {
+      const incoming = request(`${prefix}${pathname}?page=2`)
+      assert.equal(
+        matches(`/${incoming.nextUrl.locale}${incoming.nextUrl.pathname}`, incoming, {}),
+        false,
+        incoming.url,
+      )
+      assert.deepEqual(middleware(incoming), { kind: 'next' })
+    }
   }
 })
 

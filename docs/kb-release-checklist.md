@@ -21,6 +21,7 @@
 - [ ] **D-19 — 域名配置管理员：配置域名级单跳跳转。** 在 Vercel Domains 等实际托管入口，将 `http://nervos.org/<path>?<query>` 直接转到 `https://www.nervos.org/<path>?<query>`，保留路径及查询参数。应用代码不能证明平台层已达到单跳。
 - [ ] **D-19：外网验证响应头和 HTTPS。** 检查 nosniff、Referrer-Policy、Permissions-Policy、基础 CSP；确认不会破坏预览集成。`frame-ancestors 'self'` 会限制跨域嵌入，须核对外部预览容器。
 - [ ] **D-19：核实 HSTS 范围。** 当前代码仅为精确 `www.nervos.org` 主机添加 HSTS。它不覆盖 apex 或其他同级子域。任何 apex HSTS / preload 名单申请前，运维需确认全域 HTTPS；代码中的 `preload` 标记不是已提交申请。
+- [ ] **D-19：默认英文别名的 308 规范化暂缓，先保证路由可访问。** Vercel 会先为无前缀英文请求内部补上 `/en`，原中间件因此将 `/knowledge-base` 308 回自身。已移除仅凭原始 `/en` 前缀作出的跳转（含 Hub），保留 D-01 / D-07 / D-18 / D-21 的实际迁移。`/en` 别名暂返回页面并使用不带 `/en` 的 canonical，不进入 sitemap；不能声称该类 308 已实现。上线前须在新 Preview 验证英文首页、文章列表、六个 Hub、文章和 Next data 导航均无循环。若后续恢复别名强制跳转，必须先有可验证的原始外部路径依据，不能直接添加泛 `/en/:path*` Next redirect。
 - [ ] **配置负责人：核实正式与预览环境变量。** 正式构建才使用 `NEXT_PUBLIC_VERCEL_ENV=production`；预览仍保留预览索引限制。SendGrid token / list ID 等保持服务端配置，不放入浏览器或验收截图。
 
 ## 3. 抓取与 SEO 发布检查

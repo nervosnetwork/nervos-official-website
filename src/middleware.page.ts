@@ -6,8 +6,8 @@ import { kbHubPath, resolveKBHub } from './utils/kb-hubs'
 const renamedFolders = new Map(migrations.renames.map(({ from, to }) => [from, to]))
 const assetPrefix = '/education_hub_articles/'
 
-// Keep D-07/D-18 working for client navigation after preserving raw URLs for
-// D-19. Only derive a page path; never strip /en from a Next data endpoint.
+// Keep D-07/D-18 working for client navigation with unnormalized data URLs.
+// Only derive a page path; never strip /en from a Next data endpoint.
 export function requestPagePath(request: NextRequest): string {
   const pathname = request.nextUrl.pathname
   const dataPath = /^\/_next\/data\/[^/]+(\/.*)\.json$/.exec(pathname)?.[1]
@@ -58,8 +58,7 @@ export function hubDestination(request: NextRequest): URL | null {
   }
   const hub = resolveKBHub(id)
   if (!hub || hub.id !== id) return null
-  const explicitEnglish = /^\/en(?:\/|$)/i.test(destination.pathname)
-  if (request.nextUrl.locale === 'en' && !explicitEnglish) return null
+  if (request.nextUrl.locale === 'en') return null
   destination.pathname = kbHubPath(hub.id)
   return destination
 }
@@ -100,19 +99,20 @@ export function migratedAssetPath(pathname: string): string | null {
 }
 
 export function middleware(request: NextRequest) {
+  // Vercel prefixes canonical English requests with /en before middleware.
+  // The raw URL cannot distinguish that internal rewrite from a public alias;
+  // redirect only real migrations, never the presence of the default locale.
   const hubRedirect = hubDestination(request)
   if (hubRedirect) return NextResponse.redirect(hubRedirect, 308)
   const listingDestination = legacyListingDestination(request)
   if (listingDestination) return NextResponse.redirect(listingDestination, 308)
   const pagePath = requestPagePath(request)
   const migratedPath = migratedAssetPath(pagePath) ?? migratedArticlePath(pagePath, request.nextUrl.locale)
+  if (!migratedPath) return NextResponse.next()
   const destination = new URL(request.url)
-  const englishAlias = /^\/en(?:\/|$)/i.test(destination.pathname) ? destination.pathname.slice(3) || '/' : null
-  const pathname = migratedPath ?? englishAlias
-  if (!pathname) return NextResponse.next()
   // Use the final full path (already locale-prefixed) and preserve the query.
   // getStaticProps alone cannot see query parameters on incoming old URLs.
-  destination.pathname = pathname
+  destination.pathname = migratedPath
   return NextResponse.redirect(destination, 308)
 }
 
@@ -120,5 +120,5 @@ export function middleware(request: NextRequest) {
 // terminal parameter would consume that group as its constraint, so use a
 // catch-all here and keep the exact single-segment check in migratedArticlePath.
 export const config = {
-  matcher: ['/education_hub_articles/:path*', '/knowledge-base/:path*', { source: '/en/:path*', locale: false }],
+  matcher: ['/education_hub_articles/:path*', '/knowledge-base/:path*'],
 }

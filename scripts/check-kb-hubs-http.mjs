@@ -146,7 +146,13 @@ for (const hub of catalog.hubs) {
         `${prefix}/knowledge-base/topic?hub=${encodeURIComponent(selector)}&subject=all&utm_source=d21`,
         `${canonical}?subject=all&utm_source=d21`,
       )
-    if (prefix)
+    if (locale === 'en') {
+      const alias = await request(`${prefix}${canonical}?subject=all&utm_source=d21`)
+      assert.equal(alias.status, 200)
+      assert.equal(alias.headers.get('location'), null)
+      assert.ok((await alias.text()).includes(`rel="canonical" href="https://www.nervos.org${canonical}"`))
+      checks++
+    } else if (prefix)
       await redirect(`${prefix}${canonical}?subject=all&utm_source=d21`, `${canonical}?subject=all&utm_source=d21`)
   }
 }

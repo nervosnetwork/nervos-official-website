@@ -6,7 +6,7 @@ import ts from 'typescript'
 import { KB_HUBS } from '../config/kb-hubs.mjs'
 
 const require = createRequire(import.meta.url)
-const { NextRequest } = require('next/server')
+const { NextRequest, NextResponse } = require('next/server')
 const { getMiddlewareMatchers, getPageStaticInfo } = require('next/dist/build/analysis/get-page-static-info')
 const { getMiddlewareRouteMatcher } = require('next/dist/shared/lib/router/utils/middleware-route-matcher')
 const { i18n } = require('../next-i18next.config.js')
@@ -39,15 +39,16 @@ new Function(
 const compiled = ts.transpileModule(fs.readFileSync('src/middleware.page.ts', 'utf8'), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true },
 }).outputText
-function loadMiddleware(articles = catalog.articles) {
+function loadMiddleware(
+  articles = catalog.articles,
+  response = {
+    next: () => ({ kind: 'next' }),
+    redirect: (url, status) => ({ kind: 'redirect', location: url.href, status }),
+  },
+) {
   const loaded = { exports: {} }
   const imports = {
-    'next/server': {
-      NextResponse: {
-        next: () => ({ kind: 'next' }),
-        redirect: (url, status) => ({ kind: 'redirect', location: url.href, status }),
-      },
-    },
+    'next/server': { NextResponse: response },
     '../public/education_hub_articles/metadata/slug-migrations.json': migrations,
     '../public/education_hub_articles/metadata/catalog.json': { ...catalog, articles },
     './utils/kb-hubs': hubs.exports,
@@ -77,7 +78,7 @@ test('Next 14 extracts and compiles middleware matchers that reach real HTML art
   assert.deepEqual(info.middleware.matchers, getMiddlewareMatchers(structuredClone(config.matcher), { i18n }))
   assert.deepEqual(
     info.middleware.matchers.map(matcher => matcher.originalSource),
-    ['/education_hub_articles/:path*', '/knowledge-base/:path*', '/en/:path*'],
+    ['/education_hub_articles/:path*', '/knowledge-base/:path*'],
   )
   const matches = getMiddlewareRouteMatcher(info.middleware.matchers)
   // Next's router prefixes the internally matched path with the detected or
@@ -107,7 +108,7 @@ test('Next 14 extracts and compiles middleware matchers that reach real HTML art
     '/unrelated/BFT_consensus_mechanisms',
   ]) {
     const incoming = request(pathname)
-    assert.equal(isMatched(incoming), incoming.nextUrl.locale === 'en', pathname)
+    assert.equal(isMatched(incoming), false, pathname)
     assert.deepEqual(middleware(incoming), { kind: 'next' }, pathname)
   }
   // The catch-all matcher must not broaden the handler's exact article rule.
@@ -149,11 +150,7 @@ test('all 50 bare old paths use the final translated or English URL through real
 })
 
 test('new canonical addresses, previews, typo rows and unrelated/malformed IDs never enter the migration', () => {
-  assert.deepEqual(config.matcher, [
-    '/education_hub_articles/:path*',
-    '/knowledge-base/:path*',
-    { source: '/en/:path*', locale: false },
-  ])
+  assert.deepEqual(config.matcher, ['/education_hub_articles/:path*', '/knowledge-base/:path*'])
   for (const article of catalog.articles) {
     assert.equal(migratedArticlePath(`/knowledge-base/${article.id}`, article.language), null)
     assert.deepEqual(middleware(request(encodeURI(article.canonicalPath))), { kind: 'next' })
@@ -189,16 +186,7 @@ test('draft/future targets and translations do not redirect, while a truly absen
     for (const locale of i18n.locales) {
       assert.equal(allUnavailable.migratedArticlePath(oldPath, locale), null)
       const incoming = request(`/${locale}${oldPath}?keep=yes`)
-      if (locale === 'en') {
-        // D-19 may remove /en, but must never redirect to an unpublished D-18
-        // target. The remaining old path is still unavailable.
-        assert.deepEqual(allUnavailable.middleware(incoming), {
-          kind: 'redirect',
-          location: `https://www.nervos.org${oldPath}?keep=yes`,
-          status: 308,
-        })
-        assert.deepEqual(allUnavailable.middleware(request(`${oldPath}?keep=yes`)), { kind: 'next' })
-      } else assert.deepEqual(allUnavailable.middleware(incoming), { kind: 'next' })
+      assert.deepEqual(allUnavailable.middleware(incoming), { kind: 'next' })
       const data = request(`/_next/data/d19-build/${locale}${oldPath}.json?keep=yes`)
       assert.deepEqual(allUnavailable.middleware(data), { kind: 'next' }, 'Unpublished data targets stay unavailable')
     }
@@ -281,4 +269,69 @@ test('D-18 handles all old article data paths once while keeping current Next da
     '/_next/data/d19-build/en/knowledge-base/%broken.json',
   ])
     assert.deepEqual(middleware(request(pathname)), { kind: 'next' }, pathname)
+})
+
+// Vercel's Next builder adds the default locale before invoking middleware.
+// Model that routing stage as well as the public URL, using real Next responses:
+// https://github.com/vercel/vercel/blob/main/packages/next/src/server-build.ts
+const platformRequest = pathname => {
+  const url = new URL(pathname, 'https://preview.vercel.app')
+  const firstSegment = url.pathname.split('/')[1]
+  if (!i18n.locales.includes(firstSegment) && firstSegment !== '_next') {
+    url.pathname = `/en${url.pathname === '/' ? '' : url.pathname}`
+  }
+  return new NextRequest(url, { nextConfig: { i18n } })
+}
+
+test('Vercel-inferred default locale never redirects canonical English pages back to themselves', () => {
+  const deployed = loadMiddleware(catalog.articles, NextResponse)
+  const paths = [
+    '/',
+    '/mining',
+    '/knowledge-base',
+    '/knowledge-base?utm_source=preview&tag=one&tag=two',
+    '/knowledge-base/articles?page=2',
+    '/knowledge-base/start-here',
+    ...KB_HUBS.map(({ id }) => `/knowledge-base/topic/${id}`),
+    ...catalog.articles.filter(article => article.language === 'en').map(article => encodeURI(article.canonicalPath)),
+  ]
+  for (const path of paths) {
+    for (const prefix of ['', '/en']) {
+      const incoming = platformRequest(`${prefix}${path}`)
+      assert.equal(incoming.nextUrl.locale, 'en')
+      const result = deployed.middleware(incoming)
+      assert.equal(result.status, 200, path)
+      assert.equal(result.headers.get('location'), null, path)
+      assert.equal(result.headers.get('x-middleware-next'), '1', path)
+    }
+  }
+})
+
+test('Vercel-inferred locale keeps legacy migrations single-hop, queries intact and data routes functional', () => {
+  const deployed = loadMiddleware(catalog.articles, NextResponse)
+  const query = '?utm_source=preview&tag=one&tag=two'
+  const cases = [
+    ['/knowledge-base?sort_by=popular&tag=one&tag=two', '/knowledge-base?tag=one&tag=two'],
+    ['/knowledge-base?page=2&sort_by=popular&tag=one&tag=two', '/knowledge-base/articles?tag=one&tag=two'],
+    ['/knowledge-base/topic?hub=Nervos+CKB&tag=one&tag=two', '/knowledge-base/topic/nervos-ckb?tag=one&tag=two'],
+    ...migrations.renames.map(({ from, to }) => [
+      `/knowledge-base/${encodeURIComponent(from)}${query}`,
+      `/knowledge-base/${to}${query}`,
+    ]),
+    ...KB_HUBS.map(({ id }) => [`/zh/knowledge-base/topic/${id}${query}`, `/knowledge-base/topic/${id}${query}`]),
+  ]
+  for (const [path, target] of cases) {
+    const result = deployed.middleware(platformRequest(path))
+    assert.equal(result.status, 308, path)
+    assert.equal(result.headers.get('location'), `https://preview.vercel.app${target}`, path)
+    const final = deployed.middleware(platformRequest(target))
+    assert.equal(final.status, 200, `${path}: final response`)
+    assert.equal(final.headers.get('location'), null, `${path}: no repeated redirect`)
+  }
+  for (const article of catalog.articles) {
+    const data = `/_next/data/preview-build/${article.language}/knowledge-base/${encodeURIComponent(article.id)}.json`
+    const result = deployed.middleware(platformRequest(data))
+    assert.equal(result.status, 200, data)
+    assert.equal(result.headers.get('location'), null, data)
+  }
 })

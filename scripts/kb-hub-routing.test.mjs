@@ -10,8 +10,8 @@ const { NextRequest } = require('next/server')
 const { getPageStaticInfo } = require('next/dist/build/analysis/get-page-static-info')
 const { getMiddlewareRouteMatcher } = require('next/dist/shared/lib/router/utils/middleware-route-matcher')
 const { i18n } = require('../next-i18next.config.js')
-// Exercise the production raw-URL setting, including the distinction between
-// an explicit /en HTML alias and the required /en in a Next data endpoint.
+// Exercise the production raw-URL setting: an explicit or inferred /en HTML
+// prefix must not be confused with a semantic migration or a data endpoint.
 const previousNormalization = process.env.__NEXT_NO_MIDDLEWARE_URL_NORMALIZE
 process.env.__NEXT_NO_MIDDLEWARE_URL_NORMALIZE = 'true'
 after(() => {
@@ -76,16 +76,7 @@ function assertHubRedirect(incoming, pathname, removeHub = false) {
 function assertHubUnchanged(pathname, prefix = '') {
   const incoming = request(`${prefix}${pathname}`)
   assert.equal(hubDestination(incoming), null, incoming.url)
-  if (prefix === '/en') {
-    // D-19 remains responsible for explicit English aliases, including invalid
-    // Hub paths. D-21 must not guess a different Hub for those requests.
-    assert.deepEqual(middleware(incoming), {
-      kind: 'redirect',
-      location: `https://www.nervos.org${pathname}`,
-      status: 308,
-    })
-    assert.deepEqual(middleware(request(pathname)), { kind: 'next' })
-  } else assert.deepEqual(middleware(incoming), { kind: 'next' }, incoming.url)
+  assert.deepEqual(middleware(incoming), { kind: 'next' }, incoming.url)
 }
 
 test('D-21 routing helpers exactly match the six catalog IDs and legacy full names', () => {
@@ -208,7 +199,10 @@ test('D-21 canonical Hub paths are English-only and retain every query parameter
   for (const { id } of catalog.hubs) {
     const pathname = `/knowledge-base/topic/${id}`
     assertHubUnchanged(`${pathname}${query}`)
-    for (const prefix of prefixes.filter(Boolean)) {
+    // Vercel also supplies /en internally for an already canonical English
+    // URL. Neither that representation nor a real English alias may loop.
+    assertHubUnchanged(`${pathname}${query}`, '/en')
+    for (const prefix of prefixes.filter(prefix => prefix && prefix !== '/en')) {
       const finalRequest = assertHubRedirect(request(`${prefix}${pathname}${query}`), pathname)
       assert.deepEqual(middleware(finalRequest), { kind: 'next' }, 'Locale fallback finishes at a canonical Hub')
     }
@@ -335,6 +329,17 @@ test('Next 14 compiles matchers that reach legacy and canonical Hub HTML and dat
       const dataPath = `/_next/data/d21-build/${locale}${pathname}.json`
       const incoming = request(`${dataPath}?hub=nervos-ckb`)
       assert.equal(matches(dataPath, incoming, {}), true, incoming.url)
+    }
+  }
+  for (const prefix of prefixes) {
+    for (const pathname of ['/', '/mining', '/blog', '/api/example', '/kb/read/example', '/unrelated']) {
+      const incoming = request(`${prefix}${pathname}`)
+      assert.equal(
+        matches(`/${incoming.nextUrl.locale}${incoming.nextUrl.pathname}`, incoming, {}),
+        false,
+        incoming.url,
+      )
+      assert.deepEqual(middleware(incoming), { kind: 'next' }, incoming.url)
     }
   }
 })
