@@ -4,10 +4,17 @@
 .header {
   @include menu-chrome.desktop-layout;
 
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 30;
+  height: 64px;
   color: #111;
   background: #fff;
+  box-shadow: inset 0 -2px #e8e5ee;
+}
+
+.header.readingHeader {
+  box-shadow: none;
 }
 
 .desktopLogo,
@@ -19,10 +26,15 @@
 }
 
 .desktopActions {
-  gap: 20px;
+  gap: 16px;
 }
 
-.mobileBrand,
+.headerActions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
 .menuButton {
   display: none;
 }
@@ -31,9 +43,10 @@
   gap: 8px;
   min-height: 44px;
   color: #111;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.25;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.085;
+  letter-spacing: -0.55px;
   text-decoration: none;
 }
 
@@ -43,17 +56,22 @@
 }
 
 .brandSubtitle {
-  font-weight: 400;
-  font-size: 12px;
+  font-weight: 500;
+  font-size: 20px;
 }
 
 .brandIcon {
   display: grid;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   place-items: center;
   background: #111;
+}
+
+.header .brandIcon img {
+  width: 28px;
+  height: 28px;
 }
 
 .languageToggle {
@@ -85,6 +103,10 @@
   &:lang(zh) {
     font-size: 12px;
   }
+}
+
+.header .languageFace {
+  height: 30px;
 }
 
 .languageOption + .languageOption .languageFace {
@@ -345,6 +367,11 @@
   text-decoration: none;
 }
 
+.header .writeArticle {
+  width: auto;
+  text-transform: uppercase;
+}
+
 .writeArticleFace {
   display: flex;
   gap: 8px;
@@ -356,6 +383,10 @@
   background: #fff;
   border: 1px solid #111;
   border-radius: 3px;
+}
+
+.header .writeArticleFace {
+  height: 30px;
 }
 
 .writeArticleFace .externalIcon {
@@ -386,9 +417,9 @@
   position: absolute;
   top: 100%;
   left: 0;
-  display: none;
+  display: block;
   width: 100%;
-  height: 2px;
+  height: 1px;
   overflow: hidden;
   background: #e8e5ee;
 }
@@ -423,9 +454,31 @@
     display: none;
   }
 
-  .mobileBrand,
   .menuButton {
     display: flex;
+  }
+
+  .brand,
+  .dialog .brand {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .brandSubtitle {
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .brandIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header .brandIcon img {
+    width: 24px;
+    height: 24px;
   }
 }
 

@@ -21,6 +21,11 @@ $defaultHeaderHeight: 90px;
   outline: none;
 }
 
+.articleDesktopMenu .trigger {
+  width: 44px;
+  margin-right: -10px;
+}
+
 .knowledgeDesktopMenu .trigger {
   display: flex;
   flex-direction: column;
@@ -47,6 +52,10 @@ $defaultHeaderHeight: 90px;
   font-size: 9px;
   line-height: 1;
   letter-spacing: 0.15em;
+}
+
+.articleDesktopMenu .trigger > .text {
+  display: none;
 }
 
 .header {

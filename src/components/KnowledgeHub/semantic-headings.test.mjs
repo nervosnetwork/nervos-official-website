@@ -145,7 +145,7 @@ function loadArticle() {
       DiscoverBanner: () => null,
       useActiveSection: () => '',
     },
-    './Components': { ArticleCard: () => null },
+    './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
     './ArticleLanguageLink': {
       ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
@@ -213,7 +213,8 @@ test('mobile contents only link H2s while desktop retains all headings and exist
   assert.doesNotMatch(mobile, /Intro|Detail|More detail/)
   assert.doesNotMatch(html, /<select|Author not supplied/)
   assert.match(html, /Nervos Network/)
-  assert.ok(html.indexOf('class="mobileCategories"') < html.indexOf('class="inlineContents"'))
+  assert.match(html, /<header>[\s\S]*class="articleCategories"[\s\S]*<\/header>/)
+  assert.ok(html.indexOf('class="articleCategories"') < html.indexOf('class="inlineContents"'))
   assert.ok(html.indexOf('class="inlineContents"') < html.indexOf('class="articleMarkdown"'))
 })
 

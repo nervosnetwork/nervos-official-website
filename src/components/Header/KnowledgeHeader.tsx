@@ -1,4 +1,4 @@
-import { ComponentProps, Fragment, useEffect, useRef, useState } from 'react'
+import { ComponentProps, Fragment, RefObject, useEffect, useRef, useState } from 'react'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -432,30 +432,45 @@ export function KnowledgeHeader({
   className,
   readingProgress,
   articleLanguage,
+  headerRef,
   ...props
 }: ComponentProps<'div'> & {
   readingProgress?: number
   articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
 }) {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' })
-  const [singleColumn, setSingleColumn] = useState(false)
-  useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 901px)')
-    const onResize = () => setSingleColumn(!desktop.matches)
-    onResize()
-    desktop.addEventListener('change', onResize)
-    return () => desktop.removeEventListener('change', onResize)
-  }, [])
   return (
-    <div className={clsx(styles.header, readingProgress !== undefined && styles.readingHeader, className)} {...props}>
-      <Link href="/" locale="en" aria-label={t('nervos_home', 'Nervos Home')} className={styles.desktopLogo}>
-        <LogoIcon />
-      </Link>
-      <div className={styles.mobileBrand}>
-        <KnowledgeBrand />
+    <div
+      ref={headerRef}
+      className={clsx(styles.header, readingProgress !== undefined && styles.readingHeader, className)}
+      {...props}
+    >
+      <KnowledgeBrand />
+      <div className={styles.headerActions}>
+        <div className={styles.desktopActions}>
+          <a
+            className={styles.writeArticle}
+            href="https://github.com/NervosEducationHub/EducationHubArticles"
+            onClick={() =>
+              trackKBEvent('kb_resource_click', {
+                resource_id: 'write_article',
+                placement: 'article_nav',
+                link_url: 'https://github.com/NervosEducationHub/EducationHubArticles',
+              })
+            }
+          >
+            <span className={styles.writeArticleFace}>
+              <Icon name="articleNav-imgGroup1" size={19} />
+              {t('write_article', 'Write an article')}
+              <img src="/images/knowledge-hub/article-nav-external.svg" width="5" height="5" alt="" />
+            </span>
+          </a>
+          <LanguageToggle article={articleLanguage} />
+          {children}
+        </div>
+        <NavigationMenu article articleLanguage={articleLanguage} />
       </div>
-      <div className={styles.desktopActions}>{!singleColumn && children}</div>
-      <NavigationMenu article articleLanguage={articleLanguage} />
       {readingProgress !== undefined && (
         <div
           className={styles.mobileReadingProgress}

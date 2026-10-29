@@ -76,7 +76,7 @@ function loadArticle(source, socialActions = false, realImages = false) {
       DiscoverBanner: () => element('img', { src: '/decorative/banner.svg', alt: '' }),
       useActiveSection: () => '',
     },
-    './Components': { ArticleCard: () => null },
+    './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
     '../Header/KnowledgeHeader': { LanguageToggle: () => null },
     './reading-progress': evaluate(read('src/components/KnowledgeHub/reading-progress.ts')),
@@ -137,7 +137,13 @@ function images(html) {
     className: image.getAttribute('class'),
   }))
 }
-const bodyImages = html => images(html).filter(image => image.loading === 'lazy')
+const bodyImages = html => {
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const markdown = Array.from(document.getElementsByTagName('div')).find(
+    node => node.getAttribute('class') === 'articleMarkdown',
+  )
+  return markdown ? images(markdown.toString()) : []
+}
 
 const fallbackCases = [
   ['empty inline', '![](inline.png)'],
@@ -226,8 +232,9 @@ test('decorative component stubs and the existing social decoration retain empty
   const decorations = images(html).filter(image => image.src.startsWith('/decorative/'))
   assert.ok(decorations.length > 0)
   assert.ok(decorations.every(image => image.alt === ''))
-  const social = images(html).find(image => image.src === '/images/knowledge-hub/articleSidebar-imgFrame442.svg')
-  assert.equal(social.alt, '')
+  const socials = images(html).filter(image => /^\/images\/(twitter|linkedin|reddit|facebook)\.svg$/.test(image.src))
+  assert.equal(socials.length, 4)
+  assert.ok(socials.every(image => image.alt === ''))
   assert.equal(bodyImages(html)[0].alt, defaultArticle.title)
 })
 
@@ -295,7 +302,9 @@ test('D17 uses responsive Next images with intrinsic dimensions, hero priority a
   )
   const document = new DOMParser().parseFromString(html, 'text/html')
   const images = Array.from(document.getElementsByTagName('img'))
-  const optimized = images.filter(image => image.getAttribute('data-nimg') === '1')
+  const optimized = images.filter(
+    image => image.getAttribute('data-nimg') === '1' && image.getAttribute('src').startsWith('/_next/image?'),
+  )
   assert.equal(optimized.length, 4)
   const hero = optimized[0]
   assert.equal(hero.getAttribute('width'), '1920')

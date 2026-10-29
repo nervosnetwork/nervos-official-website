@@ -7,26 +7,23 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
-import { Icon, PreviewNotice } from './Home'
+import { Icon } from './Home'
 import { PreviewPage, DiscoverBanner, useActiveSection } from './Shared'
-import { ArticleCard } from './Components'
-import { KBArticle, KBCatalog, articlePath, formatArticleDate } from './content'
+import { ArrowButton, ArticleCard } from './Components'
+import { KBArticle, KBCatalog, formatArticleDate } from './content'
 import styles from './article-v2.module.scss'
 import contentStyles from './pages-v2.module.scss'
 import { headingPlugin } from './markdown-headings'
-import { articleSocialActionsEnabled } from './article-features'
 import { trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
 import type { KBImageDimensions } from '../../server/kb-images'
-import { ArticleContentLink, ArticleLanguageLink } from './ArticleLanguageLink'
-import { LanguageToggle } from '../Header/KnowledgeHeader'
+import { ArticleContentLink } from './ArticleLanguageLink'
 import { readingProgress } from './reading-progress'
 
 export function ContentArticle({
   article,
   markdown,
-  related,
-  recent = [],
+  related = [],
   hub,
   subjects,
   headings,
@@ -36,8 +33,7 @@ export function ContentArticle({
 }: {
   article: KBArticle
   markdown: string
-  related: KBArticle[]
-  recent?: KBArticle[]
+  related?: KBArticle[]
   hub: KBCatalog['hubs'][number] | null
   subjects: KBCatalog['subjects']
   headings: { id: string; label: string; depth: number }[]
@@ -49,29 +45,29 @@ export function ContentArticle({
   const contents = headings.map(heading => ({ ...heading, id: `user-content-${heading.id}` }))
   const mobileContents = contents.filter(heading => heading.depth === 2)
   const active = useActiveSection(contents.map(item => item.id))
-  const [notice, setNotice] = useState('')
-  const navRef = useRef<HTMLDivElement>(null)
+  const [liked, setLiked] = useState(false)
+  const headerRef = useRef<HTMLDivElement>(null)
   const articleRef = useRef<HTMLElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
-  const [navHeight, setNavHeight] = useState(80)
+  const [navHeight, setNavHeight] = useState(64)
   useEffect(() => {
     const observer = new ResizeObserver(() => {
-      if (navRef.current) setNavHeight(navRef.current.getBoundingClientRect().height)
+      if (headerRef.current) setNavHeight(headerRef.current.getBoundingClientRect().height)
     })
-    if (navRef.current) observer.observe(navRef.current)
+    if (headerRef.current) observer.observe(headerRef.current)
     return () => observer.disconnect()
   }, [])
   useEffect(() => {
     let frame = 0
     const update = () => {
-      if (!articleRef.current || !textRef.current || !navRef.current) return
+      if (!articleRef.current || !textRef.current || !headerRef.current) return
       setProgress(
         readingProgress(
           articleRef.current.getBoundingClientRect().top,
           textRef.current.getBoundingClientRect().bottom,
           window.innerHeight,
-          (navRef.current.getBoundingClientRect().height || 56) + 2,
+          (headerRef.current.getBoundingClientRect().height || 56) + 2,
         ),
       )
     }
@@ -80,7 +76,7 @@ export function ContentArticle({
       frame = requestAnimationFrame(update)
     }
     const observer = new ResizeObserver(schedule)
-    for (const element of [articleRef.current, textRef.current, navRef.current]) {
+    for (const element of [articleRef.current, textRef.current, headerRef.current]) {
       if (element) observer.observe(element)
     }
     update()
@@ -140,34 +136,15 @@ export function ContentArticle({
       />
     )
   }
-  const recentPosts = (
-    <>
-      <h2>Recent posts:</h2>
-      <div className={styles.recentPosts}>
-        {recent.map((item, index) => (
-          <ArticleLanguageLink
-            key={item.id}
-            article={item}
-            href={articlePath(item)}
-            onClick={() =>
-              trackKBEvent('kb_article_click', {
-                article_id: item.id,
-                placement: 'recent_posts',
-                position: index + 1,
-                hub_id: item.hub ?? undefined,
-              })
-            }
-          >
-            {item.title}
-            <span className={styles.recentPostArrow} aria-hidden="true">
-              {' '}
-              →
-            </span>
-          </ArticleLanguageLink>
-        ))}
-      </div>
-    </>
-  )
+  const shareUrl = encodeURIComponent(`https://www.nervos.org${article.canonicalPath}`)
+  const shareTitle = encodeURIComponent(article.title)
+  const shareLinks = [
+    { name: 'Twitter', icon: 'twitter', href: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}` },
+    { name: 'LinkedIn', icon: 'linkedin', href: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}` },
+    { name: 'Reddit', icon: 'reddit', href: `https://www.reddit.com/submit?url=${shareUrl}&title=${shareTitle}` },
+    { name: 'Facebook', icon: 'facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}` },
+  ]
+  useEffect(() => setLiked(false), [article.id])
   const categoryTags = hub && (
     <div className={styles.categories}>
       <button
@@ -207,6 +184,7 @@ export function ContentArticle({
       articleNavigation
       readingProgress={progress}
       articleLanguage={article}
+      headerRef={headerRef}
       preview={preview}
       canonicalPath={article.canonicalPath}
       openGraph={{
@@ -225,48 +203,44 @@ export function ContentArticle({
       }}
     >
       <div className={styles.articlePage} style={{ '--articleNavHeight': `${navHeight}px` } as CSSProperties}>
-        <div className={styles.articleNav} ref={navRef}>
-          <Link href="/knowledge-base" locale="en" className={styles.articleBrand}>
-            <span>
-              <Icon name="articleNav-imgGroup" size={28} />
-            </span>
-            <div>
-              <strong>Knowledge Base</strong>
-              <br />
-              Education Hub
-            </div>
-          </Link>
-          <div className={styles.articleNavActions}>
-            <a
-              className={styles.writeArticle}
-              href="https://github.com/NervosEducationHub/EducationHubArticles"
-              onClick={() =>
-                trackKBEvent('kb_resource_click', {
-                  resource_id: 'write_article',
-                  placement: 'article_nav',
-                  link_url: 'https://github.com/NervosEducationHub/EducationHubArticles',
-                })
-              }
-            >
-              <span className={styles.writeArticleFace}>
-                <Icon name="articleNav-imgGroup1" size={19} />
-                Write an article
-              </span>
-            </a>
-            <LanguageToggle article={article} />
-          </div>
-          <div
-            className={styles.readingProgress}
-            role="progressbar"
-            aria-label="Article reading progress"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress}
-          >
-            <span style={{ transform: `scaleX(${progress / 100})` }} />
-          </div>
-        </div>
         <div className={styles.articleLayout}>
+          <aside className={styles.sidebar} aria-label="Article navigation">
+            <nav className={styles.stickyContents} aria-label="Table of contents">
+              {contents.length > 0 && (
+                <>
+                  <h2>Table of contents</h2>
+                  <ol className={styles.toc}>
+                    {contents.map((item, index) => (
+                      <li key={item.id}>
+                        <a
+                          href={`#${item.id}`}
+                          aria-current={active === item.id ? 'location' : undefined}
+                          onClick={() =>
+                            trackKBEvent('kb_toc_click', {
+                              article_id: article.id,
+                              section_index: index + 1,
+                              heading_text: item.label,
+                              placement: 'desktop',
+                            })
+                          }
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              )}
+              <Link
+                href="/knowledge-base/start-here"
+                locale="en"
+                className={styles.discoverSteps}
+                onClick={() => trackKBEvent('kb_cta_click', { cta_id: 'discover_ckb', placement: 'article_sidebar' })}
+              >
+                Discover CKB in 5 Steps
+              </Link>
+            </nav>
+          </aside>
           <article className={styles.articleBody} ref={articleRef}>
             <div className={styles.articleMeta}>
               <div className={clsx(styles.meta, styles.largeMeta)}>
@@ -282,8 +256,8 @@ export function ContentArticle({
             <header>
               <h1>{article.title}</h1>
               {article.subtitle && <p className={styles.subhead}>{article.subtitle}</p>}
+              {hub && <div className={styles.articleCategories}>{categoryTags}</div>}
             </header>
-            {hub && <div className={styles.mobileCategories}>{categoryTags}</div>}
             {mobileContents.length > 0 && (
               <nav className={styles.inlineContents} aria-label="On this page">
                 <h2>On this page:</h2>
@@ -308,6 +282,18 @@ export function ContentArticle({
                 </ul>
               </nav>
             )}
+            <div className={styles.mobileDiscover}>
+              <p>New to CKB? Start with the essentials.</p>
+              <Link
+                href="/knowledge-base/start-here"
+                locale="en"
+                onClick={() =>
+                  trackKBEvent('kb_cta_click', { cta_id: 'discover_ckb', placement: 'article_mobile_intro' })
+                }
+              >
+                Discover CKB in 5 Steps <span aria-hidden="true">→</span>
+              </Link>
+            </div>
             {article.coverImage && renderImage(article.coverImage, article.title, true)}
             <div ref={textRef}>
               <ReactMarkdown
@@ -351,7 +337,43 @@ export function ContentArticle({
                 {markdown}
               </ReactMarkdown>
             </div>
-            {recent.length > 0 && <section className={styles.mobileRecentPosts}>{recentPosts}</section>}
+            <div className={styles.articleActions}>
+              <button
+                type="button"
+                className={styles.likeButton}
+                aria-label="Like this article"
+                aria-pressed={liked}
+                title="Like this article (sample count)"
+                onClick={() => setLiked(value => !value)}
+              >
+                <span className={styles.likeHeart} aria-hidden="true">
+                  <img src="/images/knowledge-hub/article-like.svg" width="12" height="10.6909" alt="" />
+                  <img
+                    className={styles.likeHeartFill}
+                    src="/images/knowledge-hub/article-like-filled.svg"
+                    width="12"
+                    height="10.6909"
+                    alt=""
+                  />
+                </span>
+                <span>{509 + Number(liked)}</span>
+              </button>
+              <div className={styles.shareActions} role="group" aria-label="Share this article">
+                <span>Share</span>
+                {shareLinks.map(({ name, icon, href }) => (
+                  <a
+                    key={name}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Share on ${name}`}
+                    onClick={() => trackKBEvent('kb_social_click', { network: icon, placement: 'article_end' })}
+                  >
+                    <Image src={`/images/${icon}.svg`} width={20} height={20} alt="" unoptimized />
+                  </a>
+                ))}
+              </div>
+            </div>
             <div className={styles.ckbMark} aria-label="CKB">
               <span aria-hidden="true">
                 <Icon name="article-endmark" size={12} />
@@ -361,93 +383,32 @@ export function ContentArticle({
               <span>B</span>
             </div>
             <DiscoverBanner revision />
-            {related.length > 0 && (
-              <section className={styles.moreArticles} aria-labelledby="more-articles">
-                <h2 id="more-articles">More from CKB</h2>
-                {related.map((a, index) => (
-                  <ArticleCard
-                    key={a.id}
-                    article={a}
-                    imageSizes="(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 160px, 200px"
-                    title={a.title}
-                    horizontal
-                    analyticsContext={{ placement: 'more_from_ckb', position: index + 1, hub_id: a.hub ?? undefined }}
-                  />
-                ))}
-              </section>
-            )}
-          </article>
-          <aside className={styles.sidebar} aria-label="Article navigation and related content">
-            <DiscoverBanner compact revision />
-            {contents.length > 0 && (
-              <div className={styles.tocSlot}>
-                <nav className={styles.stickyContents} aria-label="Table of contents">
-                  <h2>Table of contents</h2>
-                  <ol className={styles.toc}>
-                    {contents.map((item, index) => (
-                      <li key={item.id}>
-                        <a
-                          href={`#${item.id}`}
-                          aria-current={active === item.id ? 'location' : undefined}
-                          onClick={() =>
-                            trackKBEvent('kb_toc_click', {
-                              article_id: article.id,
-                              section_index: index + 1,
-                              heading_text: item.label,
-                              placement: 'desktop',
-                            })
-                          }
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
+            <section className={styles.moreArticles} aria-labelledby="more-articles">
+              <h2 id="more-articles">More from CKB</h2>
+              {related.map((item, index) => (
+                <ArticleCard
+                  key={item.id}
+                  article={item}
+                  imageSizes="(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 160px, 200px"
+                  title={item.title}
+                  horizontal
+                  analyticsContext={{ placement: 'more_from_ckb', position: index + 1, hub_id: item.hub ?? undefined }}
+                />
+              ))}
+              <div className={styles.allArticlesAction}>
+                <ArrowButton
+                  className={styles.allArticlesButton}
+                  href="/knowledge-base/articles"
+                  locale="en"
+                  onClick={() =>
+                    trackKBEvent('kb_cta_click', { cta_id: 'all_articles', placement: 'article_recommended' })
+                  }
+                >
+                  See all articles
+                </ArrowButton>
               </div>
-            )}
-            {recent.length > 0 && <section className={styles.desktopRecentPosts}>{recentPosts}</section>}
-            {hub && (
-              <section className={styles.desktopCategories}>
-                <h2>Categories:</h2>
-                {categoryTags}
-              </section>
-            )}
-            {articleSocialActionsEnabled && (
-              <section className={styles.sharing}>
-                <h2>Share this article:</h2>
-                <div className={styles.socials}>
-                  <Image
-                    src="/images/knowledge-hub/articleSidebar-imgFrame442.svg"
-                    width={140}
-                    height={20}
-                    alt=""
-                    unoptimized
-                  />
-                  {['Twitter', 'LinkedIn', 'Reddit', 'Facebook'].map(name => (
-                    <button
-                      key={name}
-                      aria-label={`Share on ${name}`}
-                      onClick={() =>
-                        setNotice(
-                          'Sharing is a visual preview until the final public article URLs are connected. Nothing has been posted.',
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-            {articleSocialActionsEnabled && (
-              <section className={styles.like}>
-                <h2>Like this post:</h2>
-                <button disabled title="Visual preview only — no live like service">
-                  <Icon name="articleSidebar-imgVector" size={12} />
-                  LIKE
-                </button>
-              </section>
-            )}
-          </aside>
+            </section>
+          </article>
         </div>
       </div>
       <a
@@ -458,7 +419,6 @@ export function ContentArticle({
       >
         ↑
       </a>
-      <PreviewNotice notice={notice} onClose={() => setNotice('')} />
     </PreviewPage>
   )
 }

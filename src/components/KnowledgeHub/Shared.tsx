@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, RefObject, useEffect, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { Page } from '../Page'
@@ -34,6 +34,7 @@ export function PreviewPage({
   readingProgress,
   articleNavigation = false,
   articleLanguage,
+  headerRef,
 }: {
   title: string
   children: ReactNode
@@ -48,6 +49,7 @@ export function PreviewPage({
   readingProgress?: number
   articleNavigation?: boolean
   articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
 }) {
   return (
     <>
@@ -76,6 +78,7 @@ export function PreviewPage({
               className: headerClassName,
               readingProgress,
               articleLanguage,
+              headerRef,
             })}
             {children}
             {newsletter && <Newsletter />}
@@ -150,14 +153,20 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
   const design = revision ? articleStyles : styles
   return (
     <aside className={compact ? design.discoverCompact : design.discoverBanner}>
-      <GuideLife
-        className={design.discoverLife}
-        density={compact ? 0.18 : 0.16}
-        exclusionPadding={compact ? 12 : 18}
-        exclusionSelector="[data-life-exclusion]"
-      />
+      {!revision && (
+        <GuideLife
+          className={design.discoverLife}
+          density={compact ? 0.18 : 0.16}
+          exclusionPadding={compact ? 12 : 18}
+          exclusionSelector="[data-life-exclusion]"
+        />
+      )}
       <div data-life-exclusion>
-        <h2>Meet the blockchain built for what comes next.</h2>
+        <h2>
+          {revision
+            ? 'Meet Nervos CKB, a blockchain built for flexibility.'
+            : 'Meet the blockchain built for what comes next.'}
+        </h2>
         <p>Explore the ideas, architecture, and ecosystem behind CKB.</p>
       </div>
       <span className={design.discoverAction} data-life-exclusion>
@@ -172,7 +181,7 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
             })
           }
         >
-          Discover CKB
+          {revision ? 'Discover CKB in 5 Steps' : 'Discover CKB'}
         </ArrowButton>
       </span>
     </aside>

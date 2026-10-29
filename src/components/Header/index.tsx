@@ -1,4 +1,4 @@
-import { ComponentProps, FC, Fragment, useEffect, useMemo, useState } from 'react'
+import { ComponentProps, FC, Fragment, RefObject, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
@@ -26,10 +26,11 @@ export type HeaderProps = ComponentProps<'div'> & {
   variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
   readingProgress?: number
   articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
 }
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, variant = 'default', readingProgress, articleLanguage, ...divProps } = props
+  const { className, variant = 'default', readingProgress, articleLanguage, headerRef, ...divProps } = props
 
   const [singleColumn, setSingleColumn] = useState(false)
   useEffect(() => {
@@ -46,10 +47,11 @@ export const Header: FC<HeaderProps> = props => {
         className={className}
         readingProgress={readingProgress}
         articleLanguage={articleLanguage}
+        headerRef={headerRef}
         {...divProps}
       >
-        <div className={styles.knowledgeDesktopMenu}>
-          <MenuPopover alignRight />
+        <div className={clsx(styles.knowledgeDesktopMenu, styles.articleDesktopMenu)}>
+          {!singleColumn && <MenuPopover alignRight />}
         </div>
       </KnowledgeHeader>
     )

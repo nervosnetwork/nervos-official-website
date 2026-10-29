@@ -1,7 +1,12 @@
 @use './tokens' as tokens;
 @import './pages.module';
 
-/* Updated article frame 22:2582. Photography remains a deliberate placeholder. */
+/* Article layout: Figma frame 3462:1207. */
+.likeHeart > img {
+  position: absolute;
+  inset: 0;
+}
+
 .scrollingHeader.scrollingHeader {
   position: relative;
 }
@@ -12,6 +17,7 @@
 
 .mobileCategories,
 .mobileRecentPosts,
+.mobileDiscover,
 .inlineContents {
   display: none;
 }
@@ -108,10 +114,11 @@
 }
 
 .articleLayout {
-  grid-template-columns: minmax(0, 690px) 306px;
-  gap: 102px;
-  width: min(1098px, calc(100% - 64px));
-  margin: 64px max(32px, calc((100% - 1200px) / 2)) 96px auto;
+  grid-template-columns: 210px minmax(0, 690px);
+  gap: 80px;
+  justify-content: start;
+  width: min(1280px, calc(100% - 64px));
+  margin: 64px auto 96px;
 }
 
 .articleBody {
@@ -162,7 +169,7 @@
 }
 
 .discoverBanner p {
-  max-width: 284px;
+  max-width: 100%;
 }
 
 .discoverCompact p {
@@ -226,6 +233,18 @@
   margin: 72px auto 24px;
 }
 
+.ckbMark span {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+
 .discoverBanner,
 .discoverCompact {
   background: linear-gradient(125deg, #163827, #08657a 70%, #8b7cff);
@@ -233,9 +252,12 @@
 
 .articleBody .discoverBanner {
   position: relative;
-  gap: 20px;
-  min-height: 172px;
-  padding: 32px 78px;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 214px;
+  padding: 32px 48px;
   overflow: hidden;
   background: var(--kbDark) url('/images/knowledge-hub/discover-banner-background.jpg') center / cover no-repeat;
 
@@ -260,14 +282,14 @@
 }
 
 .discoverBanner h2 {
-  width: 334px;
+  width: 349px;
   max-width: 100%;
 }
 
 .sidebar h2 {
   @include tokens.type(subheader);
 
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .articleBody .discoverBanner h2,
@@ -291,12 +313,23 @@
   border-radius: 3px;
 }
 
+.discoverBanner .discoverButton {
+  @include tokens.type(subheader2);
+
+  height: auto;
+  min-height: 42px;
+  padding: 12px 24px;
+  background: var(--kbAccent);
+  border: 0;
+  border-radius: 999px;
+}
+
 .discoverAction {
   flex-shrink: 0;
 }
 
 .discoverBanner .discoverAction {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .discoverBanner .discoverButton:is(:hover, :focus-visible),
@@ -306,10 +339,8 @@
 }
 
 .sidebar {
-  display: grid;
-  grid-template-rows: auto minmax(min-content, 1fr) repeat(4, auto);
-  gap: 24px;
-  align-content: stretch;
+  display: block;
+  min-width: 0;
 }
 
 .stickyContents {
@@ -350,8 +381,20 @@
   border-color: var(--kbBorder);
 }
 
+.shareActions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.moreArticles > a {
+  margin-top: 8px;
+  border-bottom: 1px solid var(--kbDivider);
+}
+
 .toc a {
-  @include tokens.type(label);
+  @include tokens.type(body2);
 
   position: relative;
   padding: 8px 0;
@@ -363,7 +406,15 @@
   color: var(--kbBrand);
 }
 
-.moreArticles > a:last-child {
+.shareActions a:hover {
+  opacity: 0.65;
+}
+
+.moreArticles > a:first-of-type {
+  margin-top: 24px;
+}
+
+.moreArticles > a:last-of-type {
   border-bottom: 0;
 }
 
@@ -417,10 +468,160 @@
   @include tokens.type(label);
 
   max-width: 100%;
-  height: 24px;
-  min-height: 24px;
+  height: 23px;
+  min-height: 23px;
   padding: 0 8px;
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.articleCategories {
+  margin-top: 8px;
+}
+
+.discoverSteps {
+  @include tokens.type(subheader2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin-top: 32px;
+  padding: 7px 16px;
+  color: var(--kbInverseText);
+  text-align: center;
+  background: var(--kbBrand);
+  border-radius: 999px;
+}
+
+.discoverSteps:is(:hover, :focus-visible) {
+  background: var(--kbDark);
+}
+
+.articleActions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 48px;
+}
+
+.likeButton {
+  @include tokens.type(label);
+
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  color: var(--kbMuted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.likeHeart {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 12px;
+  height: 10.6909px;
+  transition: transform 160ms ease;
+}
+
+.likeHeartFill {
+  transition: clip-path 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  clip-path: inset(100% 0 0);
+}
+
+.likeHeart::after {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid #f00;
+  border-radius: 50%;
+  opacity: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.likeButton[aria-pressed='true'] .likeHeartFill {
+  clip-path: inset(0);
+}
+
+.likeButton[aria-pressed='true'] .likeHeart {
+  animation: heart-pop 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.likeButton[aria-pressed='true'] .likeHeart::after {
+  animation: heart-bloom 600ms ease-out;
+}
+
+.likeButton:active .likeHeart {
+  transform: scale(0.85);
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  40% {
+    transform: scale(1.4);
+  }
+
+  70% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heart-bloom {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .likeHeart,
+  .likeHeartFill {
+    transition: none;
+  }
+
+  .likeButton[aria-pressed='true'] .likeHeart,
+  .likeButton[aria-pressed='true'] .likeHeart::after {
+    animation: none;
+  }
+
+  .likeButton:active .likeHeart {
+    transform: none;
+  }
+}
+
+.shareActions {
+  @include tokens.type(subheader2);
+
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  color: var(--kbSecondary);
+}
+
+.articleActions + .ckbMark {
+  margin-top: 48px;
+}
+
+.articleActions :focus-visible,
+.discoverSteps:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 4px;
 }
 
 .sharing {
@@ -450,6 +651,20 @@
   border-top: 1px solid var(--kbDivider);
 }
 
+.allArticlesAction {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.allArticlesButton {
+  @include tokens.type(body);
+
+  min-height: 40px;
+  padding: 8px 24px;
+  border-radius: 3px;
+}
+
 .backToTop {
   position: fixed;
   right: 32px;
@@ -466,15 +681,10 @@
 
 @media (width <= 1100px) {
   .articleLayout {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: 210px minmax(0, 690px);
     gap: 40px;
     margin-right: auto;
     margin-left: auto;
-  }
-
-  .articleBody .discoverBanner {
-    flex-wrap: wrap;
-    padding: 24px 24px 24px 78px;
   }
 }
 
@@ -564,6 +774,30 @@
     line-height: 1.6;
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+
+  .mobileDiscover {
+    display: block;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--kbDivider);
+  }
+
+  .mobileDiscover p {
+    @include tokens.type(body2);
+
+    margin: 0;
+    color: var(--kbMuted);
+  }
+
+  .mobileDiscover a {
+    @include tokens.type(subheader2);
+
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    min-height: 44px;
+    color: var(--kbBrand);
   }
 
   .articleBrand {
@@ -666,11 +900,7 @@
   .articleBody .discoverBanner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 24px;
-  }
-
-  .discoverBanner h2 {
-    width: auto;
+    padding: 32px 48px;
   }
 
   .articleBody .discoverBanner h2 {
@@ -710,12 +940,7 @@
   }
 
   .sidebar {
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px;
-    min-width: 0;
-    max-width: 100%;
+    display: none;
   }
 
   .sidebar > * {
@@ -752,9 +977,19 @@
   .backToTop {
     display: none;
   }
+
+  .mobileDiscover a:is(:hover, :focus-visible) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
 @media (width <= 600px) {
+  .articleBody .discoverBanner {
+    min-height: 0;
+    padding: 24px;
+  }
+
   .sidebar {
     grid-template-columns: minmax(0, 1fr);
   }
