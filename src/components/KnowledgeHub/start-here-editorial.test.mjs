@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import vm from 'node:vm'
+import kbHubs from '../../../scripts/fixtures/load-kb-hubs.mjs'
 
 const require = createRequire(import.meta.url)
 const ts = require('typescript')
@@ -22,7 +23,7 @@ const approvedTitles = [
   'What is Nervos CKB?',
   'Why it’s built differently?',
   'What it makes possible',
-  'Crypto-Agile & Quantum Ready',
+  'Crypto-Agile & Quantum-Ready',
 ]
 
 function loadModule(filename, imports = {}) {
@@ -42,6 +43,7 @@ function loadModule(filename, imports = {}) {
 
 const { guideSteps } = loadModule('guide-data.ts')
 const { StartHere } = loadModule('StartHere.tsx', {
+  clsx: { default: require('clsx') },
   react: { useState: value => [value, () => undefined], useRef: () => ({ current: null }), useEffect: () => undefined },
   'react/jsx-runtime': require('react/jsx-runtime'),
   './Icon': { Icon: 'Icon' },
@@ -52,7 +54,7 @@ const { StartHere } = loadModule('StartHere.tsx', {
     RelatedHubs: 'RelatedHubs',
     useActiveSection: () => 'step-1',
   },
-  './Components': { SubjectCard: 'SubjectCard', StepSection: 'StepSection' },
+  './Components': { ArrowButton: 'ArrowButton', SubjectCard: 'SubjectCard', StepSection: 'StepSection' },
   './useHeroScroll': { useHeroScroll: () => ({ heroFade: 0, breadcrumbHeight: 0, breadcrumbRef: null }) },
   './pages-v2.module.scss': { default: {} },
   './analytics': { trackKBEvent: () => undefined },
@@ -64,7 +66,7 @@ function nodes(node) {
   return [node, ...nodes(node.props?.children)]
 }
 
-test('Start Here keeps four steps and uses the approved titles in the navigation and sections', () => {
+test('Start Here renders only the four approved steps with navigation targets for every section', () => {
   const tree = nodes(StartHere({ catalog: { ...catalog, articles: [] } }))
   const navigation = tree.filter(node => node.type === 'SubjectCard')
   const sections = tree.filter(node => node.type === 'StepSection')
@@ -72,7 +74,7 @@ test('Start Here keeps four steps and uses the approved titles in the navigation
   assert.equal(sections.length, 4)
   assert.deepEqual(
     navigation.map(node => node.props.title),
-    approvedTitles,
+    ['What is Nervos CKB?', 'Why it’s built differently', 'CKB & Bitcoin', 'Quantum & crypto agility'],
   )
   assert.deepEqual(
     sections.map(node => node.props.step.title),
@@ -82,12 +84,12 @@ test('Start Here keeps four steps and uses the approved titles in the navigation
     navigation.map(node => node.props.href),
     ['#step-1', '#step-2', '#step-3', '#step-4'],
   )
-  assert.ok(!guideSteps.some(step => step.id === 'step-5' || step.title === 'Try it & build'))
   const heading = tree.find(node => node.type === 'h1')
   assert.ok(heading)
   const headingText = heading.props.children.filter(child => typeof child === 'string').join('')
-  assert.match(headingText, /CKB in four steps\./)
+  assert.match(headingText, /CKB in four steps/)
   assert.doesNotMatch(headingText, /five steps/)
+  assert.ok(!tree.some(node => node.props?.href === '#step-5' || node.props?.id === 'step-5'))
 })
 
 test('Start Here passes the exact eight approved articles in editorial order across four steps', () => {
@@ -109,4 +111,32 @@ test('every approved selection resolves to its existing English source and uncha
     assert.ok(fs.existsSync(path.join(contentRoot, article.sourceFile)), `Missing source: ${article.sourceFile}`)
   }
   assert.ok(!approvedIds.flat().includes('account_abstraction_where_were_going'), 'Do not use the feedback URL typo')
+})
+
+const { StepSection } = loadModule('Components.tsx', {
+  clsx: { default: (...values) => values.filter(Boolean).join(' ') },
+  'next/link': { default: 'Link' },
+  'next/image': { default: 'Image' },
+  'react/jsx-runtime': require('react/jsx-runtime'),
+  './Icon': { Icon: 'Icon' },
+  './ArticleLanguageLink': { ArticleLanguageLink: 'ArticleLanguageLink' },
+  './components.module.scss': { default: {} },
+  './content': {},
+  './analytics': { trackKBEvent: () => undefined },
+  '../../utils/kb-hubs': kbHubs,
+})
+
+test('the first four steps retain their copy and no fifth Try it & build section is rendered', () => {
+  assert.equal(guideSteps.length, 4)
+  guideSteps.forEach((step, index) => {
+    const tree = nodes(StepSection({ step, index, articles: [] }))
+    assert.equal(tree.find(node => node.type === 'section').props.id, `step-${index + 1}`)
+    assert.equal(tree.find(node => node.type === 'h2').props.children, approvedTitles[index])
+    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.summary))
+    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.body))
+    assert.equal(tree.filter(node => node.type === 'Link').length, 0)
+    assert.equal(tree.filter(node => node.type === 'h3').length, 0)
+    assert.ok(!tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
+  })
+  assert.ok(!guideSteps.some(step => step.id === 'step-5' || step.navTitle === 'Try it & build'))
 })

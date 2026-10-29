@@ -35,6 +35,8 @@ function renderArticle() {
     './Shared': { PreviewPage: 'main', DiscoverBanner: () => null, useActiveSection: () => '' },
     './Components': { ArticleCard },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
+    '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './reading-progress': { readingProgress: () => 0 },
     './ArticleLanguageLink': { ArticleLanguageLink: 'a', ArticleContentLink: 'a' },
     './content': { articlePath: article => article.canonicalPath, formatArticleDate: () => 'Existing date' },
     './article-v2.module.scss': { default: {} },
@@ -69,8 +71,8 @@ function renderArticle() {
     hub: 'blockchain-architecture',
   }
   const headings = [
-    { id: 'section-1', label: 'What is CKB?' },
-    { id: 'section-2', label: 'How does it work?' },
+    { id: 'section-1', label: 'What is CKB?', depth: 2 },
+    { id: 'section-2', label: 'How does it work?', depth: 2 },
   ]
   const otherArticles = [
     { ...article, id: 'related_one', canonicalPath: '/knowledge-base/related_one', hub: 'nervos-ckb' },
@@ -95,22 +97,26 @@ function renderArticle() {
   return { tree, ArticleCard, events, scrolls, hashes }
 }
 
-test('desktop and mobile TOC clicks include editorial heading text while preserving anchor behavior', () => {
+test('desktop and mobile TOC clicks include editorial heading text and native section anchors', () => {
   const { tree, events, scrolls, hashes } = renderArticle()
   assert.deepEqual(events, [], 'Rendering and active-section calculation must not emit TOC click events')
-  const headingLink = tree.find(node => node.type === 'a' && node.props.href === '#user-content-section-2')
-  headingLink.props.onClick()
-  const select = tree.find(node => node.type === 'select')
-  select.props.onChange({ target: { value: 'user-content-section-2' } })
+  const headingLinks = tree.filter(node => node.type === 'a' && node.props.href === '#user-content-section-2')
+  assert.equal(headingLinks.length, 2, 'The remote mobile and desktop layouts both keep their native anchors')
+  headingLinks.forEach(link => link.props.onClick())
+  assert.equal(
+    tree.some(node => node.type === 'select'),
+    false,
+    'The remote mobile inline TOC replaces the old select',
+  )
   assert.deepEqual(
     events,
-    ['desktop', 'mobile'].map(placement => ({
+    ['mobile', 'desktop'].map(placement => ({
       name: 'kb_toc_click',
       data: { article_id: 'current_article', section_index: 2, heading_text: 'How does it work?', placement },
     })),
   )
-  assert.deepEqual(scrolls, [{ id: 'user-content-section-2', block: 'start' }])
-  assert.deepEqual(hashes, ['#user-content-section-2'])
+  assert.deepEqual(scrolls, [], 'Native anchor navigation must not be replaced with an imperative scroll')
+  assert.deepEqual(hashes, [], 'Native anchor navigation must not rewrite browser history manually')
 })
 
 test('article recommendations carry their own Hub and one-based displayed position', () => {
@@ -124,7 +130,8 @@ test('article recommendations carry their own Hub and one-based displayed positi
     ],
   )
   const recentLinks = tree.filter(node => node.type === 'a' && node.props.href?.startsWith('/knowledge-base/related_'))
-  recentLinks.forEach(link => link.props.onClick())
+  assert.equal(recentLinks.length, 4, 'Recent posts are retained in both remote mobile and desktop placements')
+  recentLinks.slice(0, 2).forEach(link => link.props.onClick())
   assert.deepEqual(events, [
     {
       name: 'kb_article_click',

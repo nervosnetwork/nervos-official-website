@@ -10,6 +10,17 @@ const components = fs.readFileSync(path.join(__dirname, 'Components.tsx'), 'utf8
 const componentStyles = fs.readFileSync(path.join(__dirname, 'components.module.scss'), 'utf8')
 const shared = fs.readFileSync(path.join(__dirname, 'Shared.tsx'), 'utf8')
 const home = fs.readFileSync(path.join(__dirname, 'Home.tsx'), 'utf8')
+const guideData = fs.readFileSync(path.join(__dirname, 'guide-data.ts'), 'utf8')
+
+test('Start Here keeps only four steps and excludes the removed Try it & build step', () => {
+  assert.match(page, /in four steps/)
+  assert.doesNotMatch(page, /in five steps/)
+  assert.deepEqual(
+    [...guideData.matchAll(/id: 'step-(\d+)'/g)].map(match => Number(match[1])),
+    [1, 2, 3, 4],
+  )
+  assert.doesNotMatch(guideData, /step-5|Try it & build|Make your next move/)
+})
 
 test('hero fade progress is clamped across the scroll range', () => {
   const scrollHelper = path.join(__dirname, 'start-here-scroll.ts')
@@ -70,5 +81,5 @@ test('article row metadata keeps its layout slot while swapping to the arrow', (
   assert.match(componentStyles, /\.readingAction\s*\{[\s\S]*?position:\s*relative/)
   assert.match(componentStyles, /\.readingArrow\s*\{[\s\S]*?position:\s*absolute/)
   assert.match(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[\s\S]*?visibility:\s*hidden/)
-  assert.doesNotMatch(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[\s\S]*?display:\s*none/)
+  assert.doesNotMatch(componentStyles, /\.readingList a:is\(:hover, :focus-visible\) small[^}]*display:\s*none/)
 })

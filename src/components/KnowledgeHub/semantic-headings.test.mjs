@@ -9,6 +9,7 @@ import * as React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { remark } from 'remark'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import matter from 'gray-matter'
@@ -158,11 +159,13 @@ function loadArticle() {
     './article-features': { articleSocialActionsEnabled: false },
     './analytics': { trackKBEvent: () => undefined },
     '../../utils/kb-hubs': kbHubs,
+    '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './reading-progress': evaluate(read('src/components/KnowledgeHub/reading-progress.ts')),
   }).ContentArticle
 }
 
 const ContentArticle = loadArticle()
-function renderArticle(markdown) {
+function renderArticle(markdown, overrides = {}) {
   return renderToStaticMarkup(
     element(ContentArticle, {
       article: {
@@ -182,9 +185,43 @@ function renderArticle(markdown) {
       headings: [],
       hub: null,
       preview: false,
+      ...overrides,
     }),
   )
 }
+
+test('mobile contents only link H2s while desktop retains all headings and existing anchor IDs', () => {
+  const markdown = '# Intro\n\n## Main section\n\n### Detail\n\n## Next section\n\n#### More detail'
+  const { headingTree } = evaluate(read('src/components/KnowledgeHub/markdown-headings.ts'))
+  const headings = headingTree(remark().parse(markdown))
+  const html = renderArticle(markdown, {
+    headings,
+    hub: { id: 'cryptography', name: 'Cryptography' },
+    subjects: [{ id: 'hashing', name: 'Hashing' }],
+  })
+  const mobile = html.match(/<nav class="inlineContents"[\s\S]*?<\/nav>/)?.[0]
+  const desktop = html.match(/<nav class="stickyContents"[\s\S]*?<\/nav>/)?.[0]
+  assert.ok(mobile)
+  assert.ok(desktop)
+  assert.match(mobile, /On this page:/)
+  assert.equal((mobile.match(/<li>/g) || []).length, 2)
+  assert.equal((desktop.match(/<li>/g) || []).length, 5)
+  for (const id of ['section-2', 'section-4']) {
+    assert.ok(mobile.includes(`href="#user-content-${id}"`))
+    assert.ok(html.includes(`<h2 id="user-content-${id}">`))
+  }
+  assert.doesNotMatch(mobile, /Intro|Detail|More detail/)
+  assert.doesNotMatch(html, /<select|Author not supplied/)
+  assert.match(html, /Nervos Network/)
+  assert.ok(html.indexOf('class="mobileCategories"') < html.indexOf('class="inlineContents"'))
+  assert.ok(html.indexOf('class="inlineContents"') < html.indexOf('class="articleMarkdown"'))
+})
+
+test('mobile contents are omitted when an article has no H2 headings', () => {
+  const html = renderArticle('### Detail', { headings: [{ id: 'section-1', label: 'Detail', depth: 3 }] })
+  assert.doesNotMatch(html, /class="inlineContents"/)
+  assert.match(html, /class="stickyContents"/)
+})
 
 test('Markdown and raw HTML body H1s become H2s without changing text or section anchors', () => {
   const html = renderArticle('# Body **heading**\n\n## Existing section\n\n<h1 id="raw-heading">Raw heading</h1>')

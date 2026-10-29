@@ -86,6 +86,8 @@ const { ContentArticle } = load('src/components/KnowledgeHub/ContentArticle.tsx'
   },
   './Components': { ArticleCard: () => null },
   './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
+  '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+  './reading-progress': load('src/components/KnowledgeHub/reading-progress.ts'),
   './ArticleLanguageLink': {
     ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
     ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>

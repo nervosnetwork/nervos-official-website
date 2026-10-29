@@ -353,7 +353,8 @@ function loadArticle(capture) {
       useActiveSection: () => '',
     },
     './Components': { ArticleCard: ({ title }) => element('p', null, title) },
-    './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
+    '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './reading-progress': load('src/components/KnowledgeHub/reading-progress.ts'),
     './ArticleLanguageLink': {
       ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
       ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>
@@ -390,7 +391,7 @@ test('article description overrides metadata only; title, visible subtitle, body
     related: [],
     recent: [],
     subjects: [],
-    headings: [{ id: 'section-1', label: 'Existing body heading' }],
+    headings: [{ id: 'section-1', label: 'Existing body heading', depth: 2 }],
     hub: null,
     preview: false,
   }

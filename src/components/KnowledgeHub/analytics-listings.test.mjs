@@ -351,12 +351,14 @@ test('resource events carry the existing link destination and guide steps carry 
   }
   const guide = loadComponent('StartHere.tsx', { effects: false })
   const steps = nodes(guide.exports.StartHere({ catalog })).filter(node => node.type === 'SubjectCard')
+  const { guideSteps } = loadGuideSteps()
   assert.equal(steps.length, 4)
   steps.forEach((step, index) => {
+    assert.equal(step.props.title, guideSteps[index].navTitle)
     step.props.onClick()
     assert.deepEqual(guide.events.at(-1), {
       name: 'kb_step_select',
-      data: { step: index + 1, step_name: step.props.title },
+      data: { step: index + 1, step_name: guideSteps[index].title },
     })
     assert.equal(step.props.href, `#step-${index + 1}`)
   })

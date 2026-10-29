@@ -10,7 +10,7 @@ const styles = fs.readFileSync(path.join(__dirname, 'footer-v2.module.scss'), 'u
 test('footer follows the Figma frame and keeps status feedback out of layout', () => {
   assert.match(component, /className=\{styles\.socialRule\}/)
   assert.match(component, /\{status && \(/)
-  assert.match(styles, /\.footer\s*\{[\s\S]*?height:\s*445px/)
-  assert.match(styles, /\.socialRule\s*\{[\s\S]*?width:\s*50px[\s\S]*?margin-top:\s*24px/)
+  assert.match(styles, /\.footer\s*\{[\s\S]*?min-height:\s*455px/)
+  assert.match(styles, /\.socialRule\s*\{[\s\S]*?width:\s*50px[\s\S]*?margin-top:\s*26px/)
   assert.match(styles, /\.subscribe \.status\s*\{[\s\S]*?position:\s*absolute/)
 })

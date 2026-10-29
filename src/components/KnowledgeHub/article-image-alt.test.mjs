@@ -78,6 +78,8 @@ function loadArticle(source, socialActions = false, realImages = false) {
     },
     './Components': { ArticleCard: () => null },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
+    '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './reading-progress': evaluate(read('src/components/KnowledgeHub/reading-progress.ts')),
     './ArticleLanguageLink': {
       ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
       ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>
@@ -94,8 +96,12 @@ function loadArticle(source, socialActions = false, realImages = false) {
 }
 
 const ContentArticle = loadArticle(read(articleFile))
+// Integration checks may explicitly select the incoming approved UI revision.
+// Ordinary CI keeps the existing HEAD baseline, including in shallow checkouts.
+// Compare the complete body; only alt attributes are excluded below.
+const previousRevision = process.env.KB_ARTICLE_UI_BASELINE_REVISION || 'HEAD'
 const PreviousArticle = loadArticle(
-  execFileSync('git', ['show', `HEAD:${articleFile}`], { cwd: root, encoding: 'utf8' }),
+  execFileSync('git', ['show', `${previousRevision}:${articleFile}`], { cwd: root, encoding: 'utf8' }),
 )
 const defaultArticle = {
   id: 'existing_article',
@@ -225,7 +231,7 @@ test('decorative component stubs and the existing social decoration retain empty
   assert.equal(bodyImages(html)[0].alt, defaultArticle.title)
 })
 
-test('fixture article body HTML is identical to Git HEAD after removing alt attributes', () => {
+test('fixture article body HTML is identical to the approved Git revision after removing alt attributes', () => {
   const markdown =
     '# Existing section\n\nVisible **article text**.\n\n' + fallbackCases.map(([, value]) => value).join('\n\n')
   assert.equal(

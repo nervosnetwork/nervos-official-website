@@ -89,22 +89,31 @@ export function ArrowButton({
   className,
   onClick,
   locale,
+  direction = 'right',
 }: {
   children: ReactNode
   href?: string
   className?: string
   onClick?: () => void
   locale?: string
+  direction?: 'left' | 'right'
 }) {
   const content = (
     <>
+      {direction === 'left' && (
+        <span className={styles.arrowButtonIcon} aria-hidden="true">
+          ←
+        </span>
+      )}
       {children}
-      <span className={styles.arrowButtonIcon} aria-hidden="true">
-        →
-      </span>
+      {direction === 'right' && (
+        <span className={styles.arrowButtonIcon} aria-hidden="true">
+          →
+        </span>
+      )}
     </>
   )
-  const classes = clsx(styles.arrowButton, className)
+  const classes = clsx(styles.arrowButton, direction === 'left' && styles.arrowButtonBack, className)
 
   return href ? (
     <Link className={classes} href={href} onClick={onClick} locale={locale}>
@@ -265,22 +274,49 @@ export function StepSection({
           Step <Icon name={`topics-imgNumber${numbers[index] ?? 'One'}Circle`} size={25} />
         </div>
         <h2>{step.title}</h2>
-        <p className={styles.callout}>
-          <strong>{step.summary.slice(0, step.summary.indexOf(':') + 1)}</strong>
-          {step.summary.slice(step.summary.indexOf(':') + 1)}
-        </p>
+        <p className={styles.callout}>{step.summary}</p>
         <p className={styles.stepBody}>{step.body}</p>
         {!!step.points.length && (
           <ul className={styles.points}>
             {step.points.map(point => (
               <li key={point}>
                 <Icon name="startBody-imgArrowArrowCircleRight" size={24} />
-                <span>{point}</span>
+                <span>
+                  <strong>{point.slice(0, point.indexOf(':') + 1)}</strong>
+                  {point.slice(point.indexOf(':') + 1)}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </div>
+      {step.actions && (
+        <ul className={clsx(styles.readingList, styles.stepActions)}>
+          {step.actions.map(action => (
+            <li key={action.resourceId}>
+              <Link
+                href={action.href}
+                onClick={() =>
+                  trackKBEvent('kb_resource_click', {
+                    resource_id: action.resourceId,
+                    placement: 'start_here_actions',
+                  })
+                }
+              >
+                <span className={styles.readingTitle}>
+                  {action.title}: {action.description}
+                </span>
+                <span className={styles.stepActionEnd}>
+                  <span className={styles.stepActionLabel}>{action.label}</span>
+                  <span className={styles.stepActionArrow} aria-hidden="true">
+                    →
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       {(articles ? articles.length > 0 : step.reading.length > 0) && (
         <div className={styles.deeper}>
           <h3>
@@ -303,7 +339,7 @@ export function CardMeta({ author = false, article }: { author?: boolean; articl
       <Icon name="articleBody-imgGroup58" size={18} />
       {author && (
         <>
-          <span>{article ? article.authors.join(', ') || 'Author not supplied' : 'Nervos'}</span>
+          <span>{article ? article.authors.join(', ') || 'Nervos Network' : 'Nervos'}</span>
           <span>·</span>
         </>
       )}
@@ -385,8 +421,8 @@ export function ArticleCard({
     >
       <ArticleCover src={article?.coverImage} className={styles.cover} sizes={imageSizes ?? gridImageSizes[size]}>
         {!article?.coverImage && <span>{article ? 'No cover image' : 'Cover image'}</span>}
-        {tag && <span className={styles.tag}>{tag}</span>}
       </ArticleCover>
+      {tag && <span className={styles.tag}>{tag}</span>}
       <h3 className={styles.cardTitle} title={article ? title : undefined}>
         {title}
       </h3>

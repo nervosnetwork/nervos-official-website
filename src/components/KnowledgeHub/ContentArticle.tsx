@@ -18,8 +18,9 @@ import { articleSocialActionsEnabled } from './article-features'
 import { trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
 import type { KBImageDimensions } from '../../server/kb-images'
-import { ArticleLanguageSwitch } from './ArticleLanguageSwitch'
 import { ArticleContentLink, ArticleLanguageLink } from './ArticleLanguageLink'
+import { LanguageToggle } from '../Header/KnowledgeHeader'
+import { readingProgress } from './reading-progress'
 
 export function ContentArticle({
   article,
@@ -39,16 +40,20 @@ export function ContentArticle({
   recent?: KBArticle[]
   hub: KBCatalog['hubs'][number] | null
   subjects: KBCatalog['subjects']
-  headings: { id: string; label: string }[]
+  headings: { id: string; label: string; depth: number }[]
   preview?: boolean
   imageDimensions?: KBImageDimensions
   languagesByArticle?: Record<string, string[]>
 }) {
   const router = useRouter()
   const contents = headings.map(heading => ({ ...heading, id: `user-content-${heading.id}` }))
+  const mobileContents = contents.filter(heading => heading.depth === 2)
   const active = useActiveSection(contents.map(item => item.id))
   const [notice, setNotice] = useState('')
   const navRef = useRef<HTMLDivElement>(null)
+  const articleRef = useRef<HTMLElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = useState(0)
   const [navHeight, setNavHeight] = useState(80)
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -57,6 +62,37 @@ export function ContentArticle({
     if (navRef.current) observer.observe(navRef.current)
     return () => observer.disconnect()
   }, [])
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      if (!articleRef.current || !textRef.current || !navRef.current) return
+      setProgress(
+        readingProgress(
+          articleRef.current.getBoundingClientRect().top,
+          textRef.current.getBoundingClientRect().bottom,
+          window.innerHeight,
+          (navRef.current.getBoundingClientRect().height || 56) + 2,
+        ),
+      )
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(update)
+    }
+    const observer = new ResizeObserver(schedule)
+    for (const element of [articleRef.current, textRef.current, navRef.current]) {
+      if (element) observer.observe(element)
+    }
+    update()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [article.id, markdown])
   const resolveImage = (src = '') =>
     /^(https?:)?\/\//.test(src) || src.startsWith('/')
       ? src
@@ -104,13 +140,73 @@ export function ContentArticle({
       />
     )
   }
+  const recentPosts = (
+    <>
+      <h2>Recent posts:</h2>
+      <div className={styles.recentPosts}>
+        {recent.map((item, index) => (
+          <ArticleLanguageLink
+            key={item.id}
+            article={item}
+            href={articlePath(item)}
+            onClick={() =>
+              trackKBEvent('kb_article_click', {
+                article_id: item.id,
+                placement: 'recent_posts',
+                position: index + 1,
+                hub_id: item.hub ?? undefined,
+              })
+            }
+          >
+            {item.title}
+            <span className={styles.recentPostArrow} aria-hidden="true">
+              {' '}
+              →
+            </span>
+          </ArticleLanguageLink>
+        ))}
+      </div>
+    </>
+  )
+  const categoryTags = hub && (
+    <div className={styles.categories}>
+      <button
+        onClick={() => {
+          trackKBEvent('kb_hub_click', { hub_id: hub.id, placement: 'article_categories' })
+          void router.push(kbHubPath(hub.id) ?? '/knowledge-base', undefined, { locale: 'en' })
+        }}
+      >
+        {hub.name}
+      </button>
+      {subjects.map(subject => (
+        <button
+          key={subject.id}
+          onClick={() => {
+            trackKBEvent('kb_subject_select', {
+              hub_id: hub.id,
+              subject_id: subject.id,
+              placement: 'article_categories',
+            })
+            void router.push(
+              `${kbHubPath(hub.id) ?? '/knowledge-base'}?subject=${encodeURIComponent(subject.id)}`,
+              undefined,
+              { locale: 'en' },
+            )
+          }}
+        >
+          {subject.name}
+        </button>
+      ))}
+    </div>
+  )
   return (
     <PreviewPage
       title={article.title}
       newsletter={false}
       revision
-      headerClassName={styles.scrollingHeader}
-      mobileHeaderActions={<ArticleLanguageSwitch article={article} mobile />}
+      articleNavigation
+      readingProgress={progress}
+      articleLanguage={article}
       preview={preview}
       canonicalPath={article.canonicalPath}
       openGraph={{
@@ -140,7 +236,7 @@ export function ContentArticle({
               Education Hub
             </div>
           </Link>
-          <div className={styles.articleActions}>
+          <div className={styles.articleNavActions}>
             <a
               className={styles.writeArticle}
               href="https://github.com/NervosEducationHub/EducationHubArticles"
@@ -152,49 +248,30 @@ export function ContentArticle({
                 })
               }
             >
-              <Icon name="articleNav-imgGroup1" size={19} />
-              Write an article
+              <span className={styles.writeArticleFace}>
+                <Icon name="articleNav-imgGroup1" size={19} />
+                Write an article
+              </span>
             </a>
-            <div className={styles.desktopLanguage}>
-              <ArticleLanguageSwitch article={article} />
-            </div>
+            <LanguageToggle article={article} />
           </div>
-          {contents.length > 0 && (
-            <label className={styles.mobileContents}>
-              <span>Contents</span>
-              <select
-                aria-label="Table of contents"
-                value={active || contents[0]?.id}
-                onChange={event => {
-                  const sectionIndex = contents.findIndex(item => item.id === event.target.value)
-                  const heading = contents[sectionIndex]
-                  if (heading) {
-                    trackKBEvent('kb_toc_click', {
-                      article_id: article.id,
-                      section_index: sectionIndex + 1,
-                      heading_text: heading.label,
-                      placement: 'mobile',
-                    })
-                  }
-                  document.getElementById(event.target.value)?.scrollIntoView({ block: 'start' })
-                  window.history.replaceState(null, '', `#${event.target.value}`)
-                }}
-              >
-                {contents.map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          <div
+            className={styles.readingProgress}
+            role="progressbar"
+            aria-label="Article reading progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+          >
+            <span style={{ transform: `scaleX(${progress / 100})` }} />
+          </div>
         </div>
         <div className={styles.articleLayout}>
-          <article className={styles.articleBody}>
+          <article className={styles.articleBody} ref={articleRef}>
             <div className={styles.articleMeta}>
               <div className={clsx(styles.meta, styles.largeMeta)}>
                 <Icon name="articleBody-imgGroup58" size={35} />
-                <span>{article.authors.join(', ') || 'Author not supplied'}</span>
+                <span>{article.authors.join(', ') || 'Nervos Network'}</span>
                 <span>·</span>
                 <span>{formatArticleDate(article.date)}</span>
                 <span>·</span>
@@ -206,47 +283,75 @@ export function ContentArticle({
               <h1>{article.title}</h1>
               {article.subtitle && <p className={styles.subhead}>{article.subtitle}</p>}
             </header>
+            {hub && <div className={styles.mobileCategories}>{categoryTags}</div>}
+            {mobileContents.length > 0 && (
+              <nav className={styles.inlineContents} aria-label="On this page">
+                <h2>On this page:</h2>
+                <ul>
+                  {mobileContents.map(item => (
+                    <li key={item.id}>
+                      <a
+                        href={`#${item.id}`}
+                        onClick={() =>
+                          trackKBEvent('kb_toc_click', {
+                            article_id: article.id,
+                            section_index: contents.findIndex(heading => heading.id === item.id) + 1,
+                            heading_text: item.label,
+                            placement: 'mobile',
+                          })
+                        }
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
             {article.coverImage && renderImage(article.coverImage, article.title, true)}
-            <ReactMarkdown
-              className={contentStyles.articleMarkdown}
-              remarkPlugins={[remarkGfm, headingPlugin]}
-              rehypePlugins={[
-                rehypeRaw,
-                [
-                  rehypeSanitize,
-                  {
-                    ...defaultSchema,
-                    attributes: {
-                      ...defaultSchema.attributes,
-                      h2: [
-                        ['id', /^section-\d+$/, 'footnote-label'],
-                        ['className', 'sr-only'],
-                      ],
+            <div ref={textRef}>
+              <ReactMarkdown
+                className={contentStyles.articleMarkdown}
+                remarkPlugins={[remarkGfm, headingPlugin]}
+                rehypePlugins={[
+                  rehypeRaw,
+                  [
+                    rehypeSanitize,
+                    {
+                      ...defaultSchema,
+                      attributes: {
+                        ...defaultSchema.attributes,
+                        h2: [
+                          ['id', /^section-\d+$/, 'footnote-label'],
+                          ['className', 'sr-only'],
+                        ],
+                      },
                     },
-                  },
-                ],
-              ]}
-              components={{
-                // The article title owns the page H1; body headings keep the existing H1/H2 styling.
-                h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
-                img: ({ src, alt }) =>
-                  renderImage(
-                    resolveImage(src),
-                    alt?.trim() && alt.trim().toLowerCase() !== 'alt_text' ? alt : article.title,
+                  ],
+                ]}
+                components={{
+                  // The article title owns the page H1; body headings keep the existing H1/H2 styling.
+                  h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
+                  img: ({ src, alt }) =>
+                    renderImage(
+                      resolveImage(src),
+                      alt?.trim() && alt.trim().toLowerCase() !== 'alt_text' ? alt : article.title,
+                    ),
+                  a: ({ href, children }) => (
+                    <ArticleContentLink
+                      href={href}
+                      languagesByArticle={languagesByArticle}
+                      currentLanguage={article.language}
+                    >
+                      {children}
+                    </ArticleContentLink>
                   ),
-                a: ({ href, children }) => (
-                  <ArticleContentLink
-                    href={href}
-                    languagesByArticle={languagesByArticle}
-                    currentLanguage={article.language}
-                  >
-                    {children}
-                  </ArticleContentLink>
-                ),
-              }}
-            >
-              {markdown}
-            </ReactMarkdown>
+                }}
+              >
+                {markdown}
+              </ReactMarkdown>
+            </div>
+            {recent.length > 0 && <section className={styles.mobileRecentPosts}>{recentPosts}</section>}
             <div className={styles.ckbMark} aria-label="CKB">
               <span aria-hidden="true">
                 <Icon name="article-endmark" size={12} />
@@ -301,66 +406,11 @@ export function ContentArticle({
                 </nav>
               </div>
             )}
-            {recent.length > 0 && (
-              <section>
-                <h2>Recent posts:</h2>
-                <div className={styles.recentPosts}>
-                  {recent.map((item, index) => (
-                    <ArticleLanguageLink
-                      key={item.id}
-                      article={item}
-                      href={articlePath(item)}
-                      onClick={() =>
-                        trackKBEvent('kb_article_click', {
-                          article_id: item.id,
-                          placement: 'recent_posts',
-                          position: index + 1,
-                          hub_id: item.hub ?? undefined,
-                        })
-                      }
-                    >
-                      {item.title}
-                      <span className={styles.recentPostArrow} aria-hidden="true">
-                        {' '}
-                        →
-                      </span>
-                    </ArticleLanguageLink>
-                  ))}
-                </div>
-              </section>
-            )}
+            {recent.length > 0 && <section className={styles.desktopRecentPosts}>{recentPosts}</section>}
             {hub && (
-              <section>
+              <section className={styles.desktopCategories}>
                 <h2>Categories:</h2>
-                <div className={styles.categories}>
-                  <button
-                    onClick={() => {
-                      trackKBEvent('kb_hub_click', { hub_id: hub.id, placement: 'article_categories' })
-                      void router.push(kbHubPath(hub.id) ?? '/knowledge-base', undefined, { locale: 'en' })
-                    }}
-                  >
-                    {hub.name}
-                  </button>
-                  {subjects.map(subject => (
-                    <button
-                      key={subject.id}
-                      onClick={() => {
-                        trackKBEvent('kb_subject_select', {
-                          hub_id: hub.id,
-                          subject_id: subject.id,
-                          placement: 'article_categories',
-                        })
-                        void router.push(
-                          `${kbHubPath(hub.id) ?? '/knowledge-base'}?subject=${encodeURIComponent(subject.id)}`,
-                          undefined,
-                          { locale: 'en' },
-                        )
-                      }}
-                    >
-                      {subject.name}
-                    </button>
-                  ))}
-                </div>
+                {categoryTags}
               </section>
             )}
             {articleSocialActionsEnabled && (

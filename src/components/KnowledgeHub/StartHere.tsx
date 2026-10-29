@@ -1,8 +1,9 @@
 import { CSSProperties, useEffect, useRef, useState } from 'react'
+import clsx from 'clsx'
 import { Icon } from './Icon'
 import { guideSteps } from './guide-data'
 import { Breadcrumb, PreviewPage, RelatedHubs, useActiveSection } from './Shared'
-import { SubjectCard, StepSection } from './Components'
+import { ArrowButton, SubjectCard, StepSection } from './Components'
 import { useHeroScroll } from './useHeroScroll'
 import styles from './pages-v2.module.scss'
 import type { KBCatalog } from './content'
@@ -68,13 +69,13 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
         <header className={styles.startHero}>
           <div className={styles.startHeroCopy}>
             <h1>
-              Understand Nervos
-              <br className={styles.startTitleBreak} /> CKB in four steps.
+              Understand Nervos CKB <br className={styles.startTitleBreak} />
+              in four steps
             </h1>
-            <strong>Inspired by Bitcoin’s foundations. Built for what comes next.</strong>
             <p>
-              Nervos CKB explores what becomes possible when Bitcoin’s design principles meet open-ended
-              programmability. Discover a blockchain built for people who want to push the technology further.
+              Inspired by Bitcoin’s foundations. Built for what comes next. Nervos CKB explores what becomes possible
+              when Bitcoin’s design principles meet open-ended programmability. Discover a blockchain built for people
+              who want to push the technology further.
             </p>
           </div>
         </header>
@@ -86,7 +87,7 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
             {guideSteps.map((step, index) => (
               <SubjectCard
                 key={step.id}
-                title={step.title}
+                title={step.navTitle}
                 step={index + 1}
                 href={`#${step.id}`}
                 selected={active === step.id}
@@ -105,6 +106,14 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
             />
           ))}
         </div>
+        <nav className={styles.guideLinks} aria-label="Continue learning">
+          <ArrowButton className={styles.pill} href="/knowledge-base" direction="left">
+            Back to Knowledge Base
+          </ArrowButton>
+          <ArrowButton className={clsx(styles.pill, styles.keepReading)} href="/knowledge-base/articles">
+            Keep reading
+          </ArrowButton>
+        </nav>
         <RelatedHubs revision />
       </div>
     </PreviewPage>

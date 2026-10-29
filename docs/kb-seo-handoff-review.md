@@ -1579,3 +1579,56 @@ branch merge, manual production deployment, Search Console/Bing submission,
 real IndexNow ping or shared-sheet update is part of this request. Hosted CI,
 production configuration and outstanding performance/image/SEO acceptance
 remain release gates in `docs/kb-release-checklist.md`.
+
+## October 29, 2026 remote UI integration
+
+The first website push was rejected because the remote redesign branch had
+ten additional commits through `a17dc0bf824169cb3e6a36c377508b526a6c082c`.
+Sonny explicitly authorized merging them while preserving the remote UI and
+integrating the local functional/SEO changes. No force push is used. These
+commits include the copy refresh, mobile navigation and article-layout work,
+desktop-menu refinements and removal of the dead KB footer Blog link.
+
+Resolved seven conflicting files individually. Kept the remote article header,
+mobile menu, native table-of-contents anchors, article reading progress,
+newsletter presentation and mobile card-tag placement. The remote disabled
+EN/Chinese placeholders now use actual available translations and the existing
+language-preference behavior, in the same UI slots. The active-state CSS
+selector changes from `aria-pressed` on buttons to `aria-current` on links;
+no new layout or duplicate language control is introduced. Old, unused
+language-slot CSS is removed. Shared/header/component/footer/page layout CSS
+matches the incoming remote version; the existing AVIF/WebP background-image
+delivery changes retain its geometry.
+
+One editorial conflict was explicitly checked with Sonny: the remote version
+had restored a fifth Start Here step. Sonny confirmed four steps only. Removed
+only that fifth step and changed the hero to "in four steps", keeping the
+remote first-four-step copy/layout and all eight Stefan article selections,
+including the approved canonical slug mapping.
+
+Local validation before the merge commit:
+
+- All 380 tests pass, including remote navigation/reading-progress regressions,
+  four-step/no-fifth-step checks and the functional SEO/analytics/image tests.
+- TypeScript passes; Next lint has no errors (existing warnings remain).
+- Content verification passes for all 320 real article-language versions.
+- The article body comparison covers all 320 versions against incoming UI
+  revision `a17dc0b`, excluding only image alt attributes. Before the merge
+  commit, its test uses the explicit test-only
+  `KB_ARTICLE_UI_BASELINE_REVISION=a17dc0bf824169cb3e6a36c377508b526a6c082c`
+  override; normal post-commit/CI tests use HEAD without that override.
+- Native Chrome checks on the running local port 3001 cover desktop KB/article
+  display, EN to Chinese navigation, Chinese article to English KB home with
+  Chinese article-link preference retained, and iPhone 16 emulation at
+  393x852. The mobile menu offers actual EN/Chinese choices, closes after an
+  English selection and navigates correctly; a mobile TOC anchor updates the
+  URL and the visible reading progress. No real newsletter subscription or
+  analytics submission was performed.
+
+The content submodule remains fixed at `1a62187`. Its hosted Linux
+`Check article slugs` run passed:
+https://github.com/HappySonnyDev/EducationHubArticles/actions/runs/40834535109.
+Branch-protection configuration and coordinated production release remain
+separate work. This integration does not close D-16 or other incomplete
+handoff tasks, merge main, modify the shared sheet or authorize production
+deployment.

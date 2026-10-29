@@ -107,9 +107,9 @@
 .newsletterCopy form {
   --kbFieldBackground: var(--kbSurface);
 
-  margin-top: 48px;
-  padding-right: 8px;
-  padding-left: 24px;
+  margin-top: 31px;
+  padding-right: 6px;
+  padding-left: 10px;
 }
 
 .guideButton {
@@ -182,13 +182,23 @@
 }
 
 .resourceCard p {
-  margin-top: 16px;
+  margin-top: 11px;
   color: var(--kbMuted);
+  font-weight: 500;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.25;
+  letter-spacing: 0.24px;
   transition: color 220ms ease;
-  @include tokens.type(label);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .resourceCard {
+  gap: 50px;
+  justify-content: flex-start;
+  min-height: 203px;
+  padding: 20px 17px 19px;
   color: var(--kbText);
   background: var(--kbSurface);
   transition:
@@ -239,8 +249,11 @@
 }
 
 .allArticles {
+  display: flex;
+  width: fit-content;
   min-width: 169px;
   height: 48px;
+  margin: 24px auto 0;
   font-size: 14px !important;
   letter-spacing: 0;
   text-transform: none;
@@ -328,10 +341,30 @@
     background-color 180ms ease;
 }
 
+.page .newsletterCopy input {
+  font-weight: 400;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1;
+  letter-spacing: 0.75px;
+}
+
+.searchWrap form button {
+  align-items: center;
+  justify-content: center;
+}
+
 .newsletterCopy form button {
-  height: 32px;
-  padding: 4px 24px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 35px;
+  padding: 0 20px;
+  white-space: nowrap;
   background: var(--kbAccent);
+  border-radius: 100px;
   transition: background-color 220ms ease;
   @include tokens.type(body);
 }
@@ -411,19 +444,44 @@
 }
 
 .newsletterInner {
-  gap: 48px;
-  min-height: 444px;
-  padding: 80px 0;
+  gap: 104px;
+  align-items: flex-start;
+  min-height: 425px;
+  padding: 83px 0 108px;
+}
+
+.newsletterCopy {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.newsletterCopy .eyebrow {
+  gap: 13px;
+  height: 20px;
+  margin-bottom: 11px;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.84px;
+}
+
+.page .newsletterCopy h2 {
+  min-height: 63px;
+  margin: 0;
+  font-size: 38px;
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .newsletterCopy > p {
-  margin-top: 24px;
+  min-height: 34px;
+  margin-top: 30px;
   color: var(--kbSecondary);
-  @include tokens.type(subheader);
-}
-
-.newsletterCopy input {
-  @include tokens.type(body);
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .newsletterCopy form button:is(:hover, :focus-visible) {
@@ -449,7 +507,7 @@
 }
 
 .newsletterCopy form button:is(:hover, :focus-visible) span {
-  transform: translateX(8px);
+  transform: translateX(2px);
 }
 
 .newsletterCopy > small {
@@ -458,15 +516,14 @@
   @include tokens.type(footnote);
 }
 
-.resourceGrid {
-  gap: 16px;
-  max-width: 629px;
+.newsletterCopy > small:empty {
+  display: none;
 }
-@media (width >= 751px) {
-  .resourceCard {
-    gap: 32px;
-    justify-content: flex-start;
-  }
+
+.resourceGrid {
+  gap: 15px;
+  max-width: 627px;
+  margin-top: 31px;
 }
 
 .resourceCard:is(:hover, :focus-visible) {
@@ -484,13 +541,8 @@
 }
 
 .resourceCard h3 {
-  @include tokens.type(h5);
-}
-
-@media (width >= 751px) {
-  .resourceCard h3 {
-    min-height: 2.6em;
-  }
+  font-size: 17px;
+  line-height: 1.15;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -508,6 +560,10 @@
   }
 }
 @media (width <= 1100px) {
+  .newsletterDescriptionBreak {
+    display: none;
+  }
+
   .heading h1 {
     font-size: 48px;
   }
@@ -521,6 +577,11 @@
   }
 }
 @media (width <= 950px) {
+  .resourceGrid {
+    width: 100%;
+    margin-top: 0;
+  }
+
   .newsletterCopy {
     width: 100%;
   }
@@ -568,10 +629,6 @@
 
   .newsletterInner {
     padding: 56px 0;
-  }
-
-  .newsletterCopy form button {
-    padding: 4px 12px;
   }
 }
 
@@ -696,6 +753,12 @@
     max-width: none;
   }
 
+  .page .newsletterCopy h2 {
+    min-height: 0;
+    font-size: 28px;
+    line-height: 1.05;
+  }
+
   .newsletterCopy form {
     height: 56px;
     margin-top: 24px;
@@ -703,7 +766,8 @@
   }
 
   .newsletterCopy form button {
-    min-height: 44px;
+    height: 44px;
+    padding: 0 12px;
   }
 
   .resourceCard {
@@ -725,26 +789,8 @@
     width: 100%;
   }
 
-  .newsletterCopy form {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-    height: auto;
-    padding: 0;
-    background: transparent;
-    border-radius: 0;
-  }
-
-  .newsletterCopy input {
-    min-height: 48px;
-    padding: 12px 20px;
-    background: var(--kbSurface);
-    border-radius: 100px;
-  }
-
   .newsletterCopy form button {
-    min-height: 48px;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .resourceCard {

@@ -34,6 +34,28 @@
   outline-offset: 3px;
 }
 
+.arrowButtonBack:is(:hover, :focus-visible) .arrowButtonIcon {
+  transform: translateX(-8px);
+}
+
+@media (width < 768px) {
+  .arrowButton.arrowButton {
+    position: relative;
+    box-sizing: border-box;
+    height: 32px;
+    min-height: 32px;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    // Extend the clickable area by 6px above and below the 32px button face.
+    &::after {
+      position: absolute;
+      inset: -7px -1px;
+      content: '';
+    }
+  }
+}
+
 .subject {
   display: flex;
   flex-direction: column;
@@ -50,7 +72,7 @@
   line-height: 1.5;
   letter-spacing: 0;
   text-align: left;
-  text-transform: none;
+  text-transform: uppercase;
   background: var(--kbSurface);
   border: 1px solid var(--kbNeutral400);
   border-radius: var(--kbRadiusControl);
@@ -204,6 +226,34 @@
   outline-offset: 2px;
 }
 
+.stepActionEnd {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+.stepActionLabel {
+  display: none;
+  white-space: nowrap;
+  @include tokens.type(footnote);
+}
+
+.stepActionArrow {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.stepActions a:focus-visible .stepActionLabel {
+  display: inline;
+}
+
+@media (hover: hover) {
+  .stepActions a:hover .stepActionLabel {
+    display: inline;
+  }
+}
+
 .hubCard {
   display: flex;
   flex-direction: column;
@@ -348,12 +398,24 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px !important;
   text-transform: uppercase;
   @include tokens.type(h5);
 }
 
+@media (width < 768px) {
+  .deeper .readingList a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deeper .readingAction {
+    width: 100%;
+  }
+}
+
 .articleCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -699,8 +761,16 @@
   }
 
   .tag {
-    max-width: calc(100% - 24px);
+    position: static;
+    align-self: flex-start;
+    max-width: calc(100% - 40px);
+    margin: 16px 20px 0 18px;
     white-space: normal;
+    background: var(--kbNeutral100);
+  }
+
+  .articleCard > .tag + .cardTitle {
+    margin-top: 12px;
   }
 
   .horizontalCard {

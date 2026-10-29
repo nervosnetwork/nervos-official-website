@@ -79,7 +79,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
       id: 'all',
       name: 'View all',
       icon: 'topics-imgGroup59',
-      description: 'Browse all articles in this topic.',
+      description: '',
     },
   ]
   const [selectedSubject, setSelectedSubject] = useState(
@@ -91,7 +91,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
     id: 'all',
     name: 'View all',
     icon: 'topics-imgGroup59',
-    description: 'Browse all articles in this topic.',
+    description: '',
   }
   // Keep one set of cards in the HTML; the existing subject controls toggle their visibility.
   const hubPosts = catalog.articles.filter(post => post.hub === hubId).sort(byDate)
@@ -144,7 +144,7 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
           <div className={styles.topicToolbar}>
             <div>
               <h2 id="subject-title">{subject.name === 'View all' ? 'All subjects' : subject.name}</h2>
-              <p>{subject.description}</p>
+              {subject.description && <p>{subject.description}</p>}
             </div>
             <ArticleGridControls
               density={density}

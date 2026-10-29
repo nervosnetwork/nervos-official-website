@@ -1,4 +1,4 @@
-import { ComponentProps, FC, Fragment, ReactNode, useMemo } from 'react'
+import { ComponentProps, FC, Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
@@ -16,29 +16,51 @@ import LanguageIcon from './language.svg'
 import { useIsMobile } from '../../hooks'
 import { isClient } from '../../utils'
 import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife/constants'
+import { KnowledgeHeader, NavigationMenu } from './KnowledgeHeader'
+import type { KBArticle } from '../KnowledgeHub/content'
 
 const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '')
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
 export type HeaderProps = ComponentProps<'div'> & {
-  variant?: 'default' | 'knowledgeHub'
-  mobileActions?: ReactNode
+  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
+  readingProgress?: number
+  articleLanguage?: KBArticle
 }
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, variant = 'default', mobileActions, ...divProps } = props
+  const { className, variant = 'default', readingProgress, articleLanguage, ...divProps } = props
+
+  const [singleColumn, setSingleColumn] = useState(false)
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 901px)')
+    const update = () => setSingleColumn(!desktop.matches)
+    update()
+    desktop.addEventListener('change', update)
+    return () => desktop.removeEventListener('change', update)
+  }, [])
+
+  if (variant === 'knowledgeArticle') {
+    return (
+      <KnowledgeHeader
+        className={className}
+        readingProgress={readingProgress}
+        articleLanguage={articleLanguage}
+        {...divProps}
+      >
+        <div className={styles.knowledgeDesktopMenu}>
+          <MenuPopover alignRight />
+        </div>
+      </KnowledgeHeader>
+    )
+  }
 
   return (
-    <div
-      className={clsx(
-        styles.header,
-        variant === 'knowledgeHub' && styles.knowledgeHub,
-        mobileActions && styles.withMobileActions,
-        className,
-      )}
-      {...divProps}
-    >
-      <MenuPopover alignRight={variant === 'knowledgeHub'} />
+    <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
+      <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
+      <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
+        {!singleColumn && <MenuPopover alignRight />}
+      </div>
       <Link
         className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)}
         href="/"
@@ -46,7 +68,6 @@ export const Header: FC<HeaderProps> = props => {
       >
         <LogoIcon />
       </Link>
-      {mobileActions && <div className={styles.mobileActions}>{mobileActions}</div>}
       <LanguagePopover
         languages={[
           { name: 'English', localeName: 'en' },

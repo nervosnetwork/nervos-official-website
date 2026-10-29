@@ -15,6 +15,7 @@ import { GuideLife } from './GuideLife'
 import type { OGProperties } from '../OpenGraph'
 import { trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
+import type { KBArticle } from './content'
 
 export const articleHref = (title?: string) =>
   title ? `/knowledge-base/search?q=${encodeURIComponent(title)}` : '/knowledge-base/articles'
@@ -25,24 +26,28 @@ export function PreviewPage({
   newsletter = true,
   revision = false,
   headerClassName,
-  mobileHeaderActions,
   preview = false,
   noindex = false,
   openGraph,
   description,
   canonicalPath,
+  readingProgress,
+  articleNavigation = false,
+  articleLanguage,
 }: {
   title: string
   children: ReactNode
   newsletter?: boolean
   revision?: boolean
   headerClassName?: string
-  mobileHeaderActions?: ReactNode
   preview?: boolean
   noindex?: boolean
   canonicalPath?: string
   description?: string
   openGraph?: OGProperties
+  readingProgress?: number
+  articleNavigation?: boolean
+  articleLanguage?: KBArticle
 }) {
   return (
     <>
@@ -66,7 +71,12 @@ export function PreviewPage({
       >
         {({ renderHeader, renderFooter }) => (
           <>
-            {renderHeader({ variant: 'knowledgeHub', className: headerClassName, mobileActions: mobileHeaderActions })}
+            {renderHeader({
+              variant: articleNavigation ? 'knowledgeArticle' : 'knowledgeHub',
+              className: headerClassName,
+              readingProgress,
+              articleLanguage,
+            })}
             {children}
             {newsletter && <Newsletter />}
             {revision ? <KnowledgeFooter /> : renderFooter()}
@@ -169,7 +179,7 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
   )
 }
 
-export function useActiveSection(ids: string[], mobileScrollMargin = false) {
+export function useActiveSection(ids: string[], useScrollMargin = false) {
   const [active, setActive] = useState(ids[0] ?? '')
   const key = ids.join('|')
   useEffect(() => {
@@ -180,10 +190,7 @@ export function useActiveSection(ids: string[], mobileScrollMargin = false) {
       sectionIds.forEach(id => {
         const node = document.getElementById(id)
         if (!node) return
-        const threshold =
-          mobileScrollMargin && window.matchMedia('(max-width: 750px)').matches
-            ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2
-            : 150
+        const threshold = useScrollMargin ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2 : 150
         if (node.getBoundingClientRect().top <= threshold) current = id
       })
       setActive(current)
@@ -200,6 +207,6 @@ export function useActiveSection(ids: string[], mobileScrollMargin = false) {
       window.removeEventListener('resize', onScroll)
       cancelAnimationFrame(frame)
     }
-  }, [key, mobileScrollMargin])
+  }, [key, useScrollMargin])
   return active
 }

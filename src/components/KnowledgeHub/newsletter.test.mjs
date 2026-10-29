@@ -184,7 +184,7 @@ test('a failed signup followed by a successful retry emits submit exactly once a
   )
 })
 
-test('Blockchain Signal keeps its initial copy and wires the real shared signup with pending controls', () => {
+test('newsletter status starts empty and wires the real shared signup with pending controls', () => {
   let submitted
   const state = {
     isSubmitting: false,
@@ -225,11 +225,19 @@ test('Blockchain Signal keeps its initial copy and wires the real shared signup 
     return [node, ...nodes(node.props?.children)]
   }
   let tree = nodes(Newsletter())
-  assert.equal(tree.find(node => node.type === 'small').props.children, 'Monthly. Unsubscribe anytime.')
+  assert.equal(
+    tree.find(node => node.props?.id === 'signal-newsletter-note').props.children,
+    'Monthly. Unsubscribe anytime.',
+  )
+  assert.equal(tree.find(node => node.props?.id === 'signal-newsletter-status').props.children, '')
   const input = tree.find(node => node.type === 'input')
   assert.equal(input.props.name, 'email')
+  assert.equal(input.props.placeholder, 'Your email address')
+  assert.equal(input.props['aria-describedby'], 'signal-newsletter-note signal-newsletter-status')
   assert.equal(input.props.required, true)
   assert.equal(input.props.disabled, false)
+  assert.equal(tree.find(node => node.type === 'button').props['aria-label'], 'Get the briefing')
+  assert.equal(tree.find(node => node.type === 'button').props.children[0], 'Get the briefing')
   const submission = {}
   tree.find(node => node.type === 'form').props.onSubmit(submission)
   assert.equal(submitted, submission)
@@ -238,5 +246,7 @@ test('Blockchain Signal keeps its initial copy and wires the real shared signup 
   tree = nodes(Newsletter())
   assert.equal(tree.find(node => node.type === 'input').props.disabled, true)
   assert.equal(tree.find(node => node.type === 'button').props.disabled, true)
-  assert.equal(tree.find(node => node.type === 'small').props.children, 'Submitting…')
+  assert.equal(tree.find(node => node.type === 'button').props['aria-label'], 'Submitting newsletter signup')
+  assert.equal(tree.find(node => node.type === 'button').props.children[0], 'Get the briefing')
+  assert.equal(tree.find(node => node.props?.id === 'signal-newsletter-status').props.children, 'Submitting…')
 })

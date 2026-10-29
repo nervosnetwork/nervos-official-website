@@ -206,10 +206,38 @@ function pageUI() {
     element('div', props, typeof children === 'function' ? children({ close: noOp }) : children)
   Popover.Button = props => element('button', props)
   Popover.Panel = props => element('div', props)
-  const { Header } = load('../Header/index.tsx', {
+  const Dialog = ({ children, onClose: _onClose, initialFocus: _initialFocus, ...props }) =>
+    element('div', props, children)
+  Dialog.Panel = props => element('div', props)
+  Dialog.Title = props => element('h2', props)
+  const Disclosure = ({ children }) =>
+    element('div', null, typeof children === 'function' ? children({ open: false }) : children)
+  Disclosure.Button = props => element('button', props)
+  Disclosure.Panel = props => element('div', props)
+  const translation = [key => key]
+  translation.t = key => key
+  const headerCommon = {
     ...common,
-    'next-i18next': { useTranslation: () => [key => key] },
-    '@headlessui/react': { Popover, Portal: ({ children }) => children, Transition: ({ children }) => children },
+    'next-i18next': { useTranslation: () => translation },
+    '@headlessui/react': {
+      Popover,
+      Dialog,
+      Disclosure,
+      Portal: ({ children }) => children,
+      Transition: ({ children }) => children,
+    },
+  }
+  const knowledgeHeader = load('../Header/KnowledgeHeader.tsx', {
+    ...headerCommon,
+    '../KnowledgeHub/Icon': { Icon: () => null },
+    '../KnowledgeHub/analytics': { trackKBEvent: noOp },
+    '../KnowledgeHub/content': content,
+    '../KnowledgeHub/article-language': language.store,
+    './navigation-current': { navigationCurrent: () => undefined },
+  })
+  const { Header } = load('../Header/index.tsx', {
+    ...headerCommon,
+    './KnowledgeHeader': knowledgeHeader,
     '../StyledLink': { StyledLink: NextLink },
     '../../hooks': { useIsMobile: () => true },
     '../../utils': { isClient: () => false },
@@ -246,13 +274,14 @@ function pageUI() {
     './Components': { ArticleCard: () => null },
     './markdown-headings': {},
     './article-features': { articleSocialActionsEnabled: false },
-    './ArticleLanguageSwitch': language,
+    '../Header/KnowledgeHeader': knowledgeHeader,
     './ArticleLanguageLink': language.links,
+    './reading-progress': { readingProgress: () => 0 },
   })
-  return { ...language, ...shared, ContentArticle, Header, headerProps, routes }
+  return { ...language, ...shared, ...knowledgeHeader, ContentArticle, Header, headerProps, routes }
 }
 
-test('article page places actual switches in desktop navigation and the mobile header slot only', () => {
+test('article page uses the remote desktop switch and mobile menu slots without old duplicate controls', () => {
   const ui = pageUI()
   const currentArticle = article('zh')
   const tree = ui.ContentArticle({
@@ -264,23 +293,23 @@ test('article page places actual switches in desktop navigation and the mobile h
     hub: null,
   })
   assert.equal(tree.type, ui.PreviewPage)
-  assert.equal(tree.props.mobileHeaderActions.type, ui.ArticleLanguageSwitch)
-  assert.equal(tree.props.mobileHeaderActions.props.article, currentArticle)
-  assert.equal(tree.props.mobileHeaderActions.props.mobile, true)
-  const desktop = nodes(tree).filter(node => node.type === ui.ArticleLanguageSwitch)
+  assert.equal(tree.props.articleNavigation, true)
+  assert.equal(tree.props.articleLanguage, currentArticle)
+  assert.equal(tree.props.mobileHeaderActions, undefined)
+  const desktop = nodes(tree).filter(node => node.type === ui.LanguageToggle)
   assert.equal(desktop.length, 1)
-  assert.equal(desktop[0].props.mobile, undefined)
+  assert.equal(desktop[0].props.article, currentArticle)
+  assert.equal(nodes(tree).filter(node => node.type === ui.ArticleLanguageSwitch).length, 0)
   const document = dom(tree)
   const articleNav = withClass(document, 'div', 'articleNav')
-  const mobileActions = withClass(document, 'div', 'mobileActions')
-  assert.equal(tags(articleNav, 'nav').filter(node => node.getAttribute('aria-label') === 'Article language').length, 1)
-  assert.equal(
-    tags(mobileActions, 'nav').filter(node => node.getAttribute('aria-label') === 'Article language').length,
-    1,
-  )
-  assert.equal(ui.headerProps[0].mobileActions, tree.props.mobileHeaderActions)
+  assert.ok(withClass(articleNav, 'div', 'languageToggle'))
+  assert.ok(withClass(document, 'fieldset', 'languageGroup'))
+  assert.equal(withClass(document, 'div', 'mobileActions'), undefined)
+  assert.equal(ui.headerProps[0].articleLanguage, currentArticle)
+  assert.equal(ui.headerProps[0].variant, 'knowledgeArticle')
   dom(element(ui.PreviewPage, { title: 'General KB page', revision: true, children: 'Content' }))
-  assert.equal(ui.headerProps[1].mobileActions, undefined)
+  assert.equal(ui.headerProps[1].articleLanguage, undefined)
+  assert.equal(withClass(dom(element(ui.Header, { variant: 'knowledgeHub' })), 'fieldset', 'languageGroup'), undefined)
   assert.equal(withClass(dom(element(ui.Header, { variant: 'knowledgeHub' })), 'div', 'mobileActions'), undefined)
   assert.equal(withClass(dom(element(ui.Header)), 'div', 'mobileActions'), undefined)
 })
@@ -314,13 +343,13 @@ test('article brand, categories and Knowledge Hub header outbound navigation exp
   assert.equal(withClass(dom(element(ui.Header)), 'a', 'logo').getAttribute('data-locale'), '')
 })
 
-test('desktop and mobile selectors hand off at the same 900px breakpoint with mobile actions before Menu', () => {
+test('desktop article navigation and mobile Knowledge Header hand off at the remote 900px breakpoint', () => {
   const css = file =>
     postcss.parse(sass.compile(new URL(file, import.meta.url).pathname, { logger: sass.Logger.silent }).css)
   const declarations = (stylesheet, selector, property, media) => {
     let value
     stylesheet.walkRules(rule => {
-      if (rule.selector !== selector) return
+      if (rule.selector.replace(/\s+/g, ' ') !== selector.replace(/\s+/g, ' ')) return
       const parentMedia = rule.parent.type === 'atrule' ? rule.parent.params : undefined
       if (parentMedia === media)
         rule.walkDecls(property, decl => {
@@ -329,15 +358,11 @@ test('desktop and mobile selectors hand off at the same 900px breakpoint with mo
     })
     return value
   }
-  const header = css('../Header/index.module.scss')
+  const header = css('../Header/knowledge-header.module.scss')
   const articleStyle = css('./article-v2.module.scss')
   const media = '(width <= 900px)'
-  assert.equal(declarations(articleStyle, '.desktopLanguage', 'display'), 'flex')
-  assert.equal(declarations(articleStyle, '.desktopLanguage', 'display', media), 'none')
-  assert.equal(declarations(header, '.mobileActions', 'display'), 'none')
-  assert.equal(declarations(header, '.knowledgeHub.withMobileActions .mobileActions', 'display', media), 'flex')
-  assert.equal(declarations(header, '.knowledgeHub .logo', 'order'), '0')
-  assert.equal(declarations(header, '.knowledgeHub.withMobileActions .mobileActions', 'order', media), '1')
-  assert.equal(declarations(header, '.knowledgeHub.withMobileActions .menuPopover', 'order', media), '2')
-  assert.equal(declarations(header, '.knowledgeHub .languagePopover', 'display'), 'none')
+  assert.equal(declarations(articleStyle, '.articleNav', 'display', media), 'none')
+  assert.equal(declarations(header, '.desktopLogo,\n.desktopActions', 'display', media), 'none')
+  assert.equal(declarations(header, '.mobileBrand,\n.menuButton', 'display', media), 'flex')
+  assert.equal(declarations(header, '.languageOption[aria-current=page] .languageFace', 'background'), '#111')
 })

@@ -96,7 +96,14 @@ test('local PNG/JPEG covers use responsive lazy fill images while retaining orig
     assert.ok(nodes(document, 'h3').some(node => node.textContent === article.title))
     assert.equal(nodes(document, 'a')[0].getAttribute('href'), article.canonicalPath)
     if (horizontal) assert.equal(attr(wrapper, 'aria-label'), 'Article cover')
-    else assert.equal(nodes(wrapper, 'span')[0].textContent, 'Existing tag')
+    else {
+      const tag = nodes(document, 'span').find(node => attr(node, 'class') === 'tag')
+      assert.equal(tag.textContent, 'Existing tag')
+      assert.equal(tag.parentNode, wrapper.parentNode, 'The remote mobile tag layout needs a direct card child')
+      assert.equal(wrapper.nextSibling, tag, 'Keep the tag after the cover, not inside the image wrapper')
+      assert.equal(tag.nextSibling.nodeName, 'h3')
+      assert.equal(nodes(wrapper, 'span').length, 0)
+    }
   }
 })
 

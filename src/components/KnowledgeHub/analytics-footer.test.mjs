@@ -77,11 +77,10 @@ test('footer navigation emits existing IDs plus visible text and URL without cha
     ['RFCs', 'https://github.com/nervosnetwork/rfcs/'],
     ['Learn', '/learn'],
     ['Knowledge Base', '/knowledge-base'],
-    ['Blog', 'https://archive.nervos.org/blog'],
     ['Medium', 'https://medium.com/nervosnetwork'],
     ['Youtube', 'https://www.youtube.com/c/NervosNetwork'],
   ]
-  assert.equal(links.length, 24)
+  assert.equal(links.length, 23)
   assert.deepEqual(
     links.map(link => [link.props.children[0], link.props.href]),
     destinations,
@@ -134,7 +133,6 @@ test('footer navigation emits existing IDs plus visible text and URL without cha
       'rfcs',
       'learn_heading',
       'knowledge_base',
-      'blog',
       'medium',
       'youtube',
     ],

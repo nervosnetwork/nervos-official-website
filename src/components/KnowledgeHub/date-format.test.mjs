@@ -40,6 +40,8 @@ function renderDates() {
     'next/router': { useRouter: () => ({ locale: 'en' }) },
     './Icon': { Icon: 'Icon' },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: 'ArticleLanguageSwitch' },
+    '../Header/KnowledgeHeader': { LanguageToggle: 'LanguageToggle' },
+    './reading-progress': { readingProgress: () => 0 },
     './ArticleLanguageLink': { ArticleLanguageLink: 'Link', ArticleContentLink: 'a' },
     './analytics': { trackKBEvent: () => undefined },
     './search-analytics': { trackKBSearch: () => undefined },
