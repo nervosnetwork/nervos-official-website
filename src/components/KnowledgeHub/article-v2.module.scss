@@ -1,7 +1,14 @@
+@use '../../styles/breakpoints' as screens;
 @use './tokens' as tokens;
+@use './discover-banner';
 @import './pages.module';
 
-/* Updated article frame 22:2582. Photography remains a deliberate placeholder. */
+/* Article layout: Figma frame 3462:1207. */
+.likeHeart > img {
+  position: absolute;
+  inset: 0;
+}
+
 .scrollingHeader.scrollingHeader {
   position: relative;
 }
@@ -12,6 +19,8 @@
 
 .mobileCategories,
 .mobileRecentPosts,
+.mobileDiscover,
+.mobileDiscoverBanner,
 .inlineContents {
   display: none;
 }
@@ -21,7 +30,7 @@
 }
 
 .articleBody [id] {
-  scroll-margin-top: calc(var(--articleNavHeight) + 24px);
+  scroll-margin-top: calc(var(--articleNavHeight) + 32px);
 }
 
 .articleNav {
@@ -108,10 +117,11 @@
 }
 
 .articleLayout {
-  grid-template-columns: minmax(0, 690px) 306px;
-  gap: 102px;
-  width: min(1098px, calc(100% - 64px));
-  margin: 64px max(32px, calc((100% - 1200px) / 2)) 96px auto;
+  grid-template-columns: 210px minmax(0, 690px);
+  gap: 80px;
+  justify-content: start;
+  width: min(1280px, calc(100% - 64px));
+  margin: 64px auto 96px;
 }
 
 .articleBody {
@@ -162,7 +172,7 @@
 }
 
 .discoverBanner p {
-  max-width: 284px;
+  max-width: 100%;
 }
 
 .discoverCompact p {
@@ -226,27 +236,25 @@
   margin: 72px auto 24px;
 }
 
+.ckbMark span {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+
 .discoverBanner,
 .discoverCompact {
   background: linear-gradient(125deg, #163827, #08657a 70%, #8b7cff);
 }
 
 .articleBody .discoverBanner {
-  position: relative;
-  gap: 20px;
-  min-height: 172px;
-  padding: 32px 78px;
-  overflow: hidden;
-  background: var(--kbDark) url('/images/knowledge-hub/discover-banner-background.jpg') center / cover no-repeat;
-
-  // Preserve the original crop/resolution and JPEG for older browsers.
-  background-image: image-set(
-    url('/images/knowledge-hub/discover-banner-background.f824b2b2.avif') type('image/avif'),
-    url('/images/knowledge-hub/discover-banner-background.cb4683e2.webp') type('image/webp'),
-    url('/images/knowledge-hub/discover-banner-background.jpg') type('image/jpeg')
-  );
-  border-radius: 9px;
-  isolation: isolate;
+  @include discover-banner.surface;
 }
 
 .discoverLife {
@@ -260,14 +268,14 @@
 }
 
 .discoverBanner h2 {
-  width: 334px;
+  width: 349px;
   max-width: 100%;
 }
 
 .sidebar h2 {
   @include tokens.type(subheader);
 
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .articleBody .discoverBanner h2,
@@ -291,12 +299,23 @@
   border-radius: 3px;
 }
 
+.discoverBanner .discoverButton {
+  @include tokens.type(subheader2);
+
+  height: auto;
+  min-height: 42px;
+  padding: 12px 24px;
+  background: var(--kbAccent);
+  border: 0;
+  border-radius: 999px;
+}
+
 .discoverAction {
   flex-shrink: 0;
 }
 
 .discoverBanner .discoverAction {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .discoverBanner .discoverButton:is(:hover, :focus-visible),
@@ -306,10 +325,8 @@
 }
 
 .sidebar {
-  display: grid;
-  grid-template-rows: auto minmax(min-content, 1fr) repeat(4, auto);
-  gap: 24px;
-  align-content: stretch;
+  display: block;
+  min-width: 0;
 }
 
 .stickyContents {
@@ -345,13 +362,62 @@
 }
 
 .toc {
+  position: relative;
   gap: 0;
-  padding-left: 24px;
-  border-color: var(--kbBorder);
+  padding-left: 28px;
+  border-left: 0;
+  isolation: isolate;
+}
+
+.toc::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  z-index: 0;
+  width: 1px;
+  background: var(--kbBorder);
+  content: '';
+}
+
+.tocChildren {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+  pointer-events: none;
+}
+
+.tocChildren[data-expanded='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tocChildren > ol {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.shareActions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.moreArticles > a {
+  margin-top: 8px;
+  border-bottom: 1px solid var(--kbDivider);
 }
 
 .toc a {
-  @include tokens.type(label);
+  @include tokens.type(body2);
 
   position: relative;
   padding: 8px 0;
@@ -359,11 +425,23 @@
   transition: color 180ms ease;
 }
 
+.tocChildren a {
+  padding-inline-start: var(--tocIndent, 12px);
+}
+
 .recentPosts a {
   color: var(--kbBrand);
 }
 
-.moreArticles > a:last-child {
+.shareActions a:hover {
+  opacity: 0.65;
+}
+
+.moreArticles > a:first-of-type {
+  margin-top: 24px;
+}
+
+.moreArticles > a:last-of-type {
   border-bottom: 0;
 }
 
@@ -375,15 +453,22 @@
   color: var(--kbBrand);
 }
 
-.toc a[aria-current]::before {
+.tocMarker {
   position: absolute;
-  top: 13px;
-  left: -27px;
+  top: 0;
+  left: 2px;
+  z-index: 1;
   width: 5px;
   height: 5px;
   background: var(--kbBrand);
   border-radius: 50%;
-  content: '';
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.tocMarker[data-visible='true'] {
+  opacity: 1;
 }
 
 .recentPosts {
@@ -417,10 +502,165 @@
   @include tokens.type(label);
 
   max-width: 100%;
-  height: 24px;
-  min-height: 24px;
+  height: 23px;
+  min-height: 23px;
   padding: 0 8px;
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.articleCategories {
+  margin-top: 8px;
+}
+
+.discoverSteps {
+  @include tokens.type(subheader2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin-top: 32px;
+  padding: 7px 16px;
+  color: var(--kbInverseText);
+  text-align: center;
+  background: var(--kbBrand);
+  border-radius: 999px;
+}
+
+.discoverSteps:is(:hover, :focus-visible) {
+  background: var(--kbDark);
+}
+
+.articleActions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 48px;
+}
+
+.likeButton {
+  @include tokens.type(label);
+
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  color: var(--kbMuted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.likeHeart {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 12px;
+  height: 10.6909px;
+  transition: transform 160ms ease;
+}
+
+.likeHeartFill {
+  transition: clip-path 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  clip-path: inset(100% 0 0);
+}
+
+.likeHeart::after {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid #f00;
+  border-radius: 50%;
+  opacity: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.likeButton[aria-pressed='true'] .likeHeartFill {
+  clip-path: inset(0);
+}
+
+.likeButton[aria-pressed='true'] .likeHeart {
+  animation: heart-pop 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.likeButton[aria-pressed='true'] .likeHeart::after {
+  animation: heart-bloom 600ms ease-out;
+}
+
+.likeButton:active .likeHeart {
+  transform: scale(0.85);
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  40% {
+    transform: scale(1.4);
+  }
+
+  70% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heart-bloom {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tocChildren,
+  .tocMarker {
+    transition: none;
+  }
+
+  .likeHeart,
+  .likeHeartFill {
+    transition: none;
+  }
+
+  .likeButton[aria-pressed='true'] .likeHeart,
+  .likeButton[aria-pressed='true'] .likeHeart::after {
+    animation: none;
+  }
+
+  .likeButton:active .likeHeart {
+    transform: none;
+  }
+}
+
+.shareActions {
+  @include tokens.type(subheader2);
+
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  color: var(--kbSecondary);
+}
+
+.articleActions + .ckbMark {
+  margin-top: 48px;
+}
+
+.articleActions :focus-visible,
+.discoverSteps:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 4px;
 }
 
 .sharing {
@@ -450,6 +690,24 @@
   border-top: 1px solid var(--kbDivider);
 }
 
+.articleBody .moreArticles > h2 {
+  text-align: center;
+}
+
+.allArticlesAction {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.allArticlesButton {
+  @include tokens.type(body);
+
+  min-height: 40px;
+  padding: 8px 24px;
+  border-radius: 3px;
+}
+
 .backToTop {
   position: fixed;
   right: 32px;
@@ -464,22 +722,45 @@
   border-top: 1px solid var(--kbDivider);
 }
 
-@media (width <= 1100px) {
-  .articleLayout {
-    grid-template-columns: minmax(0, 1fr) 260px;
-    gap: 40px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  .articleBody .discoverBanner {
-    flex-wrap: wrap;
-    padding: 24px 24px 24px 78px;
-  }
-}
-
 /* Stack the article before the sidebar starts squeezing the reading column. */
-@media (width <= 900px) {
+@media (width <= #{screens.$tabletMax}) {
+  .articleActions {
+    gap: 12px;
+  }
+
+  .likeButton {
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .likeHeart {
+    width: 24px;
+    height: 24px;
+  }
+
+  .likeHeart > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .shareActions {
+    gap: 4px;
+  }
+
+  .shareActions > span {
+    display: none;
+  }
+
+  .shareActions a {
+    min-width: 44px;
+  }
+
+  .shareActions img {
+    width: 32px;
+    height: 32px;
+  }
+
   .articleNav {
     display: none;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -566,6 +847,42 @@
     text-underline-offset: 3px;
   }
 
+  .mobileDiscover {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    margin-top: 24px;
+    padding: 16px;
+    text-align: center;
+    background: var(--kbBrandSurface);
+    border: 1px solid var(--kbBorder);
+    border-radius: 8px;
+  }
+
+  .mobileDiscover p {
+    @include tokens.type(body2);
+
+    margin: 0;
+    color: var(--kbMuted);
+  }
+
+  .mobileDiscover a {
+    @include tokens.type(subheader2);
+
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 312px;
+    min-height: 44px;
+    padding: 12px 16px;
+    color: var(--kbInverseText);
+    background: var(--kbBrand);
+    border-radius: 999px;
+  }
+
   .articleBrand {
     min-width: 0;
     font-size: 14px;
@@ -628,7 +945,7 @@
   }
 
   .articlePage .articleBody [id] {
-    scroll-margin-top: 80px;
+    scroll-margin-top: calc(var(--articleNavHeight) + 32px);
   }
 
   .articleBody h1 {
@@ -666,11 +983,7 @@
   .articleBody .discoverBanner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 24px;
-  }
-
-  .discoverBanner h2 {
-    width: auto;
+    padding: 32px 48px;
   }
 
   .articleBody .discoverBanner h2 {
@@ -702,7 +1015,7 @@
     padding: 10px 16px;
     font-size: 14px;
 
-    @media (width < 768px) {
+    @media (width <= #{screens.$mobileMax}) {
       min-height: 32px;
       padding-top: 0;
       padding-bottom: 0;
@@ -710,12 +1023,7 @@
   }
 
   .sidebar {
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px;
-    min-width: 0;
-    max-width: 100%;
+    display: none;
   }
 
   .sidebar > * {
@@ -752,9 +1060,18 @@
   .backToTop {
     display: none;
   }
+
+  .mobileDiscover a:is(:hover, :focus-visible) {
+    background: var(--kbDark);
+  }
 }
 
-@media (width <= 600px) {
+@media (width <= #{screens.$mobileMax}) {
+  .articleBody .discoverBanner {
+    min-height: 0;
+    padding: 24px;
+  }
+
   .sidebar {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -786,12 +1103,89 @@
   }
 }
 
-@media (width <= 480px) {
+@media (width <= #{screens.$mobileMax}) {
   .articleBrand strong {
     font-size: 16px;
   }
 
   .writeArticle img {
     display: none !important;
+  }
+}
+
+.experimentSidebar {
+  display: none;
+}
+
+.experimentSidebar .discoverBanner {
+  @include discover-banner.surface;
+
+  min-height: 0;
+  padding: 32px 24px;
+}
+
+.experimentSidebar .discoverBanner h2 {
+  @include tokens.type(h3);
+
+  width: auto;
+  margin: 0;
+}
+
+.experimentSidebar .discoverBanner .discoverAction,
+.experimentSidebar .discoverBanner .discoverButton {
+  width: 100%;
+}
+
+:global(html[data-article-discover-variant='B']) .sidebar .discoverSteps,
+:global(html[data-article-discover-variant='B']) .mobileDiscover {
+  display: none;
+}
+
+@media (width <= #{screens.$tabletMax}) {
+  :global(html[data-article-discover-variant='B']) .mobileDiscoverBanner {
+    display: block;
+    margin-top: 24px;
+  }
+}
+
+.experimentSidebar .discoverBanner .discoverButton {
+  justify-content: center;
+  height: auto;
+  min-height: 44px;
+  padding: 10px 12px;
+  white-space: normal;
+}
+
+@media (width >= #{screens.$desktopMin}) {
+  :global(html[data-article-discover-variant='B']) .articleLayout {
+    grid-template-columns: clamp(160px, 15vw, 210px) minmax(0, 690px) clamp(240px, 20vw, 280px);
+    gap: 32px;
+  }
+
+  :global(html[data-article-discover-variant='B']) .experimentSidebar {
+    display: block;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .stickyDiscover {
+    position: sticky;
+    top: calc(var(--articleNavHeight) + 24px);
+    opacity: 1;
+    transition:
+      opacity 180ms ease,
+      visibility 180ms;
+  }
+
+  .discoverHidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stickyDiscover {
+    transition: none;
   }
 }

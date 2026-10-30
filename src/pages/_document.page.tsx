@@ -1,5 +1,6 @@
 import Document, { Head, Html, Main, NextScript } from 'next/document'
 import type { PageSEO } from '../utils/page-seo'
+import { ARTICLE_DISCOVER_BOOTSTRAP } from '../components/KnowledgeHub/article-discover-experiment'
 
 export default class SiteDocument extends Document {
   render() {
@@ -8,7 +9,9 @@ export default class SiteDocument extends Document {
 
     return (
       <Html lang={language}>
-        <Head />
+        <Head>
+          <script id="article-discover-experiment" dangerouslySetInnerHTML={{ __html: ARTICLE_DISCOVER_BOOTSTRAP }} />
+        </Head>
         <body>
           <Main />
           <NextScript />

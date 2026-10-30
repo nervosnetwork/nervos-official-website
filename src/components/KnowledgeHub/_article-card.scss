@@ -1,0 +1,56 @@
+@use './tokens' as tokens;
+
+@mixin surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  border: 1px solid var(--kbBorder);
+  border-radius: 16px;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+@mixin title {
+  display: -webkit-box;
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: 3lh;
+  margin: 16px;
+  padding: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  @include tokens.type(h4);
+}
+
+@mixin metadata {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: auto 16px 16px;
+  padding: 0;
+  color: var(--kbMuted);
+  white-space: normal;
+  @include tokens.type(footnote);
+
+  > img:first-child {
+    width: 18px;
+    height: 18px;
+  }
+
+  > img:not(:first-child) {
+    width: 12px;
+    height: 12px;
+  }
+}

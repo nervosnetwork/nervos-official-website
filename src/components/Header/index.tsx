@@ -1,9 +1,10 @@
-import { ComponentProps, FC, Fragment, useEffect, useMemo, useState } from 'react'
+import { ComponentProps, FC, Fragment, RefObject, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { DESKTOP_QUERY } from '../../utils/breakpoints'
 import { StyledLink } from '../StyledLink'
 import styles from './index.module.scss'
 import CodeIcon from './code.svg'
@@ -26,14 +27,15 @@ export type HeaderProps = ComponentProps<'div'> & {
   variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
   readingProgress?: number
   articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
 }
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, variant = 'default', readingProgress, articleLanguage, ...divProps } = props
+  const { className, variant = 'default', readingProgress, articleLanguage, headerRef, ...divProps } = props
 
   const [singleColumn, setSingleColumn] = useState(false)
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 901px)')
+    const desktop = window.matchMedia(DESKTOP_QUERY)
     const update = () => setSingleColumn(!desktop.matches)
     update()
     desktop.addEventListener('change', update)
@@ -46,10 +48,11 @@ export const Header: FC<HeaderProps> = props => {
         className={className}
         readingProgress={readingProgress}
         articleLanguage={articleLanguage}
+        headerRef={headerRef}
         {...divProps}
       >
-        <div className={styles.knowledgeDesktopMenu}>
-          <MenuPopover alignRight />
+        <div className={clsx(styles.knowledgeDesktopMenu, styles.articleDesktopMenu)}>
+          {!singleColumn && <MenuPopover alignRight />}
         </div>
       </KnowledgeHeader>
     )

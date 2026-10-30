@@ -31,6 +31,8 @@ function load(file, imports = {}, runtimeIntl = Intl, source = read(file)) {
   const loaded = { exports: {} }
   new Function('require', 'module', 'exports', 'Intl', outputText)(
     name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       if (name === 'react/jsx-runtime') return require(name)
       assert.ok(Object.hasOwn(imports, name), `Unexpected import in ${file}: ${name}`)
       return imports[name]
@@ -352,9 +354,10 @@ function loadArticle(capture) {
       DiscoverBanner: () => element('aside', null, 'Existing discovery banner'),
       useActiveSection: () => '',
     },
-    './Components': { ArticleCard: ({ title }) => element('p', null, title) },
+    './Components': { ArticleCard: ({ title }) => element('p', null, title), ArrowButton: 'a' },
     '../Header/KnowledgeHeader': { LanguageToggle: () => null },
     './reading-progress': load('src/components/KnowledgeHub/reading-progress.ts'),
+    './article-discover-experiment': load('src/components/KnowledgeHub/article-discover-experiment.ts'),
     './ArticleLanguageLink': {
       ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
       ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>

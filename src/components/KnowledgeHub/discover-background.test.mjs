@@ -113,7 +113,7 @@ function renderBanner(compact) {
   return { banner, html, doc, events, canvasProps, ArrowButton }
 }
 
-test('both Discover banners retain their copy, decorative canvas, CTA, exclusions and click tracking', () => {
+test('updated Discover banners keep static artwork, revised copy, CTA and click tracking', () => {
   for (const compact of [false, true]) {
     const { banner, doc, events, canvasProps, ArrowButton } = renderBanner(compact)
     const aside = doc.getElementsByTagName('aside')[0]
@@ -121,29 +121,23 @@ test('both Discover banners retain their copy, decorative canvas, CTA, exclusion
     const children = Array.from(aside.childNodes).filter(node => node.nodeType === 1)
     assert.deepEqual(
       children.map(node => node.tagName),
-      ['canvas', 'div', 'span'],
+      ['div', 'span'],
     )
-    assert.equal(children[0].getAttribute('class'), 'article-discoverLife')
-    assert.equal(children[0].getAttribute('aria-hidden'), 'true')
+    assert.equal(children[0].hasAttribute('data-life-exclusion'), true)
     assert.equal(children[1].hasAttribute('data-life-exclusion'), true)
-    assert.equal(children[2].hasAttribute('data-life-exclusion'), true)
-    assert.equal(aside.getElementsByTagName('h2')[0].textContent, 'Meet the blockchain built for what comes next.')
+    assert.equal(
+      aside.getElementsByTagName('h2')[0].textContent,
+      'Meet Nervos CKB, a blockchain built for flexibility.',
+    )
     assert.equal(
       aside.getElementsByTagName('p')[0].textContent,
       'Explore the ideas, architecture, and ecosystem behind CKB.',
     )
     const link = aside.getElementsByTagName('a')[0]
-    assert.equal(link.textContent, 'Discover CKB')
+    assert.equal(link.textContent, 'Discover CKB in 5 Steps')
     assert.equal(link.getAttribute('href'), '/knowledge-base/start-here')
     assert.equal(link.getAttribute('class'), 'article-discoverButton')
-    assert.deepEqual(canvasProps, [
-      {
-        className: 'article-discoverLife',
-        density: compact ? 0.18 : 0.16,
-        exclusionPadding: compact ? 12 : 18,
-        exclusionSelector: '[data-life-exclusion]',
-      },
-    ])
+    assert.deepEqual(canvasProps, [], 'The revised article banner has no decorative canvas')
     assert.deepEqual(events, [], 'Rendering must not emit a CTA click event')
     const action = banner.props.children[2].props.children
     assert.equal(action.type, ArrowButton)
@@ -158,7 +152,7 @@ test('both Discover banners retain their copy, decorative canvas, CTA, exclusion
   }
 })
 
-test('only the two Discover backgrounds add ordered format candidates after their unchanged JPEG shorthand', () => {
+test('Discover backgrounds keep ordered format candidates, including the reused experiment banner artwork', () => {
   const candidateRules = []
   stylesheet.walkRules(rule => {
     if (
@@ -166,7 +160,11 @@ test('only the two Discover backgrounds add ordered format candidates after thei
     )
       candidateRules.push(rule)
   })
-  assert.equal(candidateRules.length, 2)
+  assert.equal(candidateRules.length, 3)
+  const sidebar = declarations('.experimentSidebar .discoverBanner')
+  const bottom = declarations('.articleBody .discoverBanner')
+  assert.equal(sidebar.background, bottom.background)
+  assert.equal(sidebar['background-image'], bottom['background-image'])
   for (const background of backgrounds) {
     const rule = candidateRules.find(rule => rule.selector === background.selector)
     assert.ok(rule)
@@ -185,13 +183,13 @@ test('only the two Discover backgrounds add ordered format candidates after thei
   }
 })
 
-test('Discover geometry, stacking, canvas opacity and mobile breakpoint behavior remain unchanged', () => {
+test('Discover geometry follows the revised layout while preserving artwork stacking and responsive behavior', () => {
   const banner = declarations('.articleBody .discoverBanner')
   for (const [property, value] of Object.entries({
     position: 'relative',
-    gap: '20px',
-    'min-height': '172px',
-    padding: '32px 78px',
+    gap: '16px',
+    'min-height': '214px',
+    padding: '32px 48px',
     overflow: 'hidden',
     'border-radius': '9px',
     isolation: 'isolate',
@@ -224,19 +222,19 @@ test('Discover geometry, stacking, canvas opacity and mobile breakpoint behavior
   const content = declarations('.discoverBanner > div,\n.discoverCompact > div,\n.discoverAction')
   assert.equal(content.position, 'relative')
   assert.equal(content['z-index'], '1')
-  const tabletBanner = declarations('.articleBody .discoverBanner', '(width <= 1100px)')
-  assert.equal(tabletBanner['flex-wrap'], 'wrap')
-  assert.equal(tabletBanner.padding, '24px 24px 24px 78px')
-  const mobileBanner = declarations('.articleBody .discoverBanner', '(width <= 900px)')
+  const tabletBanner = declarations('.articleBody .discoverBanner', '(width <= 1023px)')
+  assert.equal(tabletBanner.padding, '32px 48px', 'Tablet uses the same padding as desktop')
+  const mobileBanner = declarations('.articleBody .discoverBanner', '(width <= 1023px)')
   assert.equal(mobileBanner['flex-direction'], 'column')
   assert.equal(mobileBanner['align-items'], 'flex-start')
-  assert.equal(mobileBanner.padding, '24px')
-  assert.equal(declarations('.discoverBanner .discoverAction', '(width <= 900px)')['align-self'], 'flex-start')
-  const mobileCompact = declarations('.discoverCompact', '(width <= 900px)')
+  assert.equal(mobileBanner.padding, '32px 48px')
+  assert.equal(declarations('.articleBody .discoverBanner', '(width <= 767px)').padding, '24px')
+  assert.equal(declarations('.discoverBanner .discoverAction', '(width <= 1023px)')['align-self'], 'flex-start')
+  const mobileCompact = declarations('.discoverCompact', '(width <= 1023px)')
   assert.equal(mobileCompact['min-height'], '0')
   assert.equal(mobileCompact.padding, '32px 24px')
-  assert.equal(declarations('.sidebar > .discoverCompact', '(width <= 900px)')['grid-column'], '1/-1')
-  assert.equal(declarations('.discoverLife', '(width <= 900px)').opacity, '0.42')
+  assert.equal(declarations('.sidebar > .discoverCompact', '(width <= 1023px)')['grid-column'], '1/-1')
+  assert.equal(declarations('.discoverLife', '(width <= 1023px)').opacity, '0.42')
 })
 
 test('original JPEGs and content-hashed modern files retain their dimensions, sRGB profile and reviewed transfer reductions', async () => {
@@ -314,7 +312,10 @@ test('Discover assets remain CSS-scoped without adding preloads or changing the 
     }
   }
   visit(path.join(root, 'src'))
-  assert.deepEqual(references, ['src/components/KnowledgeHub/article-v2.module.scss'])
+  assert.deepEqual(references, [
+    'src/components/KnowledgeHub/_discover-banner.scss',
+    'src/components/KnowledgeHub/article-v2.module.scss',
+  ])
   const guideSource = read('src/components/KnowledgeHub/GuideLife.tsx')
   assert.match(guideSource, /const CELL_STEP = 15\b/)
   assert.match(guideSource, /const CELL_SIZE = 10\b/)

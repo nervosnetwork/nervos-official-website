@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @use './tokens' as tokens;
 
 .footer {
@@ -214,7 +215,7 @@
   color: var(--kbText);
 }
 
-@media (width <= 1200px) {
+@media (width <= #{screens.$tabletMax}) {
   .footer {
     height: auto;
   }
@@ -233,7 +234,7 @@
     gap: 20px;
   }
 }
-@media (width <= 900px) {
+@media (width <= #{screens.$tabletMax}) {
   .top {
     flex-direction: column;
   }
@@ -335,7 +336,7 @@
   }
 }
 
-@media (width <= 750px) {
+@media (width <= #{screens.$mobileMax}) {
   .footer {
     width: calc(100% - 32px);
     min-height: 0;
@@ -352,15 +353,9 @@
   }
 }
 
-@media (width <= 480px) {
+@media (width <= #{screens.$mobileMax}) {
   .socials {
     grid-template-columns: repeat(4, minmax(44px, 1fr));
     max-width: 320px;
-  }
-}
-
-@media (width < 280px) {
-  .footer .groups {
-    grid-template-columns: 1fr;
   }
 }

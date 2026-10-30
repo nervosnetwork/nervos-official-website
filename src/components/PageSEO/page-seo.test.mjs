@@ -196,6 +196,7 @@ test('the custom Document uses server content language and preserves the standar
   const NextScript = () => element('script', { id: '__NEXT_DATA__' })
   const { default: SiteDocument } = load('src/pages/_document.page.tsx', {
     'next/document': { __esModule: true, default: DocumentBase, Html, Head: DocumentHead, Main, NextScript },
+    '../components/KnowledgeHub/article-discover-experiment': { ARTICLE_DISCOVER_BOOTSTRAP: '' },
   })
   assert.equal(SiteDocument.getInitialProps, DocumentBase.getInitialProps)
   assert.equal(Object.hasOwn(SiteDocument, 'getInitialProps'), false, 'Retain the default document data lifecycle')

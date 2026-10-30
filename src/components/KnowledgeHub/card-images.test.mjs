@@ -65,15 +65,18 @@ const cover = document =>
   nodes(document, 'div').find(node => ['cover', 'horizontalCover', 'coverPlaceholder'].includes(attr(node, 'class')))
 
 function displayedSize(sizes, width) {
-  for (const entry of sizes.split(',').map(value => value.trim())) {
+  for (const entry of sizes.split(/,(?![^()]*\))/).map(value => value.trim())) {
     const condition = entry.match(/^\(max-width: ([\d.]+)px\)\s+(.*)$/)
     if (condition && width > Number(condition[1])) continue
-    const value = condition?.[2] ?? entry
+    let value = condition?.[2] ?? entry
+    const minimum = value.match(/^min\((calc\([^)]+\)), ([\d.]+)px\)$/)
+    if (minimum) value = minimum[1]
     const pixels = value.match(/^([\d.]+)px$/)
     if (pixels) return Number(pixels[1])
     const calculation = value.match(/^calc\(([\d.]+)vw - ([\d.]+)px\)$/)
     assert.ok(calculation, `Supported sizes expression: ${value}`)
-    return (Number(calculation[1]) * width) / 100 - Number(calculation[2])
+    const result = (Number(calculation[1]) * width) / 100 - Number(calculation[2])
+    return minimum ? Math.min(result, Number(minimum[2])) : result
   }
   assert.fail(`No sizes branch for viewport ${width}`)
 }
@@ -114,9 +117,9 @@ test('grid image sizes follow every existing density and mobile/tablet breakpoin
     ['large', 3],
   ]) {
     const sizes = attr(nodes(renderCard({ size }), 'img')[0], 'sizes')
-    for (const width of [375, 540, 541, 750, 751, 950, 1024, 1025, 1264, 1600]) {
-      const container = Math.min(1200, width - (width <= 750 ? 40 : 64))
-      const columns = width <= 540 ? 1 : width <= 1024 ? 2 : desktopColumns
+    for (const width of [375, 767, 768, 900, 1023, 1024, 1264, 1600]) {
+      const container = Math.min(1200, width - (width <= 767 ? 40 : 64))
+      const columns = width <= 767 ? 1 : width <= 1023 ? 2 : desktopColumns
       const expected = (container - 16 * (columns - 1)) / columns - 2
       assert.ok(Math.abs(displayedSize(sizes, width) - expected) < 0.001, `${size}, ${width}px`)
     }
@@ -126,7 +129,7 @@ test('grid image sizes follow every existing density and mobile/tablet breakpoin
 test('horizontal cards retain compact default sizes and allow the article-page mobile full-width override', () => {
   const regular = attr(nodes(renderCard({ horizontal: true }), 'img')[0], 'sizes')
   assert.equal(displayedSize(regular, 750), 88)
-  assert.equal(displayedSize(regular, 751), 200)
+  assert.equal(displayedSize(regular, 768), 200)
   const imageSizes = '(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 160px, 200px'
   const overridden = attr(nodes(renderCard({ horizontal: true, imageSizes }), 'img')[0], 'sizes')
   assert.equal(overridden, imageSizes)
@@ -224,11 +227,12 @@ test('Most read reuses the same cover renderer with its original borderless 4/2/
   assert.equal(wrapper.parentNode.nodeName, 'a')
   assert.equal(attr(wrapper.parentNode, 'class'), 'popularCard')
   assert.ok(wrapper.parentNode.textContent.includes(article.title))
-  for (const width of [375, 540, 541, 750, 751, 950, 951, 1264, 1600]) {
-    const container = Math.min(1200, width - (width <= 750 ? 40 : 64))
-    const columns = width <= 540 ? 1 : width <= 950 ? 2 : 4
+  for (const width of [375, 767, 768, 900, 1023, 1024, 1264, 1600]) {
+    const container = Math.min(1200, width - (width <= 767 ? 40 : 64))
+    const columns = width <= 767 ? 1 : width <= 1023 ? 2 : 4
     assert.ok(
-      Math.abs(displayedSize(attr(rendered, 'sizes'), width) - (container - 16 * (columns - 1)) / columns) < 0.001,
+      Math.abs(displayedSize(attr(rendered, 'sizes'), width) - ((container - 16 * (columns - 1)) / columns - 2)) <
+        0.001,
     )
   }
 })

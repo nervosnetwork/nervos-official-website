@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import 'src/styles/variables.module';
 
 .container {
@@ -12,17 +13,16 @@
   transform: translate(-140px, -20px);
 
   img {
-    @media screen and (width <= 1080px) {
-      max-width: 244px;
-      max-height: 244px;
-      object-fit: contain;
-    }
-    @media screen and (width <= 850px) {
+    max-width: clamp(184px, calc(56vw - 330px), 480px);
+    max-height: clamp(184px, calc(56vw - 330px), 480px);
+    object-fit: contain;
+
+    @media screen and (width <= #{screens.$tabletMax}) {
       max-width: 224px;
       max-height: 224px;
       object-fit: contain;
     }
-    @media screen and (width <= 720px) {
+    @media screen and (width <= #{screens.$mobileMax}) {
       max-width: 184px;
       max-height: 184px;
       object-fit: contain;

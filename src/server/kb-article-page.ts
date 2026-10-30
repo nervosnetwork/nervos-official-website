@@ -1,7 +1,7 @@
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { remark } from 'remark'
-import { byDate, relatedArticles } from '../components/KnowledgeHub/content'
+import { relatedArticles } from '../components/KnowledgeHub/content'
 import { headingTree } from '../components/KnowledgeHub/markdown-headings'
 import { getKBArticle, getKBArticleLanguages, getKBArticleStatus, getKBCatalog, resolveKBArticleId } from './kb-content'
 import { getKBImageDimensions } from './kb-images'
@@ -59,10 +59,6 @@ export const articleStaticProps =
         preview: route === 'preview',
         headings: headingTree(remark().parse(markdown)),
         related: relatedArticles(article, catalog),
-        recent: catalog.articles
-          .filter(item => item.id !== id)
-          .sort(byDate)
-          .slice(0, 3),
         hub: catalog.hubs.find(hub => hub.id === article.hub) ?? null,
         subjects: catalog.subjects.filter(subject => article.subjects.includes(subject.id)),
         ...(await serverSideTranslations(language, ['common'])),

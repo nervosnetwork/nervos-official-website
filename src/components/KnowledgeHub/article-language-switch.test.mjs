@@ -32,6 +32,8 @@ function load(file, imports = {}, globals = {}) {
     URL,
     ...globals,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       if (name === 'react/jsx-runtime') return require(name)
       if (name.endsWith('.module.scss')) return { default: styles }
       if (name.endsWith('.svg')) return { default: () => null }
@@ -271,17 +273,22 @@ function pageUI() {
     'rehype-sanitize': { defaultSchema: {} },
     './Home': { Icon: () => null, PreviewNotice: () => null },
     './Shared': { ...shared, DiscoverBanner: () => null, useActiveSection: () => '' },
-    './Components': { ArticleCard: () => null },
+    './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './markdown-headings': {},
     './article-features': { articleSocialActionsEnabled: false },
     '../Header/KnowledgeHeader': knowledgeHeader,
     './ArticleLanguageLink': language.links,
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant: 'A', preview: false }),
+    },
     './reading-progress': { readingProgress: () => 0 },
   })
   return { ...language, ...shared, ...knowledgeHeader, ContentArticle, Header, headerProps, routes }
 }
 
-test('article page uses the remote desktop switch and mobile menu slots without old duplicate controls', () => {
+test('article page uses the merged header language switch and mobile menu without duplicate controls', () => {
   const ui = pageUI()
   const currentArticle = article('zh')
   const tree = ui.ContentArticle({
@@ -296,13 +303,16 @@ test('article page uses the remote desktop switch and mobile menu slots without 
   assert.equal(tree.props.articleNavigation, true)
   assert.equal(tree.props.articleLanguage, currentArticle)
   assert.equal(tree.props.mobileHeaderActions, undefined)
-  const desktop = nodes(tree).filter(node => node.type === ui.LanguageToggle)
+  const desktop = nodes(ui.KnowledgeHeader({ articleLanguage: currentArticle })).filter(
+    node => node.type === ui.LanguageToggle,
+  )
   assert.equal(desktop.length, 1)
   assert.equal(desktop[0].props.article, currentArticle)
   assert.equal(nodes(tree).filter(node => node.type === ui.ArticleLanguageSwitch).length, 0)
   const document = dom(tree)
-  const articleNav = withClass(document, 'div', 'articleNav')
-  assert.ok(withClass(articleNav, 'div', 'languageToggle'))
+  const header = withClass(document, 'div', 'header')
+  assert.ok(withClass(header, 'div', 'languageToggle'))
+  assert.equal(withClass(document, 'div', 'articleNav'), undefined)
   assert.ok(withClass(document, 'fieldset', 'languageGroup'))
   assert.equal(withClass(document, 'div', 'mobileActions'), undefined)
   assert.equal(ui.headerProps[0].articleLanguage, currentArticle)
@@ -324,7 +334,7 @@ test('article brand, categories and Knowledge Hub header outbound navigation exp
     hub: { id: 'nervos-ckb', name: 'Nervos CKB' },
     subjects: [{ id: 'architecture', name: 'Architecture' }],
   })
-  assert.equal(nodes(tree).find(node => node.props?.className === 'articleBrand').props.locale, 'en')
+  assert.equal(withClass(dom(tree), 'a', 'brand').getAttribute('data-locale'), 'en')
   const categories = nodes(tree).find(node => node.props?.className === 'categories')
   nodes(categories)
     .filter(node => node.type === 'button')
@@ -343,7 +353,7 @@ test('article brand, categories and Knowledge Hub header outbound navigation exp
   assert.equal(withClass(dom(element(ui.Header)), 'a', 'logo').getAttribute('data-locale'), '')
 })
 
-test('desktop article navigation and mobile Knowledge Header hand off at the remote 900px breakpoint', () => {
+test('merged article header switches its desktop actions to the mobile menu at 1024px', () => {
   const css = file =>
     postcss.parse(sass.compile(new URL(file, import.meta.url).pathname, { logger: sass.Logger.silent }).css)
   const declarations = (stylesheet, selector, property, media) => {
@@ -360,9 +370,9 @@ test('desktop article navigation and mobile Knowledge Header hand off at the rem
   }
   const header = css('../Header/knowledge-header.module.scss')
   const articleStyle = css('./article-v2.module.scss')
-  const media = '(width <= 900px)'
+  const media = '(width <= 1023px)'
   assert.equal(declarations(articleStyle, '.articleNav', 'display', media), 'none')
   assert.equal(declarations(header, '.desktopLogo,\n.desktopActions', 'display', media), 'none')
-  assert.equal(declarations(header, '.mobileBrand,\n.menuButton', 'display', media), 'flex')
+  assert.equal(declarations(header, '.menuButton', 'display', media), 'flex')
   assert.equal(declarations(header, '.languageOption[aria-current=page] .languageFace', 'background'), '#111')
 })

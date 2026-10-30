@@ -1,10 +1,9 @@
-import { CSSProperties, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import { Icon } from './Icon'
+import { useEffect, useRef } from 'react'
+import { BELOW_DESKTOP_QUERY } from '../../utils/breakpoints'
 import { guideSteps } from './guide-data'
-import { Breadcrumb, PreviewPage, RelatedHubs, useActiveSection } from './Shared'
+import { Breadcrumb, PreviewPage, useActiveSection } from './Shared'
 import { ArrowButton, SubjectCard, StepSection } from './Components'
-import { useHeroScroll } from './useHeroScroll'
 import styles from './pages-v2.module.scss'
 import type { KBCatalog } from './content'
 import { trackKBEvent } from './analytics'
@@ -18,41 +17,40 @@ const readingIds = [
 ]
 
 export function StartHere({ catalog }: { catalog: KBCatalog }) {
+  const sidebarRef = useRef<HTMLElement>(null)
+  const navRef = useRef<HTMLElement>(null)
   const active = useActiveSection(
     guideSteps.map(step => step.id),
     true,
   )
-  const { heroFade, breadcrumbHeight, breadcrumbRef } = useHeroScroll()
-  const railRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<HTMLElement>(null)
-  const [railHeight, setRailHeight] = useState(152)
   useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (railRef.current) setRailHeight(railRef.current.getBoundingClientRect().height)
-    })
-    if (railRef.current) observer.observe(railRef.current)
-    return () => observer.disconnect()
+    const sidebar = sidebarRef.current
+    const layout = sidebar?.parentElement
+    if (!sidebar || !layout) return
+    const measure = () =>
+      layout.style.setProperty('--selectionRailHeight', `${sidebar.getBoundingClientRect().height}px`)
+    const observer = new ResizeObserver(measure)
+    observer.observe(sidebar)
+    measure()
+    return () => {
+      observer.disconnect()
+      layout.style.removeProperty('--selectionRailHeight')
+    }
   }, [])
   useEffect(() => {
     const revealActive = () => {
-      if (!window.matchMedia('(max-width: 750px)').matches) return
       const nav = navRef.current
       const selected = nav?.querySelector<HTMLElement>('[aria-current="step"]')
-      if (!nav || !selected) return
+      if (!nav || !selected || !window.matchMedia(BELOW_DESKTOP_QUERY).matches) return
       const bounds = nav.getBoundingClientRect()
       const item = selected.getBoundingClientRect()
       if (item.left < bounds.left || item.right > bounds.right)
-        nav.scrollTo({ left: nav.scrollLeft + item.left - bounds.left - 10, behavior: 'auto' })
+        nav.scrollTo({ left: nav.scrollLeft + item.left - bounds.left - 4, behavior: 'auto' })
     }
     revealActive()
     window.addEventListener('resize', revealActive)
     return () => window.removeEventListener('resize', revealActive)
   }, [active])
-  const fadeStyle = {
-    '--heroFade': heroFade,
-    '--breadcrumbHeight': `${breadcrumbHeight}px`,
-    '--stepsRailHeight': `${railHeight}px`,
-  } as CSSProperties
 
   return (
     <PreviewPage
@@ -62,59 +60,60 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
       revision
       headerClassName={styles.scrollingHeader}
     >
-      <div className={styles.container} style={fadeStyle}>
-        <div className={styles.breadcrumbDock} ref={breadcrumbRef}>
+      <div className={clsx(styles.container, styles.twoColumnPage, styles.startPage)}>
+        <div className={styles.breadcrumbDock}>
           <Breadcrumb current="Start here" revision />
         </div>
         <header className={styles.startHero}>
           <div className={styles.startHeroCopy}>
             <h1>
-              Understand Nervos CKB <br className={styles.startTitleBreak} />
-              in four steps
+              Understand Nervos CKB in <br className={styles.startTitleBreak} />
+              five steps
             </h1>
+            <strong>Inspired by Bitcoin’s foundations. Built for what comes next.</strong>
             <p>
-              Inspired by Bitcoin’s foundations. Built for what comes next. Nervos CKB explores what becomes possible
-              when Bitcoin’s design principles meet open-ended programmability. Discover a blockchain built for people
-              who want to push the technology further.
+              Nervos CKB explores what becomes possible when Bitcoin’s design principles meet open-ended
+              programmability. Discover a blockchain built for people who want to push the technology further.
             </p>
           </div>
         </header>
-        <div className={styles.stepsRail} ref={railRef} style={{ paddingTop: `${48 * (1 - heroFade)}px` }}>
-          <div className={styles.stepsLabel}>
-            <Icon name="steps-layers" size={24} /> Steps
+        <div className={styles.twoColumnLayout}>
+          <aside className={clsx(styles.layoutSidebar, styles.stepSidebar)} ref={sidebarRef}>
+            <nav className={styles.stepNav} aria-label="Guide steps" ref={navRef}>
+              {guideSteps.map((step, index) => (
+                <SubjectCard
+                  key={step.id}
+                  compact
+                  title={step.navTitle}
+                  step={index + 1}
+                  href={`#${step.id}`}
+                  selected={active === step.id}
+                  onClick={() => trackKBEvent('kb_step_select', { step: index + 1, step_name: step.title })}
+                />
+              ))}
+            </nav>
+          </aside>
+          <div className={styles.layoutContent}>
+            <div className={styles.guideSteps}>
+              {guideSteps.map((step, index) => (
+                <StepSection
+                  key={step.id}
+                  step={step}
+                  index={index}
+                  articles={(readingIds[index] ?? []).flatMap(id => catalog.articles.filter(a => a.id === id))}
+                />
+              ))}
+            </div>
+            <nav className={styles.guideLinks} aria-label="Continue learning">
+              <ArrowButton className={styles.pill} href="/knowledge-base" direction="left">
+                Back to Knowledge Base
+              </ArrowButton>
+              <ArrowButton className={clsx(styles.pill, styles.keepReading)} href="/knowledge-base/articles">
+                Keep reading
+              </ArrowButton>
+            </nav>
           </div>
-          <nav className={styles.stepNav} ref={navRef} aria-label="Guide steps">
-            {guideSteps.map((step, index) => (
-              <SubjectCard
-                key={step.id}
-                title={step.navTitle}
-                step={index + 1}
-                href={`#${step.id}`}
-                selected={active === step.id}
-                onClick={() => trackKBEvent('kb_step_select', { step: index + 1, step_name: step.title })}
-              />
-            ))}
-          </nav>
         </div>
-        <div className={styles.guideSteps}>
-          {guideSteps.map((step, index) => (
-            <StepSection
-              key={step.id}
-              step={step}
-              index={index}
-              articles={(readingIds[index] ?? []).flatMap(id => catalog.articles.filter(a => a.id === id))}
-            />
-          ))}
-        </div>
-        <nav className={styles.guideLinks} aria-label="Continue learning">
-          <ArrowButton className={styles.pill} href="/knowledge-base" direction="left">
-            Back to Knowledge Base
-          </ArrowButton>
-          <ArrowButton className={clsx(styles.pill, styles.keepReading)} href="/knowledge-base/articles">
-            Keep reading
-          </ArrowButton>
-        </nav>
-        <RelatedHubs revision />
       </div>
     </PreviewPage>
   )

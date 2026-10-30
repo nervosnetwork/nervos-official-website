@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import 'src/styles/variables.module';
 @import '../../components/Header/index.module';
 
@@ -280,7 +281,7 @@ h1.titleText {
     max-width: 444px;
   }
 
-  @media (min-width: $wideBreakPoint) {
+  @media (min-width: $desktopBreakPoint) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -289,18 +290,18 @@ h1.titleText {
 
     .titleText {
       font-weight: 800;
-      font-size: 82px;
+      font-size: clamp(42px, 4.56vw, 82px);
       line-height: 87%;
       letter-spacing: -0.025em;
     }
 
     .descriptionText {
       max-width: 600px;
-      font-size: 24px;
+      font-size: clamp(15px, 1.34vw, 24px);
     }
   }
 
-  @media (width <= 1024px) {
+  @media (width <= #{screens.$tabletMax}) {
     .titleText {
       max-width: 180px;
       font-size: 42px;
@@ -482,7 +483,7 @@ h1.titleText {
   }
 }
 
-@media (height <= 780px) and (min-width: $mobileBreakPoint), (height <= 620px) {
+@media (height <= 780px) and (min-width: #{screens.$tabletMin}), (height <= 620px) {
   .golContainer {
     margin-left: 100px;
   }
@@ -497,7 +498,7 @@ h1.titleText {
     .titleText {
       max-width: 439px;
 
-      @media (min-width: $mobileBreakPoint) {
+      @media (min-width: #{screens.$tabletMin}) {
         font-size: 60px;
       }
     }

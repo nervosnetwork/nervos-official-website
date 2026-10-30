@@ -65,4 +65,37 @@ export const guideSteps: GuideStep[] = [
     ],
     reading: [],
   },
+  {
+    id: 'step-5',
+    title: 'Make your next move',
+    navTitle: 'Try it & build',
+    summary:
+      'You’ve seen what makes CKB different. Now explore what people are building, meet the community, or start building something of your own.',
+    body: 'You don’t have to read everything. The fastest way to make CKB click is to try it out.',
+    points: [],
+    reading: [],
+    actions: [
+      {
+        title: 'Explore the ecosystem',
+        description: 'Find wallets, apps, and tools that put CKB’s capabilities into practice.',
+        label: 'Explore CKB',
+        href: 'https://ckbdapps.com/ecosystem',
+        resourceId: 'ecosystem',
+      },
+      {
+        title: 'Join the conversation',
+        description: 'Ask questions, exchange ideas, and meet the people shaping Nervos.',
+        label: 'Visit NervosTalk',
+        href: 'https://talk.nervos.org/',
+        resourceId: 'community',
+      },
+      {
+        title: 'Build on CKB',
+        description: 'Go from understanding the architecture to writing your first application.',
+        label: 'Developer Docs & Quick Start',
+        href: 'https://docs.nervos.org/',
+        resourceId: 'developer_docs',
+      },
+    ],
+  },
 ]
