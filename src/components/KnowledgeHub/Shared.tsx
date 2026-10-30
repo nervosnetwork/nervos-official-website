@@ -14,7 +14,7 @@ import { ArrowButton } from './Components'
 import { GuideLife } from './GuideLife'
 import type { OGProperties } from '../OpenGraph'
 import { trackKBEvent } from './analytics'
-import { kbHubPath } from '../../utils/kb-hubs'
+import { KB_HUBS, kbHubPath } from '../../utils/kb-hubs'
 import type { KBArticle } from './content'
 
 export const articleHref = (title?: string) =>
@@ -120,8 +120,15 @@ export function ArticleMeta({ large = false }: { large?: boolean }) {
   )
 }
 
-export function RelatedHubs({ revision = false }: { revision?: boolean }) {
+export function RelatedHubs({ revision = false, currentHubId }: { revision?: boolean; currentHubId?: string }) {
   const design = revision ? revisedStyles : styles
+  const preferredIds = ['blockchain-architecture', 'blockchain-vms-risc-v', 'nervos-ckb']
+  const related = [
+    ...KB_HUBS.filter(hub => preferredIds.includes(hub.id)),
+    ...KB_HUBS.filter(hub => !preferredIds.includes(hub.id)),
+  ]
+    .filter(hub => hub.id !== currentHubId)
+    .slice(0, 3)
   return (
     <section className={design.relatedHubs} aria-label="Related hubs">
       <div className={design.label}>
@@ -129,11 +136,7 @@ export function RelatedHubs({ revision = false }: { revision?: boolean }) {
         Related hubs
       </div>
       <div className={design.pills}>
-        {[
-          { name: 'Blockchain Architecture', id: 'blockchain-architecture' },
-          { name: 'Blockchain VMs & RISC-V', id: 'blockchain-vms-risc-v' },
-          { name: 'Nervos CKB', id: 'nervos-ckb' },
-        ].map(({ name, id }) => (
+        {related.map(({ name, id }) => (
           <ArrowButton
             className={design.pill}
             key={name}
@@ -149,7 +152,15 @@ export function RelatedHubs({ revision = false }: { revision?: boolean }) {
   )
 }
 
-export function DiscoverBanner({ compact = false, revision = false }: { compact?: boolean; revision?: boolean }) {
+export function DiscoverBanner({
+  compact = false,
+  revision = false,
+  onDiscoverClick,
+}: {
+  compact?: boolean
+  revision?: boolean
+  onDiscoverClick?: () => void
+}) {
   const design = revision ? articleStyles : styles
   return (
     <aside className={compact ? design.discoverCompact : design.discoverBanner}>
@@ -174,12 +185,14 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
           className={design.discoverButton}
           href="/knowledge-base/start-here"
           locale="en"
-          onClick={() =>
-            trackKBEvent('kb_cta_click', {
-              cta_id: 'discover_ckb',
-              placement: compact ? 'article_sidebar_banner' : 'article_bottom_banner',
-            })
-          }
+          onClick={() => {
+            if (onDiscoverClick) onDiscoverClick()
+            else
+              trackKBEvent('kb_cta_click', {
+                cta_id: 'discover_ckb',
+                placement: compact ? 'article_sidebar_banner' : 'article_bottom_banner',
+              })
+          }}
         >
           {revision ? 'Discover CKB in 5 Steps' : 'Discover CKB'}
         </ArrowButton>
@@ -188,20 +201,25 @@ export function DiscoverBanner({ compact = false, revision = false }: { compact?
   )
 }
 
-export function useActiveSection(ids: string[], useScrollMargin = false) {
-  const [active, setActive] = useState(ids[0] ?? '')
+export function useActiveSection(ids: string[], useScrollMargin = false, waitForFirstSection = false) {
+  const [active, setActive] = useState(waitForFirstSection ? '' : (ids[0] ?? ''))
   const key = ids.join('|')
   useEffect(() => {
     const sectionIds = key.split('|')
     let frame = 0
     const update = () => {
-      let current = sectionIds[0] ?? ''
+      const firstId = sectionIds[0] ?? ''
+      let current = waitForFirstSection ? '' : firstId
       sectionIds.forEach(id => {
         const node = document.getElementById(id)
         if (!node) return
         const threshold = useScrollMargin ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2 : 150
         if (node.getBoundingClientRect().top <= threshold) current = id
       })
+      if (!current && waitForFirstSection) {
+        const first = document.getElementById(firstId)
+        if (first && first.getBoundingClientRect().top < window.innerHeight) current = firstId
+      }
       setActive(current)
     }
     const onScroll = () => {
@@ -216,6 +234,6 @@ export function useActiveSection(ids: string[], useScrollMargin = false) {
       window.removeEventListener('resize', onScroll)
       cancelAnimationFrame(frame)
     }
-  }, [key, useScrollMargin])
+  }, [key, useScrollMargin, waitForFirstSection])
   return active
 }

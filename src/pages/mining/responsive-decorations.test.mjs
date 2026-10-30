@@ -243,7 +243,7 @@ test('Mining renders the same two decorations on the server and in mobile/deskto
   const source = read('src/pages/mining/index.page.tsx')
   assert.doesNotMatch(source, /\b(?:useIsMobile|useMediaQuery|matchMedia|innerWidth)\b/)
   const server = renderToStaticMarkup(element(mining(), { contributors: [], author: null }))
-  for (const width of [390, 750, 751, 1440]) {
+  for (const width of [390, 767, 768, 1440]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -275,7 +275,7 @@ test('CKB renders identical decoration markup in server and mobile/desktop clien
   const source = read('src/pages/ckbpage/index.page.tsx')
   assert.doesNotMatch(source, /\b(?:useIsMobile|useMediaQuery|matchMedia|innerWidth)\b/)
   const server = renderToStaticMarkup(element(ckb(), { contributors: [], author: null }))
-  for (const width of [320, 390, 750, 751, 1280]) {
+  for (const width of [320, 390, 767, 768, 1280]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -309,7 +309,7 @@ test('Developers keeps its dark theme and identical decoration markup in server 
   )
   const themeCalls = []
   const server = renderToStaticMarkup(element(developers({}, themeCalls), { contributors: [], author: null }))
-  for (const width of [320, 390, 750, 751, 1280]) {
+  for (const width of [320, 390, 767, 768, 1280]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -350,7 +350,7 @@ test('Community retains its dark theme and stable decoration markup without clie
   )
   const themeCalls = []
   const server = renderToStaticMarkup(element(community({}, themeCalls), { contributors: [], author: null }))
-  for (const width of [320, 390, 750, 751, 1280]) {
+  for (const width of [320, 390, 767, 768, 1280]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -387,7 +387,7 @@ test('Community retains its dark theme and stable decoration markup without clie
 test('Learn renders identical decorations without reading client media queries', () => {
   assert.doesNotMatch(read('src/pages/learn/index.page.tsx'), /\b(?:useIsMobile|useMediaQuery|matchMedia|innerWidth)\b/)
   const server = renderToStaticMarkup(element(learn(), { contributors: [], author: null }))
-  for (const width of [320, 390, 750, 751, 1280]) {
+  for (const width of [320, 390, 767, 768, 1280]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -432,7 +432,7 @@ test('Wallets renders stable external decorations without inline offsets or a co
     /\b(?:useIsMobile|useMediaQuery|matchMedia|innerWidth)\b/,
   )
   const server = renderToStaticMarkup(element(wallets(), { contributors: [], author: null }))
-  for (const width of [320, 390, 750, 751, 1280]) {
+  for (const width of [320, 390, 767, 768, 1280]) {
     const window = {
       innerWidth: width,
       matchMedia() {
@@ -483,7 +483,7 @@ function declarations(css, selector, width) {
       assert.equal(parent.name, 'media', `Unexpected conditional rule for ${selector}`)
       const match = /^\(max-width: (\d+)px\)$/.exec(parent.params)
       assert.ok(match, `Unrecognized media condition: ${parent.params}`)
-      assert.equal(match[1], '750', 'Use the existing shared mobile breakpoint')
+      assert.equal(match[1], '767', 'Use the existing shared mobile breakpoint')
       applies &&= width <= Number(match[1])
     }
     if (applies)
@@ -495,9 +495,9 @@ function declarations(css, selector, width) {
   return result
 }
 
-test('compiled Sass preserves the original decoration sizes and coordinates on both sides of 750px', () => {
-  for (const width of [320, 390, 750, 751, 1440]) {
-    const mobile = width <= 750
+test('compiled Sass preserves the original decoration sizes and coordinates on both sides of 767px', () => {
+  for (const width of [320, 390, 767, 768, 1440]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(miningCSS, '.embellishedLeft', width), {
       top: mobile ? '151px' : '146px',
       right: mobile ? '-49px' : '484px',
@@ -517,9 +517,9 @@ test('compiled Sass preserves the original decoration sizes and coordinates on b
   }
 })
 
-test('CKB compiled Sass preserves every original size and position at and around the existing 750px breakpoint', () => {
-  for (const width of [320, 390, 750, 751, 1280]) {
-    const mobile = width <= 750
+test('CKB compiled Sass preserves every original size and position at and around the existing 767px breakpoint', () => {
+  for (const width of [320, 390, 767, 768, 1280]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(ckbCSS, '.embellishedLeft', width), {
       top: mobile ? '453px' : '450px',
       right: mobile ? '-8px' : '518px',
@@ -537,9 +537,9 @@ test('CKB compiled Sass preserves every original size and position at and around
   }
 })
 
-test('Developers compiled Sass preserves both original decoration geometries across the 750px breakpoint', () => {
-  for (const width of [320, 390, 750, 751, 1280]) {
-    const mobile = width <= 750
+test('Developers compiled Sass preserves both original decoration geometries across the 767px breakpoint', () => {
+  for (const width of [320, 390, 767, 768, 1280]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(developersCSS, '.embellishedLeft', width), {
       top: mobile ? '462px' : '474px',
       right: mobile ? '51px' : '488px',
@@ -559,9 +559,9 @@ test('Developers compiled Sass preserves both original decoration geometries acr
   }
 })
 
-test('Community compiled Sass preserves all original decoration sizes and offsets across 750px', () => {
-  for (const width of [320, 390, 750, 751, 1280]) {
-    const mobile = width <= 750
+test('Community compiled Sass preserves all original decoration sizes and offsets across 767px', () => {
+  for (const width of [320, 390, 767, 768, 1280]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(communityCSS, '.embellishedLeft', width), {
       top: mobile ? '52px' : '154px',
       right: mobile ? '-146px' : '296px',
@@ -581,9 +581,9 @@ test('Community compiled Sass preserves all original decoration sizes and offset
   }
 })
 
-test('Learn compiled Sass preserves all original decoration geometry across the 750px breakpoint', () => {
-  for (const width of [320, 390, 750, 751, 1280]) {
-    const mobile = width <= 750
+test('Learn compiled Sass preserves all original decoration geometry across the 767px breakpoint', () => {
+  for (const width of [320, 390, 767, 768, 1280]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(learnCSS, '.embellishedLeft', width), {
       top: mobile ? '467px' : '525px',
       right: mobile ? '-17px' : '420px',
@@ -605,8 +605,8 @@ test('Learn compiled Sass preserves all original decoration geometry across the 
 
 test('Wallets compiled CSS retains original offsets, sizes, mobile rotation and desktop transform origin', () => {
   // The repeated desktop widths also guard the CSS state after resizing back from mobile.
-  for (const width of [1280, 320, 390, 750, 751, 390, 1280]) {
-    const mobile = width <= 750
+  for (const width of [1280, 320, 390, 767, 768, 390, 1280]) {
+    const mobile = width <= 767
     assert.deepEqual(declarations(walletsCSS, '.embellishedLeft', width), {
       top: mobile ? '264px' : '117px',
       right: mobile ? '273px' : '855px',
@@ -643,7 +643,7 @@ test('decoration CSS stays out of document flow and preserves the existing hero 
       declarations(baseCSS, '.baseSeparatePage .embellishedElements .embellishedElement', width).position,
       'absolute',
     )
-    assert.equal(declarations(headerCSS, '.headerContent', width).height, width <= 750 ? '549px' : '610px')
+    assert.equal(declarations(headerCSS, '.headerContent', width).height, width <= 767 ? '549px' : '610px')
   }
   for (const css of [miningCSS, ckbCSS, developersCSS, communityCSS, learnCSS, walletsCSS]) {
     css.walkDecls(/^(?:min-)?height$/, declaration => {

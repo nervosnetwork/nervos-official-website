@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
 import { test } from 'node:test'
 import * as React from 'react'
+import { DOMParser } from '@xmldom/xmldom'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -127,7 +128,7 @@ test('Foundation and Journey reuse their existing title copy and style class as 
   }
 })
 
-function loadArticle() {
+function loadArticle(activeSection = '') {
   const headingModule = evaluate(read('src/components/KnowledgeHub/markdown-headings.ts'))
   return evaluate(read('src/components/KnowledgeHub/ContentArticle.tsx'), {
     clsx: { default: clsx },
@@ -143,7 +144,7 @@ function loadArticle() {
     './Shared': {
       PreviewPage: ({ children }) => element('main', null, children),
       DiscoverBanner: () => null,
-      useActiveSection: () => '',
+      useActiveSection: () => activeSection,
     },
     './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
@@ -160,14 +161,19 @@ function loadArticle() {
     './analytics': { trackKBEvent: () => undefined },
     '../../utils/kb-hubs': kbHubs,
     '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant: 'A', preview: false }),
+    },
     './reading-progress': evaluate(read('src/components/KnowledgeHub/reading-progress.ts')),
   }).ContentArticle
 }
 
 const ContentArticle = loadArticle()
-function renderArticle(markdown, overrides = {}) {
+function renderArticle(markdown, overrides = {}, activeSection = '') {
   return renderToStaticMarkup(
-    element(ContentArticle, {
+    element(activeSection ? loadArticle(activeSection) : ContentArticle, {
       article: {
         id: 'existing_article',
         title: 'Existing title',
@@ -205,7 +211,8 @@ test('mobile contents only link H2s while desktop retains all headings and exist
   assert.ok(desktop)
   assert.match(mobile, /On this page:/)
   assert.equal((mobile.match(/<li>/g) || []).length, 2)
-  assert.equal((desktop.match(/<li>/g) || []).length, 5)
+  assert.equal((desktop.match(/<li(?:\s[^>]*)?>/g) || []).filter(tag => !tag.includes('tocMarker')).length, 5)
+  assert.match(desktop, /class="tocMarker"[^>]*aria-hidden="true"[^>]*role="presentation"/)
   for (const id of ['section-2', 'section-4']) {
     assert.ok(mobile.includes(`href="#user-content-${id}"`))
     assert.ok(html.includes(`<h2 id="user-content-${id}">`))
@@ -216,6 +223,49 @@ test('mobile contents only link H2s while desktop retains all headings and exist
   assert.match(html, /<header>[\s\S]*class="articleCategories"[\s\S]*<\/header>/)
   assert.ok(html.indexOf('class="articleCategories"') < html.indexOf('class="inlineContents"'))
   assert.ok(html.indexOf('class="inlineContents"') < html.indexOf('class="articleMarkdown"'))
+})
+
+test('desktop contents disclose only the active parent section and keep collapsed links out of keyboard navigation', () => {
+  const markdown = '## First section\n\n### First detail\n\n#### Deep detail\n\n## Second section\n\n### Second detail'
+  const { headingTree } = evaluate(read('src/components/KnowledgeHub/markdown-headings.ts'))
+  const headings = headingTree(remark().parse(markdown))
+  const inspect = active => {
+    const html = renderArticle(markdown, { headings }, active)
+    const document = new DOMParser().parseFromString(html, 'text/html')
+    const groups = Array.from(document.getElementsByTagName('div')).filter(
+      node => node.getAttribute('class') === 'tocChildren',
+    )
+    return groups.map(group => ({
+      hidden: group.getAttribute('aria-hidden'),
+      expanded: group.getAttribute('data-expanded'),
+      links: Array.from(group.getElementsByTagName('a')).map(link => ({
+        href: link.getAttribute('href'),
+        tabIndex: link.getAttribute('tabindex'),
+        indent: link.parentNode.getAttribute('style'),
+      })),
+    }))
+  }
+  assert.deepEqual(
+    inspect('').map(group => group.hidden),
+    ['true', 'true'],
+  )
+  const first = inspect('user-content-section-2')
+  assert.deepEqual(
+    first.map(group => group.expanded),
+    ['true', 'false'],
+  )
+  assert.equal(first[0].links[0].tabIndex, '')
+  assert.match(first[0].links[0].indent, /--tocIndent:12px/)
+  assert.match(first[0].links[1].indent, /--tocIndent:24px/)
+  assert.equal(first[1].links[0].tabIndex, '-1')
+  const second = inspect('user-content-section-4')
+  assert.deepEqual(
+    second.map(group => group.expanded),
+    ['false', 'true'],
+  )
+  assert.ok(second[0].links.every(link => link.tabIndex === '-1'))
+  assert.equal(second[1].links[0].href, '#user-content-section-5')
+  assert.equal(second[1].links[0].tabIndex, '')
 })
 
 test('mobile contents are omitted when an article has no H2 headings', () => {
@@ -276,6 +326,6 @@ test('semantic headings neutralize browser defaults without changing the existin
   const selector = '.page .articleMarkdown > :is(h1, h2)'
   assert.equal(declaration(article, selector, 'font-size'), '20px')
   assert.equal(declaration(article, selector, 'font-weight'), '600')
-  assert.equal(declaration(article, selector, 'font-size', '(width <= 900px)'), '24px')
-  assert.equal(declaration(article, selector, 'line-height', '(width <= 900px)'), '1.3')
+  assert.equal(declaration(article, selector, 'font-size', '(width <= 1023px)'), '24px')
+  assert.equal(declaration(article, selector, 'line-height', '(width <= 1023px)'), '1.3')
 })

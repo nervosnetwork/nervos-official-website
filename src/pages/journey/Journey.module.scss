@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import 'src/styles/variables.module';
 
 .container {
@@ -12,9 +13,9 @@
   transform: translate(-120px, -20px);
 
   img {
-    width: 405px;
-    height: 348.81px;
-    @media screen and (width <= 1080px) {
+    width: clamp(184px, calc(48vw - 247px), 405px);
+    height: auto;
+    @media screen and (width <= #{screens.$tabletMax}) {
       width: 30vw;
       height: 25.8vw;
     }

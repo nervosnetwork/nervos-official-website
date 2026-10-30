@@ -32,6 +32,8 @@ function load(file, imports = {}, globals = {}) {
     URL,
     ...globals,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       if (name === 'react/jsx-runtime') return require(name)
       if (name.endsWith('.module.scss')) return { default: styles }
       if (name.endsWith('.svg')) return { default: () => null }
@@ -276,6 +278,11 @@ function pageUI() {
     './article-features': { articleSocialActionsEnabled: false },
     '../Header/KnowledgeHeader': knowledgeHeader,
     './ArticleLanguageLink': language.links,
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant: 'A', preview: false }),
+    },
     './reading-progress': { readingProgress: () => 0 },
   })
   return { ...language, ...shared, ...knowledgeHeader, ContentArticle, Header, headerProps, routes }
@@ -346,7 +353,7 @@ test('article brand, categories and Knowledge Hub header outbound navigation exp
   assert.equal(withClass(dom(element(ui.Header)), 'a', 'logo').getAttribute('data-locale'), '')
 })
 
-test('merged article header switches its desktop actions to the mobile menu at 900px', () => {
+test('merged article header switches its desktop actions to the mobile menu at 1024px', () => {
   const css = file =>
     postcss.parse(sass.compile(new URL(file, import.meta.url).pathname, { logger: sass.Logger.silent }).css)
   const declarations = (stylesheet, selector, property, media) => {
@@ -363,7 +370,7 @@ test('merged article header switches its desktop actions to the mobile menu at 9
   }
   const header = css('../Header/knowledge-header.module.scss')
   const articleStyle = css('./article-v2.module.scss')
-  const media = '(width <= 900px)'
+  const media = '(width <= 1023px)'
   assert.equal(declarations(articleStyle, '.articleNav', 'display', media), 'none')
   assert.equal(declarations(header, '.desktopLogo,\n.desktopActions', 'display', media), 'none')
   assert.equal(declarations(header, '.menuButton', 'display', media), 'flex')

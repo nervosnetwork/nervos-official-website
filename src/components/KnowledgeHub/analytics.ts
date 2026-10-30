@@ -12,7 +12,15 @@ export type ArticleAnalyticsContext = {
 }
 
 type KBEvents = {
-  kb_cta_click: { cta_id: string; placement: string }
+  kb_cta_click: {
+    cta_id: string
+    placement: string
+    experiment_id?: string
+    variant?: 'A' | 'B'
+    article_id?: string
+    layout?: 'desktop' | 'inline'
+  }
+  kb_experiment_view: { experiment_id: string; variant: 'A' | 'B'; article_id: string; layout: 'desktop' | 'inline' }
   kb_hub_click: { hub_id: string; placement: string }
   kb_subject_select: { hub_id: string; subject_id: string; placement: string }
   kb_article_click: ArticleAnalyticsContext & { article_id: string }
@@ -34,7 +42,8 @@ type KBEvents = {
 
 // Explicit per-event allowlists: never spread form data, search text, titles or URLs into an event.
 const fields: { [Event in keyof KBEvents]: readonly (keyof KBEvents[Event])[] } = {
-  kb_cta_click: ['cta_id', 'placement'],
+  kb_cta_click: ['cta_id', 'placement', 'experiment_id', 'variant', 'article_id', 'layout'],
+  kb_experiment_view: ['experiment_id', 'variant', 'article_id', 'layout'],
   kb_hub_click: ['hub_id', 'placement'],
   kb_subject_select: ['hub_id', 'subject_id', 'placement'],
   kb_article_click: ['article_id', 'placement', 'hub_id', 'subject_id', 'step'],
@@ -78,7 +87,22 @@ export function gaEventData<Event extends keyof KBEvents>(name: Event, values: K
       Object.assign(raw, { hub: v.hub_id, subject: v.subject_id })
       break
     case 'kb_cta_click':
-      Object.assign(raw, { cta_name: v.cta_id, cta_location: v.placement })
+      Object.assign(raw, {
+        cta_name: v.cta_id,
+        cta_location: v.placement,
+        experiment_id: v.experiment_id,
+        variant: v.variant,
+        article_slug: v.article_id,
+        layout: v.layout,
+      })
+      break
+    case 'kb_experiment_view':
+      Object.assign(raw, {
+        experiment_id: v.experiment_id,
+        variant: v.variant,
+        article_slug: v.article_id,
+        layout: v.layout,
+      })
       break
     case 'kb_step_select':
       Object.assign(raw, { step_number: v.step, step_name: v.step_name })
@@ -150,7 +174,7 @@ type Umami = { track: (payload: (defaults: TrackerPayload) => TrackerPayload) =>
 
 export function trackKBEvent<Event extends keyof KBEvents>(name: Event, values: KBEvents[Event]): void {
   if (typeof window === 'undefined') return
-  // This diagnostic remains Umami-only. GA4's 17-event list counts accepted
+  // This diagnostic remains Umami-only. The GA4 schema counts accepted
   // submissions, never failed attempts or an unconfirmed async import as delivery.
   if (GA_ENABLED && name !== 'kb_newsletter_result') {
     try {

@@ -17,11 +17,10 @@ const articleHref = (title: string) => `/knowledge-base/search?q=${encodeURIComp
 // columns are fixed by CSS even when the desktop density control changes.
 const gridImageSizes = {
   small:
-    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(20vw - 27.6px), 225.2px',
-  medium:
-    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(25vw - 30px), 286px',
+    '(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(20vw - 27.6px), 225.2px)',
+  medium: '(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(25vw - 30px), 286px)',
   large:
-    '(max-width: 540px) calc(100vw - 42px), (max-width: 750px) calc(50vw - 30px), (max-width: 1024px) calc(50vw - 42px), (max-width: 1264px) calc(33.333333vw - 34px), 387.333333px',
+    '(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(33.333333vw - 34px), 387.333333px)',
 }
 
 function optimizableCover(src?: string | null): src is string {
@@ -133,6 +132,7 @@ export function SubjectCard({
   selected,
   href,
   onClick,
+  compact = false,
 }: {
   title: string
   icon?: string
@@ -140,18 +140,20 @@ export function SubjectCard({
   selected: boolean
   href?: string
   onClick?: () => void
+  compact?: boolean
 }) {
   const content = (
     <>
       {step ? (
         <span className={styles.stepIndex}>{String(step).padStart(2, '0')}</span>
       ) : (
-        icon && <Icon name={icon} size={40} />
+        icon && <Icon name={icon} size={compact ? 20 : 40} />
       )}
       <span>{title}</span>
+      {compact && <Icon name={selected ? 'sidebar-chevron-selected' : 'sidebar-chevron'} size={12} />}
     </>
   )
-  const className = clsx(styles.subject, selected && styles.selected)
+  const className = clsx(styles.subject, compact && styles.sidebarSubject, selected && styles.selected)
   return href ? (
     <a href={href} className={className} aria-current={selected ? 'step' : undefined} onClick={onClick}>
       {content}
@@ -358,6 +360,7 @@ export function ArticleCard({
   className,
   horizontal = false,
   hidden = false,
+  compact = true,
   imageSizes,
   article,
   analyticsContext,
@@ -368,6 +371,7 @@ export function ArticleCard({
   className?: string
   horizontal?: boolean
   hidden?: boolean
+  compact?: boolean
   imageSizes?: string
   article?: KBArticle
   analyticsContext?: ArticleAnalyticsContext
@@ -404,7 +408,7 @@ export function ArticleCard({
         <ArticleCover
           src={article?.coverImage}
           className={styles.horizontalCover}
-          sizes={imageSizes ?? '(max-width: 750px) 88px, 200px'}
+          sizes={imageSizes ?? '(max-width: 767px) 88px, 200px'}
           ariaLabel="Article cover"
         />
       </ArticleLanguageLink>
@@ -413,7 +417,13 @@ export function ArticleCard({
     <ArticleLanguageLink
       article={article}
       href={article ? articlePath(article) : articleHref(title)}
-      className={clsx(styles.articleCard, styles[size], article && styles.populated, className)}
+      className={clsx(
+        styles.articleCard,
+        styles[size],
+        article && styles.populated,
+        compact && styles.compactCard,
+        className,
+      )}
       hidden={hidden || undefined}
       style={hidden ? { display: 'none' } : undefined}
       tabIndex={hidden ? -1 : undefined}

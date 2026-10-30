@@ -1,17 +1,15 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { useState, type CSSProperties } from 'react'
-import { ArticleCard } from './Components'
+import { useState } from 'react'
+import { ArrowButton, ArticleCard } from './Components'
 import { ArticleGridControls } from './ArticleGridControls'
 import { Breadcrumb, PreviewPage } from './Shared'
-import { useHeroScroll } from './useHeroScroll'
 import type { LibraryProps } from './Library'
 import styles from './pages-v2.module.scss'
 import { trackKBEvent } from './analytics'
 
 export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'catalog' | 'page' | 'total'>) {
   const [density, setDensity] = useState(4)
-  const { heroFade, breadcrumbHeight, breadcrumbRef } = useHeroScroll()
   // Catalogs contain only real translations. Empty untranslated locale pages
   // refer to English; pagination keeps its own canonical, without tracking keys.
   const language = catalog.articles[0]?.language ?? 'en'
@@ -26,18 +24,15 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
       revision
       headerClassName={styles.scrollingHeader}
     >
-      <div
-        className={styles.container}
-        style={{ '--heroFade': heroFade, '--breadcrumbHeight': `${breadcrumbHeight}px` } as CSSProperties}
-      >
-        <div className={styles.breadcrumbDock} ref={breadcrumbRef}>
+      <div className={clsx(styles.container, styles.archivePage)}>
+        <div className={styles.breadcrumbDock}>
           <Breadcrumb current="All articles" revision />
         </div>
         <header className={styles.topicHero}>
           <h1 id="all-articles-title">All articles</h1>
           <p>Explore articles from across the Knowledge Base.</p>
         </header>
-        <div className={clsx(styles.topicRail, styles.archiveRail)} style={{ paddingTop: `${48 * (1 - heroFade)}px` }}>
+        <div className={styles.archiveRail}>
           <div className={styles.topicToolbar}>
             <span className={styles.archiveCount}>{total} articles</span>
             <ArticleGridControls
@@ -85,11 +80,12 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
               ← Previous
             </Link>
           )}
-          <span>
+          <span className={styles.pageCount}>
             Page {page} of {Math.max(1, Math.ceil(total / 24))}
           </span>
           {page * 24 < total && (
-            <Link
+            <ArrowButton
+              className={clsx(styles.pill, styles.keepReading)}
               href={`/knowledge-base/articles?page=${page + 1}`}
               onClick={() =>
                 trackKBEvent('kb_pagination_click', {
@@ -100,8 +96,8 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
                 })
               }
             >
-              Keep reading →
-            </Link>
+              Keep reading
+            </ArrowButton>
           )}
         </nav>
       </div>

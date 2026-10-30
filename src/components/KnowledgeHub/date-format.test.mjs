@@ -41,6 +41,11 @@ function renderDates() {
     './Icon': { Icon: 'Icon' },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: 'ArticleLanguageSwitch' },
     '../Header/KnowledgeHeader': { LanguageToggle: 'LanguageToggle' },
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant: 'A', preview: false }),
+    },
     './reading-progress': { readingProgress: () => 0 },
     './ArticleLanguageLink': { ArticleLanguageLink: 'Link', ArticleContentLink: 'a' },
     './analytics': { trackKBEvent: () => undefined },

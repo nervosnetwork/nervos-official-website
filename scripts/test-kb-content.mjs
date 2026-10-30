@@ -62,7 +62,8 @@ for (const language of ['en', 'zh', 'es']) {
   }
   for (const a of local.articles) {
     const related = relatedArticles(a, local)
-    assert(related.length <= 3)
+    const available = local.articles.filter(item => item.id !== a.id && !item.excludedFromRecommendations)
+    assert.equal(related.length, Math.min(3, available.length), `Missing recommendations: ${a.id}:${language}`)
     assert.equal(new Set(related.map(r => r.id)).size, related.length)
     assert(related.every(r => r.id !== a.id && r.language === language))
   }

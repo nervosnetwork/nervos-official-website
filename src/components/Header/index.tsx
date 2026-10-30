@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { DESKTOP_QUERY } from '../../utils/breakpoints'
 import { StyledLink } from '../StyledLink'
 import styles from './index.module.scss'
 import CodeIcon from './code.svg'
@@ -34,7 +35,7 @@ export const Header: FC<HeaderProps> = props => {
 
   const [singleColumn, setSingleColumn] = useState(false)
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 901px)')
+    const desktop = window.matchMedia(DESKTOP_QUERY)
     const update = () => setSingleColumn(!desktop.matches)
     update()
     desktop.addEventListener('change', update)

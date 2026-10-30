@@ -89,6 +89,8 @@ function harness(props = {}) {
   const { Topic } = evaluate('Topic.tsx', {
     ...common,
     react: {
+      useRef: value => ({ current: value }),
+      useEffect: () => undefined,
       useState: initial => {
         const index = stateIndex++
         if (!(index in states)) states[index] = initial
@@ -150,7 +152,7 @@ test('Hub SSR includes every hub article once while keeping the original first s
   assert.doesNotMatch(html, /knowledge-base\/unrelated|Unrelated subject/)
   assert.match(html, /<h2 id="subject-title">First subject<\/h2>/)
   assert.match(html, /Showing 2 articles, latest to oldest/)
-  assert.match(html, /class="topicGrid density4"/)
+  assert.match(html, /class="topicGrid density3"/)
   for (const card of rendered) {
     if (card.hidden) {
       assert.match(card.attributes, /style="display:none"/)
@@ -225,6 +227,36 @@ test('an empty hub exposes no other hub articles and keeps the existing empty st
   assert.deepEqual(cards(html), [])
   assert.match(html, /No articles in this subject yet\./)
   assert.match(html, /Showing 0 articles, latest to oldest/)
+})
+
+test('hub covers request the displayed width at both densities and every sidebar breakpoint', () => {
+  const app = harness()
+  for (const density of [2, 3]) {
+    const controls = descendants(app.render().tree).find(node => node.props?.onDensityChange)
+    controls.props.onDensityChange(density)
+    const card = descendants(app.render().tree).find(node => node.type === app.components.ArticleCard)
+    const sizes = card.props.imageSizes
+    for (const viewport of [375, 767, 768, 900, 1023, 1024, 1218, 1264, 1440]) {
+      const container = Math.min(1200, viewport - (viewport <= 767 ? 40 : 64))
+      const content = container - (viewport >= 1024 ? 312 : 0)
+      const columns = viewport <= 767 ? 1 : viewport <= 1023 ? 2 : density
+      const expected = (content - 16 * (columns - 1)) / columns - 2
+      let branch = sizes
+        .split(/,(?![^()]*\))/)
+        .map(value => value.trim())
+        .find(value => {
+          const limit = value.match(/^\(max-width: (\d+)px\)/)
+          return !limit || viewport <= Number(limit[1])
+        })
+        .replace(/^\(max-width: \d+px\) /, '')
+      const minimum = branch.match(/^min\((calc\([^)]+\)), ([\d.]+)px\)$/)
+      if (minimum) branch = minimum[1]
+      const calc = branch.match(/^calc\(([\d.]+)vw - ([\d.]+)px\)$/)
+      let requested = calc ? (Number(calc[1]) * viewport) / 100 - Number(calc[2]) : parseFloat(branch)
+      if (minimum) requested = Math.min(requested, Number(minimum[2]))
+      assert.ok(Math.abs(requested - expected) < 0.001, `${density} columns at ${viewport}px`)
+    }
+  }
 })
 
 test('ArticleCard hiding only affects the filtered anchor, preserving visible card markup and cover loading', () => {

@@ -1,8 +1,9 @@
+@use '../../styles/breakpoints' as screens;
 @use './menu-chrome';
 @import '../../styles/variables.module';
 
 $headerHeightVarName: '--headerHeight';
-$defaultHeaderHeight: 90px;
+$defaultHeaderHeight: 64px;
 
 :export {
   headerHeightVarName: $headerHeightVarName;
@@ -12,8 +13,8 @@ $defaultHeaderHeight: 90px;
 :root {
   #{$headerHeightVarName}: $defaultHeaderHeight;
 
-  @media (max-width: $mobileBreakPoint) {
-    #{$headerHeightVarName}: 65px;
+  @media (max-width: #{screens.$tabletMax}) {
+    #{$headerHeightVarName}: calc(56px + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -200,13 +201,13 @@ $defaultHeaderHeight: 90px;
   transform: none;
 }
 
-@media (width <= 900px) {
+@media (width <= #{screens.$tabletMax}) {
   .siteDesktopMenu {
     display: none;
   }
 }
 
-@media (width > 900px) {
+@media (width >= #{screens.$desktopMin}) {
   .header {
     @include menu-chrome.desktop-layout;
   }

@@ -24,6 +24,7 @@ const approvedTitles = [
   'Why it’s built differently?',
   'What it makes possible',
   'Crypto-Agile & Quantum-Ready',
+  'Make your next move',
 ]
 
 function loadModule(filename, imports = {}) {
@@ -34,6 +35,8 @@ function loadModule(filename, imports = {}) {
   vm.runInNewContext(outputText, {
     exports,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       assert.ok(Object.hasOwn(imports, name), `Unexpected Start Here dependency: ${name}`)
       return imports[name]
     },
@@ -66,15 +69,21 @@ function nodes(node) {
   return [node, ...nodes(node.props?.children)]
 }
 
-test('Start Here renders only the four approved steps with navigation targets for every section', () => {
+test('Start Here renders all five steps with navigation targets for every section', () => {
   const tree = nodes(StartHere({ catalog: { ...catalog, articles: [] } }))
   const navigation = tree.filter(node => node.type === 'SubjectCard')
   const sections = tree.filter(node => node.type === 'StepSection')
-  assert.equal(navigation.length, 4)
-  assert.equal(sections.length, 4)
+  assert.equal(navigation.length, 5)
+  assert.equal(sections.length, 5)
   assert.deepEqual(
     navigation.map(node => node.props.title),
-    ['What is Nervos CKB?', 'Why it’s built differently', 'CKB & Bitcoin', 'Quantum & crypto agility'],
+    [
+      'What is Nervos CKB?',
+      'Why it’s built differently',
+      'CKB & Bitcoin',
+      'Quantum & crypto agility',
+      'Try it & build',
+    ],
   )
   assert.deepEqual(
     sections.map(node => node.props.step.title),
@@ -82,24 +91,24 @@ test('Start Here renders only the four approved steps with navigation targets fo
   )
   assert.deepEqual(
     navigation.map(node => node.props.href),
-    ['#step-1', '#step-2', '#step-3', '#step-4'],
+    ['#step-1', '#step-2', '#step-3', '#step-4', '#step-5'],
   )
   const heading = tree.find(node => node.type === 'h1')
   assert.ok(heading)
   const headingText = heading.props.children.filter(child => typeof child === 'string').join('')
-  assert.match(headingText, /CKB in four steps/)
-  assert.doesNotMatch(headingText, /five steps/)
-  assert.ok(!tree.some(node => node.props?.href === '#step-5' || node.props?.id === 'step-5'))
+  assert.match(headingText, /CKB in five steps/)
+  assert.doesNotMatch(headingText, /four steps/)
 })
 
 test('Start Here passes the exact eight approved articles in editorial order across four steps', () => {
   const articles = catalog.articles.filter(article => article.language === 'en').reverse()
   const sections = nodes(StartHere({ catalog: { ...catalog, articles } })).filter(node => node.type === 'StepSection')
-  const selections = sections.map(node => Array.from(node.props.articles, article => article.id))
+  const selections = sections.slice(0, 4).map(node => Array.from(node.props.articles, article => article.id))
   assert.deepEqual(selections, approvedIds)
   assert.equal(selections.flat().length, 8)
-  assert.equal(sections.length, 4)
-  assert.equal(sections.at(-1).props.step.id, 'step-4')
+  assert.equal(sections.length, 5)
+  assert.equal(sections.at(-1).props.step.id, 'step-5')
+  assert.equal(sections.at(-1).props.articles.length, 0)
 })
 
 test('every approved selection resolves to its existing English source and unchanged canonical URL', () => {
@@ -126,9 +135,9 @@ const { StepSection } = loadModule('Components.tsx', {
   '../../utils/kb-hubs': kbHubs,
 })
 
-test('the first four steps retain their copy and no fifth Try it & build section is rendered', () => {
-  assert.equal(guideSteps.length, 4)
-  guideSteps.forEach((step, index) => {
+test('the first four steps retain their copy and the fifth restores all original actions', () => {
+  assert.equal(guideSteps.length, 5)
+  guideSteps.slice(0, 4).forEach((step, index) => {
     const tree = nodes(StepSection({ step, index, articles: [] }))
     assert.equal(tree.find(node => node.type === 'section').props.id, `step-${index + 1}`)
     assert.equal(tree.find(node => node.type === 'h2').props.children, approvedTitles[index])
@@ -138,5 +147,19 @@ test('the first four steps retain their copy and no fifth Try it & build section
     assert.equal(tree.filter(node => node.type === 'h3').length, 0)
     assert.ok(!tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
   })
-  assert.ok(!guideSteps.some(step => step.id === 'step-5' || step.navTitle === 'Try it & build'))
+  const step = guideSteps[4]
+  const tree = nodes(StepSection({ step, index: 4, articles: [] }))
+  assert.equal(tree.find(node => node.type === 'section').props.id, 'step-5')
+  assert.equal(tree.find(node => node.type === 'h2').props.children, 'Make your next move')
+  assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.summary))
+  assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.body))
+  assert.ok(tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
+  assert.deepEqual(
+    tree.filter(node => node.type === 'Link').map(node => node.props.href),
+    ['https://ckbdapps.com/ecosystem', 'https://talk.nervos.org/', 'https://docs.nervos.org/'],
+  )
+  assert.deepEqual(
+    Array.from(step.actions, action => action.title),
+    ['Explore the ecosystem', 'Join the conversation', 'Build on CKB'],
+  )
 })

@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @use '../KnowledgeHub/tokens' as tokens;
 @use './menu-chrome';
 
@@ -432,7 +433,7 @@
   transform-origin: left;
 }
 
-@media (width <= 900px) {
+@media (width <= #{screens.$tabletMax}) {
   .header.header {
     @include menu-chrome.layout;
 

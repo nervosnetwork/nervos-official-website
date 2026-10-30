@@ -152,7 +152,7 @@ test('updated Discover banners keep static artwork, revised copy, CTA and click 
   }
 })
 
-test('only the two Discover backgrounds add ordered format candidates after their unchanged JPEG shorthand', () => {
+test('Discover backgrounds keep ordered format candidates, including the reused experiment banner artwork', () => {
   const candidateRules = []
   stylesheet.walkRules(rule => {
     if (
@@ -160,7 +160,11 @@ test('only the two Discover backgrounds add ordered format candidates after thei
     )
       candidateRules.push(rule)
   })
-  assert.equal(candidateRules.length, 2)
+  assert.equal(candidateRules.length, 3)
+  const sidebar = declarations('.experimentSidebar .discoverBanner')
+  const bottom = declarations('.articleBody .discoverBanner')
+  assert.equal(sidebar.background, bottom.background)
+  assert.equal(sidebar['background-image'], bottom['background-image'])
   for (const background of backgrounds) {
     const rule = candidateRules.find(rule => rule.selector === background.selector)
     assert.ok(rule)
@@ -218,19 +222,19 @@ test('Discover geometry follows the revised layout while preserving artwork stac
   const content = declarations('.discoverBanner > div,\n.discoverCompact > div,\n.discoverAction')
   assert.equal(content.position, 'relative')
   assert.equal(content['z-index'], '1')
-  const tabletBanner = declarations('.articleBody .discoverBanner', '(width <= 1100px)')
-  assert.equal(tabletBanner.padding, undefined, 'Tablet uses the same padding as desktop')
-  const mobileBanner = declarations('.articleBody .discoverBanner', '(width <= 900px)')
+  const tabletBanner = declarations('.articleBody .discoverBanner', '(width <= 1023px)')
+  assert.equal(tabletBanner.padding, '32px 48px', 'Tablet uses the same padding as desktop')
+  const mobileBanner = declarations('.articleBody .discoverBanner', '(width <= 1023px)')
   assert.equal(mobileBanner['flex-direction'], 'column')
   assert.equal(mobileBanner['align-items'], 'flex-start')
   assert.equal(mobileBanner.padding, '32px 48px')
-  assert.equal(declarations('.articleBody .discoverBanner', '(width <= 600px)').padding, '24px')
-  assert.equal(declarations('.discoverBanner .discoverAction', '(width <= 900px)')['align-self'], 'flex-start')
-  const mobileCompact = declarations('.discoverCompact', '(width <= 900px)')
+  assert.equal(declarations('.articleBody .discoverBanner', '(width <= 767px)').padding, '24px')
+  assert.equal(declarations('.discoverBanner .discoverAction', '(width <= 1023px)')['align-self'], 'flex-start')
+  const mobileCompact = declarations('.discoverCompact', '(width <= 1023px)')
   assert.equal(mobileCompact['min-height'], '0')
   assert.equal(mobileCompact.padding, '32px 24px')
-  assert.equal(declarations('.sidebar > .discoverCompact', '(width <= 900px)')['grid-column'], '1/-1')
-  assert.equal(declarations('.discoverLife', '(width <= 900px)').opacity, '0.42')
+  assert.equal(declarations('.sidebar > .discoverCompact', '(width <= 1023px)')['grid-column'], '1/-1')
+  assert.equal(declarations('.discoverLife', '(width <= 1023px)').opacity, '0.42')
 })
 
 test('original JPEGs and content-hashed modern files retain their dimensions, sRGB profile and reviewed transfer reductions', async () => {
@@ -308,7 +312,10 @@ test('Discover assets remain CSS-scoped without adding preloads or changing the 
     }
   }
   visit(path.join(root, 'src'))
-  assert.deepEqual(references, ['src/components/KnowledgeHub/article-v2.module.scss'])
+  assert.deepEqual(references, [
+    'src/components/KnowledgeHub/_discover-banner.scss',
+    'src/components/KnowledgeHub/article-v2.module.scss',
+  ])
   const guideSource = read('src/components/KnowledgeHub/GuideLife.tsx')
   assert.match(guideSource, /const CELL_STEP = 15\b/)
   assert.match(guideSource, /const CELL_SIZE = 10\b/)

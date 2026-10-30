@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
+import { DESKTOP_QUERY } from '../../utils/breakpoints'
 import LogoIcon from './logo.svg'
 import CodeIcon from './code.svg'
 import CommunityIcon from './community.svg'
@@ -132,7 +133,7 @@ function articleLanguages(article?: KBArticle) {
 export function LanguageToggle({ article }: { article?: KBArticle }) {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' })
   const languages = articleLanguages(article)
-  if (!article || !languages.length) return null
+  if (!article || languages.length < 2) return null
   return (
     <div className={styles.languageToggle} role="group" aria-label={t('language', 'Language')}>
       {languages.map(locale => (
@@ -163,7 +164,7 @@ export function LanguageRadioGroup({ article, onSelect }: { article?: KBArticle;
   const { t } = useTranslation('common', { keyPrefix: 'navigation' })
   const router = useRouter()
   const languages = articleLanguages(article)
-  if (!article || !languages.length) return null
+  if (!article || languages.length < 2) return null
   return (
     <fieldset className={styles.languageGroup}>
       <legend>{t('language', 'Language')}</legend>
@@ -175,8 +176,7 @@ export function LanguageRadioGroup({ article, onSelect }: { article?: KBArticle;
             value={locale}
             checked={article.language === locale}
             onClick={() => {
-              // An English-only fallback must still let readers explicitly
-              // replace a previously saved Chinese preference with English.
+              // Selecting the current language also updates the saved preference.
               if (article.language === locale) {
                 setArticleLanguagePreference(locale)
                 onSelect?.()
@@ -246,7 +246,7 @@ export function NavigationMenu({
 
   useEffect(() => {
     const close = () => setOpen(false)
-    const desktop = window.matchMedia('(min-width: 901px)')
+    const desktop = window.matchMedia(DESKTOP_QUERY)
     const onResize = () => {
       if (desktop.matches) close()
     }
@@ -321,7 +321,7 @@ export function NavigationMenu({
                 </a>
               </div>
             )}
-            {article && (
+            {article && articleLanguages(articleLanguage).length > 1 && (
               <div className={styles.pinnedLanguage}>
                 <LanguageRadioGroup article={articleLanguage} onSelect={() => setOpen(false)} />
               </div>

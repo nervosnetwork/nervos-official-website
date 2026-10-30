@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @use './tokens' as tokens;
 @import './pages.module';
 
@@ -76,7 +77,7 @@
 .page {
   @include tokens.theme;
 
-  --headerHeight: 80px;
+  --headerHeight: 64px;
 
   color: var(--kbText);
 }
@@ -87,7 +88,7 @@
 }
 
 .breadcrumb {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   color: var(--kbPlaceholder);
   text-transform: uppercase;
   @include tokens.type(label);
@@ -101,13 +102,13 @@
   position: sticky;
   top: 0;
   z-index: 19;
-  padding-top: 16px;
+  padding-top: 0;
   background: var(--kbSurface);
 }
 
 .breadcrumbDock .breadcrumb {
   margin: 0;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
 }
 
 .startHeroCopy,
@@ -208,6 +209,7 @@
   gap: 16px;
   justify-content: space-between;
   margin-top: 32px;
+  margin-bottom: 80px;
 }
 
 .guideLinks + .relatedHubs {
@@ -255,7 +257,24 @@
 }
 
 .archiveRail .topicToolbar {
+  align-items: center;
   margin-top: 0;
+  padding: 12px 0;
+}
+
+.archiveRail {
+  position: static;
+  padding-top: 32px;
+}
+
+.archivePage .breadcrumbDock {
+  position: static;
+}
+
+.archivePage .topicHero {
+  transform: none;
+  opacity: 1;
+  will-change: auto;
 }
 
 .archiveCount {
@@ -263,9 +282,15 @@
   @include tokens.type(body);
 }
 
+.archivePage .pageCount {
+  color: var(--kbSecondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .page .topicHero > p {
   max-width: 848px;
-  margin-top: 24px;
+  margin-top: 16px;
   color: var(--kbSecondary);
   @include tokens.type(subheader);
 }
@@ -383,6 +408,10 @@
   margin-top: 24px;
 }
 
+.density2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .mixedGrid {
   column-gap: 0;
 }
@@ -429,9 +458,9 @@
   background: var(--kbNeutral800);
 }
 
-@media (width <= 750px) {
+@media (width <= #{screens.$mobileMax}) {
   .page {
-    --headerHeight: 65px;
+    --headerHeight: 56px;
   }
 
   .startHero,
@@ -489,7 +518,11 @@
   }
 }
 
-@media (width <= 1024px) {
+@media (width <= #{screens.$tabletMax}) {
+  .page {
+    --headerHeight: 56px;
+  }
+
   .stepNav,
   .subjectNav {
     grid-auto-columns: minmax(190px, 1fr);
@@ -511,7 +544,7 @@
   }
 }
 
-@media (width <= 900px) {
+@media (width <= #{screens.$tabletMax}) {
   .articleMarkdown {
     min-width: 0;
     font-size: 16px;
@@ -548,7 +581,7 @@
   }
 }
 
-@media (width <= 750px) {
+@media (width <= #{screens.$mobileMax}) {
   .container {
     width: calc(100% - 40px);
   }
@@ -687,8 +720,8 @@
   }
 
   .archiveRail .topicToolbar {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
 
   .archiveRail .controls {
@@ -740,8 +773,185 @@
   }
 }
 
-@media (width <= 540px) {
+@media (width <= #{screens.$mobileMax}) {
   .topicGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Hub and guide sidebars stay visible while the navbar and hero scroll away. */
+.twoColumnPage .breadcrumbDock {
+  position: static;
+}
+
+.twoColumnPage :is(.startHeroCopy, .topicHero) {
+  transform: none;
+  opacity: 1;
+  will-change: auto;
+}
+
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  margin-top: 38px;
+}
+
+.layoutSidebar,
+.layoutContent {
+  min-width: 0;
+}
+
+.layoutSidebar {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100dvh - 32px);
+  margin: -4px;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.layoutSidebar :is(.stepsLabel, .subjectsLabel) {
+  margin: 0 0 16px !important;
+}
+
+.layoutSidebar :is(.stepNav, .subjectNav) {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: -4px;
+  padding: 4px;
+  overflow: visible;
+}
+
+.layoutSidebar .subjectNav button img {
+  width: 20px;
+  height: 20px;
+}
+
+.layoutSidebar .subjectNav button img:last-child {
+  width: 12px;
+  height: 12px;
+}
+
+.twoColumnLayout .guideSteps {
+  margin-top: 0;
+}
+
+.twoColumnLayout .guideSteps::before {
+  content: none;
+}
+
+.page .twoColumnLayout .guideSteps > section {
+  scroll-margin-top: 24px;
+}
+
+.layoutContent .topicToolbar {
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.layoutContent .controls {
+  flex-shrink: 0;
+}
+
+.twoColumnLayout + .relatedHubs {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--kbDivider);
+}
+
+@media (width <= #{screens.$tabletMax}) {
+  .twoColumnLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .layoutSidebar {
+    top: 0;
+    z-index: 18;
+    max-height: none;
+    margin: 0 -4px;
+    padding: 12px 4px;
+    overflow: visible;
+    background: var(--kbSurface);
+    border-bottom: 1px solid var(--kbDivider);
+  }
+
+  .layoutSidebar :is(.stepNav, .subjectNav) {
+    grid-auto-columns: 220px;
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-padding-inline: 4px;
+    scrollbar-width: none;
+  }
+
+  .layoutSidebar :is(.stepNav, .subjectNav)::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page .twoColumnLayout .guideSteps > section {
+    scroll-margin-top: calc(var(--selectionRailHeight, 100px) + 16px);
+  }
+}
+
+@media (width <= #{screens.$mobileMax}) {
+  .twoColumnPage {
+    --headerHeight: 56px;
+  }
+}
+
+/* Steps header: Figma 3792:1738. Keep its text grouping separate from Hub heroes. */
+.startPage .breadcrumb {
+  @include tokens.type(label);
+
+  text-transform: none;
+}
+
+.startPage .startHero h1 {
+  @include tokens.type(display);
+
+  max-width: 725px;
+  color: var(--kbText);
+}
+
+.startPage .startHeroCopy > strong {
+  @include tokens.type(h4);
+
+  display: block;
+  margin-top: 16px;
+  color: var(--kbText);
+}
+
+.startPage .startHeroCopy > p {
+  @include tokens.type(subheader);
+
+  max-width: 848px;
+  margin-top: 8px;
+  color: var(--kbSecondary);
+}
+
+.layoutSidebar.stepSidebar {
+  margin-bottom: 80px;
+}
+
+@media (width <= #{screens.$tabletMax}) {
+  .startPage .twoColumnLayout {
+    row-gap: 0;
+  }
+}
+
+@media (width <= #{screens.$mobileMax}) {
+  .startPage .startHero h1 {
+    font-size: 32px;
+    line-height: 1.15;
   }
 }

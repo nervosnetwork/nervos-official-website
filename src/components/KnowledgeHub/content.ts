@@ -95,7 +95,11 @@ export function relatedArticles(current: KBArticle, catalog: KBCatalog) {
   const fallback = current.hub
     ? catalog.featured.filter(f => f.hub === current.hub).flatMap(f => available.filter(a => a.id === f.articleId))
     : []
-  return [...new Map([...scored.map(s => s.article), ...fallback].map(a => [a.id, a])).values()].slice(0, 3)
+  const sameHub = current.hub ? available.filter(a => a.hub === current.hub).sort(byDate) : []
+  const latest = [...available].sort(byDate)
+  return [
+    ...new Map([...scored.map(s => s.article), ...fallback, ...sameHub, ...latest].map(a => [a.id, a])).values(),
+  ].slice(0, 3)
 }
 export function searchArticles(query: string, catalog: KBCatalog) {
   const phrase = query.trim().toLocaleLowerCase()

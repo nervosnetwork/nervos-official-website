@@ -30,6 +30,19 @@ function articleBodyWithoutAlts(html) {
     node => node.getAttribute('class') === 'articleBody',
   )
   assert.ok(body, 'The complete article body must render')
+  // Likes are intentionally hidden until real voting is available.
+  for (const node of Array.from(body.getElementsByTagName('button'))) {
+    if (node.getAttribute('class') === 'likeButton') node.parentNode.removeChild(node)
+  }
+  // Exclude the new B-only intro and unwrap the neutral bottom-banner tracking
+  // container; continue comparing all existing content and image attributes.
+  for (const node of Array.from(body.getElementsByTagName('div'))) {
+    if (node.getAttribute('class') === 'mobileDiscoverBanner') node.parentNode.removeChild(node)
+    if (node.getAttribute('data-discover-banner') === 'bottom') {
+      while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node)
+      node.parentNode.removeChild(node)
+    }
+  }
   // The language controls live in the navigation; this image regression keeps
   // comparing the complete article body, including its title, cover and links.
   return body.toString().replace(/\salt="[^"]*"/g, '')
@@ -79,6 +92,11 @@ function loadArticle(source, socialActions = false, realImages = false) {
     './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
     '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant: 'A', preview: false }),
+    },
     './reading-progress': evaluate(read('src/components/KnowledgeHub/reading-progress.ts')),
     './ArticleLanguageLink': {
       ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
