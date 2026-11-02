@@ -9,8 +9,11 @@
     "kb:prepare": "node scripts/prepare-kb-content.mjs",
     "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "indexnow": "node scripts/indexnow.mjs",
-    "build": "node public/education_hub_articles/scripts/check-slugs.mjs && node ./scripts/generate-articles.mjs && node scripts/generate-sitemap.mjs && next build",
-    "dev": "node scripts/generate-sitemap.mjs && next dev",
+    "indexnow:manifest": "node scripts/indexnow-manifest.mjs",
+    "indexnow:plan": "node scripts/indexnow-plan.mjs",
+    "indexnow:deploy": "node scripts/indexnow-deploy.mjs",
+    "build": "node public/education_hub_articles/scripts/check-slugs.mjs && node ./scripts/generate-articles.mjs && node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next build",
+    "dev": "node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next dev",
     "lint": "next lint",
     "start": "next start",
     "afterInstall": "husky install"

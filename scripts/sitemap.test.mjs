@@ -211,7 +211,10 @@ test('a stale catalog, missing source, or old migration identity fails instead o
 test('normal build and dev commands generate the snapshot before starting Next', () => {
   const { scripts } = JSON.parse(fs.readFileSync('package.json', 'utf8'))
   for (const name of ['build', 'dev']) {
-    assert(scripts[name].includes('node scripts/generate-sitemap.mjs && next '), name)
+    assert(
+      scripts[name].includes('node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next '),
+      name,
+    )
   }
   assert.equal(scripts['sitemap:generate'], 'node scripts/generate-sitemap.mjs')
 })

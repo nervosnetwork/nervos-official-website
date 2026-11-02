@@ -1674,3 +1674,55 @@ Pre-deployment validation:
 - Native Chrome renders the isolated KB home normally. The actual newly
   deployed Preview must still be checked; local production mode and the
   platform-input regression tests are not deployment acceptance.
+
+## October 29, 2026: D-05 IndexNow automation implementation
+
+Completed the development implementation: deterministic content snapshots,
+added/updated/deleted canonical-URL plans, a successful-production-deployment
+workflow, durable Git-backed state and receipts, and explicit failure recovery.
+The original manual tool and key are preserved. UI, article addresses, content,
+Google integration and production indexability are unchanged.
+
+- Builds generate snapshots without notifying. Production verification uses
+  read-only `/api/indexnow/release` and `/api/indexnow/manifest` endpoints with
+  browser/CDN `no-store`, not cacheable static release attestations. The Next
+  serverless trace includes both generated public JSON files.
+- Submit tooling runs trusted upstream `main`, verifies the Vercel bot,
+  Production deployment/status, deployed revision's ancestry on `main`, and
+  the fixed production domain's current revision/digest. Preview deployments
+  cannot notify. Production notifications remain disabled by default.
+- Missing initial state requires approval of the exact current plan digest.
+  Automatic events cannot bootstrap it or change its approved KB/site scope.
+  A dedicated orphan `indexnow-state` branch stores snapshots, sending intent,
+  checkpoints and receipts with non-force compare-and-swap commits.
+- Duplicate accepted deployment events do not resend; unchanged deployments
+  can advance the baseline without a POST. Failure/202 never advances it.
+  Explicit, reviewed retries resume durably accepted batches where possible;
+  uncertain or pending results are not silently guessed successful.
+
+Local acceptance (no real notification or remote state write):
+
+- All 492 repository tests and TypeScript pass. The isolated production build
+  in `.next-indexnow-automation` completes; existing lint/large-page/Next
+  configuration warnings remain. Its server uses port 3005 without restarting
+  the user's port 3001 or the prior port 3004 acceptance server.
+- Real loopback HTTP verifies the key, JSON MIME, no-store response, revision
+  and digest. Real build snapshots contain 390 eligible canonical URLs, of
+  which 342 form the initial KB-only candidate plan. First-plan approval,
+  successful receipt/baseline, replay and unchanged redeployment are exercised
+  with entirely mocked GitHub/IndexNow APIs and in-memory state.
+- Every existing page's client JS/CSS asset list matches the pre-IndexNow
+  production build; no frontend layout or visual assets were edited.
+
+Reproduce offline review with `pnpm indexnow:plan --scope kb`, and loopback
+acceptance with `node scripts/check-indexnow-http.mjs http://localhost:3005`.
+The local plan is not approval for a future production revision.
+
+Activation is still a release gate, not unfinished application code: merge
+trusted tooling to `main`, configure the approval/production environments and
+workflow write permission, exclude the state-only branch from Vercel builds,
+verify public production access, agree the first scope/list with Dele, then
+enable and approve the first exact production plan. No GitHub environment,
+repository variable, cloud permission, state branch, real IndexNow submission
+or formal production deployment was created by this implementation. See
+`docs/kb-indexnow-automation.md` and the D-05 release-checklist entries.

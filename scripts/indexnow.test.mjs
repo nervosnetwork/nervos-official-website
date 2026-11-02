@@ -54,7 +54,11 @@ test('the supplied public verification file and exact Next header rule agree wit
   const commands = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts
   assert.equal(commands.indexnow, 'node scripts/indexnow.mjs')
   for (const command of ['build', 'dev', 'start']) {
-    assert.doesNotMatch(commands[command], /indexnow/i, `${command} must not submit notifications`)
+    assert.doesNotMatch(
+      commands[command],
+      /scripts\/indexnow(?:-deploy)?\.mjs\b/,
+      `${command} must not submit notifications`,
+    )
   }
 })
 
@@ -442,5 +446,234 @@ test('the real CLI is offline by default and rejects malformed/duplicate options
     assert.equal(result.stdout, '')
     assert.equal(typeof JSON.parse(result.stderr).error, 'string')
     assert.doesNotMatch(result.stderr, /TEST_NETWORK_FORBIDDEN/)
+  }
+})
+
+test('submission waits for durable initial and per-batch sending intent before network POST', async () => {
+  let releaseInitial
+  let releaseIntent
+  let initialStarted = false
+  let intentStarted = false
+  let requests = 0
+  let posts = 0
+  const initialSaved = new Promise(resolve => {
+    releaseInitial = resolve
+  })
+  const intentSaved = new Promise(resolve => {
+    releaseIntent = resolve
+  })
+  const pending = runIndexNow({
+    urls: [sample],
+    submit: true,
+    productionDeployed: true,
+    onProgress: async receipt => {
+      if (receipt.batches[0].status === 'planned') {
+        initialStarted = true
+        await initialSaved
+      }
+      if (receipt.batches[0].status === 'sending') {
+        intentStarted = true
+        await intentSaved
+      }
+    },
+    fetchImpl: async url => {
+      requests += 1
+      if (url === INDEXNOW_KEY_URL) return keyResponse()
+      posts += 1
+      return new Response(null, { status: 200 })
+    },
+  })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(initialStarted, true)
+  assert.equal(requests, 0, 'Even the verification GET waits for saved initial intent')
+  releaseInitial()
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(intentStarted, true)
+  assert.equal(requests, 1)
+  assert.equal(posts, 0, 'POST waits until sending intent is durable')
+  releaseIntent()
+  assert.equal((await pending).status, 'accepted')
+  assert.equal(posts, 1)
+})
+
+test('failure to persist initial or sending intent prevents the external notification', async () => {
+  for (const failOn of ['planned', 'sending']) {
+    let requests = 0
+    let posts = 0
+    await assert.rejects(
+      runIndexNow({
+        urls: [sample],
+        submit: true,
+        productionDeployed: true,
+        onProgress: async receipt => {
+          if (receipt.batches[0].status === failOn) throw new Error('PRIVATE_STORAGE_ERROR')
+        },
+        fetchImpl: async url => {
+          requests += 1
+          if (url === INDEXNOW_KEY_URL) return keyResponse()
+          posts += 1
+          return new Response(null, { status: 200 })
+        },
+      }),
+      error => {
+        assert.equal(error.name, 'IndexNowError')
+        assert.match(error.message, /persist notification progress/)
+        assert.doesNotMatch(error.message, /PRIVATE_STORAGE_ERROR/)
+        return true
+      },
+    )
+    assert.equal(requests, failOn === 'planned' ? 0 : 1)
+    assert.equal(posts, 0)
+  }
+})
+
+test('a later production gate failure retains earlier acceptance and leaves remaining batches unsent', async () => {
+  const input = urls(20_001)
+  const snapshots = []
+  let gates = 0
+  let posts = 0
+  await assert.rejects(
+    runIndexNow({
+      urls: input,
+      submit: true,
+      productionDeployed: true,
+      beforeBatch: async () => {
+        gates += 1
+        if (gates === 2) throw new Error('Production revision changed')
+      },
+      onProgress: async receipt => {
+        snapshots.push(receipt)
+      },
+      fetchImpl: async url => {
+        if (url === INDEXNOW_KEY_URL) return keyResponse()
+        posts += 1
+        return new Response(null, { status: 200 })
+      },
+    }),
+    error => {
+      assert.equal(error.receipt.status, 'failed')
+      assert.deepEqual(
+        error.receipt.batches.map(batch => batch.status),
+        ['accepted', 'failed', 'planned'],
+      )
+      assert.equal(error.receipt.batches[0].httpStatus, 200)
+      assert.equal(error.receipt.batches[1].httpStatus, undefined)
+      return true
+    },
+  )
+  assert.equal(posts, 1)
+  assert.equal(gates, 2)
+  assert.deepEqual(
+    snapshots.at(-1).batches.map(batch => batch.status),
+    ['accepted', 'failed', 'planned'],
+  )
+})
+
+test('progress hooks receive detached snapshots and cannot mutate payloads or live receipts', async () => {
+  const snapshots = []
+  const expected = [sample]
+  const receipt = await runIndexNow({
+    urls: expected,
+    submit: true,
+    productionDeployed: true,
+    onProgress: async snapshot => {
+      snapshots.push(structuredClone(snapshot))
+      snapshot.status = 'MUTATED'
+      snapshot.batches[0].status = 'MUTATED'
+      snapshot.batches[0].urls[0] = 'https://evil.test/'
+      snapshot.batches.push({ urls: [], status: 'MUTATED' })
+    },
+    fetchImpl: async (url, options) => {
+      if (url === INDEXNOW_KEY_URL) return keyResponse()
+      assert.deepEqual(JSON.parse(options.body).urlList, expected)
+      return new Response(null, { status: 200 })
+    },
+  })
+  assert.equal(receipt.status, 'accepted')
+  assert.deepEqual(receipt.batches, [{ urls: expected, status: 'accepted', httpStatus: 200 }])
+  assert.deepEqual(
+    snapshots.map(snapshot => snapshot.batches[0].status),
+    ['planned', 'sending', 'accepted', 'accepted'],
+  )
+  assert.equal(snapshots[0].status, 'submitting')
+  assert.equal(snapshots[0].batches[0].httpStatus, undefined, 'An earlier snapshot must stay unchanged')
+})
+
+test('failure to persist an accepted receipt stops later batches without erasing acceptance', async () => {
+  const input = urls(20_001)
+  let posts = 0
+  let savedSending = false
+  await assert.rejects(
+    runIndexNow({
+      urls: input,
+      submit: true,
+      productionDeployed: true,
+      onProgress: async receipt => {
+        if (receipt.batches[0].status === 'sending') savedSending = true
+        if (receipt.batches[0].status === 'accepted') throw new Error('Persist result failed')
+      },
+      fetchImpl: async url => {
+        if (url === INDEXNOW_KEY_URL) return keyResponse()
+        posts += 1
+        return new Response(null, { status: 200 })
+      },
+    }),
+    error => {
+      assert.match(error.message, /persist notification progress/)
+      assert.deepEqual(
+        error.receipt.batches.map(batch => batch.status),
+        ['accepted', 'planned', 'planned'],
+      )
+      assert.equal(error.receipt.batches[0].httpStatus, 200)
+      return true
+    },
+  )
+  assert.equal(posts, 1)
+  assert.equal(savedSending, true)
+})
+
+test('failure to persist terminal receipt is reported even after all batches were accepted', async () => {
+  let posts = 0
+  await assert.rejects(
+    runIndexNow({
+      urls: [sample],
+      submit: true,
+      productionDeployed: true,
+      onProgress: async receipt => {
+        if (receipt.status === 'accepted') throw new Error('Terminal receipt failed')
+      },
+      fetchImpl: async url => {
+        if (url === INDEXNOW_KEY_URL) return keyResponse()
+        posts += 1
+        return new Response(null, { status: 200 })
+      },
+    }),
+    error => {
+      assert.match(error.message, /persist notification progress/)
+      assert.equal(error.receipt.status, 'accepted')
+      assert.equal(error.receipt.batches[0].status, 'accepted')
+      return true
+    },
+  )
+  assert.equal(posts, 1)
+})
+
+test('dry-run and empty notifications never call persistence or production hooks', async () => {
+  const forbiddenHook = async () => assert.fail('Offline/empty operation must not call a hook')
+  for (const settings of [
+    { urls: [sample], submit: false },
+    { urls: [], submit: false },
+    { urls: [], submit: true, productionDeployed: true },
+  ]) {
+    const receipt = await runIndexNow({
+      ...settings,
+      onProgress: forbiddenHook,
+      beforeBatch: forbiddenHook,
+      fetchImpl: forbiddenFetch,
+    })
+    assert.ok(['dry-run', 'empty'].includes(receipt.status))
+  }
+  for (const field of ['onProgress', 'beforeBatch']) {
+    await assert.rejects(runIndexNow({ urls: [sample], [field]: null, fetchImpl: forbiddenFetch }), /must be functions/)
   }
 })

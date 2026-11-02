@@ -54,9 +54,19 @@ export class IndexNowError extends Error {
 // No network requests unless both explicit production flags are set. The caller
 // must verify that the intended release is serving on the production domain.
 // Input may include deleted URLs: do not filter it against the current sitemap.
-export async function runIndexNow({ urls, submit = false, productionDeployed = false, fetchImpl = globalThis.fetch }) {
+export async function runIndexNow({
+  urls,
+  submit = false,
+  productionDeployed = false,
+  fetchImpl = globalThis.fetch,
+  onProgress = async () => undefined,
+  beforeBatch = async () => undefined,
+}) {
   if (typeof submit !== 'boolean' || typeof productionDeployed !== 'boolean') {
     throw new Error('Submission and production confirmation must be explicit booleans')
+  }
+  if (typeof onProgress !== 'function' || typeof beforeBatch !== 'function') {
+    throw new Error('Progress and production checks must be functions')
   }
   const payloads = createPayloads(urls)
   const receipt = {
@@ -70,7 +80,15 @@ export async function runIndexNow({ urls, submit = false, productionDeployed = f
   }
   if (!submit || !payloads.length) return receipt
 
-  receipt.status = 'failed'
+  const saveProgress = async () => {
+    try {
+      await onProgress(structuredClone(receipt))
+    } catch {
+      throw new IndexNowError('Cannot persist notification progress; submission stopped', receipt)
+    }
+  }
+  receipt.status = 'submitting'
+  await saveProgress()
   try {
     const verification = await fetchImpl(INDEXNOW_KEY_URL, {
       method: 'GET',
@@ -87,12 +105,17 @@ export async function runIndexNow({ urls, submit = false, productionDeployed = f
       throw new Error('Key file does not contain only the expected verification key')
     }
   } catch (error) {
+    receipt.status = 'failed'
+    await saveProgress()
     throw new IndexNowError(`Production key verification failed: ${error.message}`, receipt)
   }
 
   for (const [index, payload] of payloads.entries()) {
     const batch = receipt.batches[index]
     try {
+      await beforeBatch()
+      batch.status = 'sending'
+      await saveProgress()
       const response = await fetchImpl(INDEXNOW_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -106,15 +129,21 @@ export async function runIndexNow({ urls, submit = false, productionDeployed = f
       }
       batch.status = response.status === 202 ? 'pending-validation' : 'accepted'
       // The protocol uses the status code; don't retain unused response streams.
-      await response.body?.cancel()
+      await response.body?.cancel().catch(() => undefined)
     } catch (error) {
-      batch.status = 'failed'
+      // Keep an accepted result if saving its receipt fails later. A persisted
+      // sending intent without a result is deliberately treated as uncertain.
+      if (batch.status !== 'accepted' && batch.status !== 'pending-validation') batch.status = 'failed'
+      receipt.status = 'failed'
+      await saveProgress()
       throw new IndexNowError(`Batch ${index + 1} failed: ${error.message}`, receipt)
     }
+    await saveProgress()
   }
   receipt.status = receipt.batches.some(batch => batch.status === 'pending-validation')
     ? 'pending-validation'
     : 'accepted'
+  await saveProgress()
   return receipt
 }
 

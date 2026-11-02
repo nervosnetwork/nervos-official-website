@@ -1,7 +1,9 @@
 # D-05 IndexNow deployment handoff
 
 The repository provides the public verification file and an opt-in notification
-command. Automatic production deployment integration is still pending. The
+command. Production automation code is now implemented, but remains disabled
+until the release configuration and first plan are approved. See
+[production automation and recovery](./kb-indexnow-automation.md). The manual
 command is not called by `dev`, `build` or the article deployment webhook.
 Tests use mocked requests and never send real notifications. The implementation
 changes no UI, article addresses or indexing rules.
@@ -24,9 +26,7 @@ credentials or fragments. Existing article canonical paths remain authoritative.
 Deleted URLs are deliberately allowed even if absent from the new sitemap.
 
 ```json
-[
-  "https://www.nervos.org/knowledge-base/what_is_fiber"
-]
+["https://www.nervos.org/knowledge-base/what_is_fiber"]
 ```
 
 Run the preview from the website repository, using the reviewed input artifact:
@@ -73,18 +73,18 @@ respect rate limits. For 202, check key accessibility and the pending validation
 before advancing the notification checkpoint. A transport timeout may mean the
 endpoint received the batch even though the caller did not receive its response.
 
-## Remaining production integration
+## Production activation
 
-Sonny and the deployment administrator must identify the actual production-success
-event, validate the deployed revision/domain, generate the changed-URL artifact
-and attach the command there. A webhook's acceptance of a build request is **not**
-deployment completion. Do not attach notifications to every push, build or preview.
+The new workflow listens for successful Production deployment status and checks
+the revision/manifest actually served on the fixed production domain. Its durable
+state branch records inputs, per-batch outcomes and the last accepted snapshot.
+Production enabling, protected environments, state-branch access and initial
+approval remain release gates; no real notification is part of development tests.
 
-Persist the input, per-batch receipt and last successfully notified production
-baseline. A failed or pending run must remain recoverable rather than silently
-advancing that baseline. Confirm D-04 access, then perform the first approved
-notification and record the response. Dele handles the initial/ongoing marketing
-URL batches described in the handoff; this does not replace the separate
-Google Search Console/Bing sitemap submission in D-03.
+Prefer the workflow for coordinated notifications. The original manual command
+does not update its baseline: do not mix manual submissions into an enabled
+automation without reconciling records. Confirm D-04 access and Dele's reviewed
+first scope/URL list before enabling. This does not replace the separate Google
+Search Console/Bing sitemap submission in D-03.
 
 Protocol reference: [IndexNow documentation](https://www.indexnow.org/documentation).

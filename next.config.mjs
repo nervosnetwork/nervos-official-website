@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { currentKBLegacyRedirects } from './config/kb-legacy-redirects.mjs'
-import { INDEXNOW_KEY } from './config/indexnow.mjs'
+import { INDEXNOW_KEY, INDEXNOW_MANIFEST_PATH, INDEXNOW_RELEASE_PATH } from './config/indexnow.mjs'
 
 const i18nConfig = (await import('./next-i18next.config.js')).default
 
@@ -116,6 +116,14 @@ const config = {
     return [...currentKBLegacyRedirects(i18nConfig.i18n), ...archivedPages, roadmap, ...ckbAliases]
   },
   headers: async () => [
+    ...[INDEXNOW_MANIFEST_PATH, INDEXNOW_RELEASE_PATH].map(source => ({
+      source,
+      locale: false,
+      headers: [
+        { key: 'Content-Type', value: 'application/json; charset=utf-8' },
+        { key: 'Cache-Control', value: 'no-store' },
+      ],
+    })),
     {
       source: `/${INDEXNOW_KEY}.txt`,
       locale: false,

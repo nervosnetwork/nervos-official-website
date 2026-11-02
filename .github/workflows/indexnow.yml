@@ -1,0 +1,150 @@
+name: IndexNow production notifications
+
+# Merge the trusted submit tooling into main before enabling this integration:
+# the submit job always checks out main rather than deployment/PR code.
+# Before enabling INDEXNOW_ENABLED, configure indexnow-approval for main with
+# required reviewers. indexnow-production needs No restriction and no reviewer:
+# SHA-only deployment events can have an empty GITHUB_REF, regardless of checkout.
+# Neither environment needs secrets. The runner verifies deployed-SHA ancestry
+# on main independently. Seed the reviewed baseline manually first; subsequent
+# production notifications then run automatically. Preview/fork events never submit.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Generate a reviewable plan, or explicitly submit it
+        type: choice
+        options:
+          - plan
+          - submit
+        default: plan
+        required: true
+      deployment_id:
+        description: Successful Production GitHub deployment ID (required for submit)
+        type: string
+        required: false
+      scope:
+        description: Public URL scope; keep KB unless wider coverage is approved
+        type: choice
+        options:
+          - kb
+          - site
+        default: kb
+        required: true
+      approve_plan:
+        description: Exact reviewed plan SHA-256 (required for the first baseline)
+        type: string
+        required: false
+      retry_incomplete:
+        description: Explicitly retry a previously incomplete notification
+        type: boolean
+        default: false
+        required: false
+
+permissions:
+  contents: read
+  deployments: read
+
+env:
+  INDEXNOW_ENABLED: ${{ vars.INDEXNOW_ENABLED }}
+  INDEXNOW_STATE_BRANCH: ${{ vars.INDEXNOW_STATE_BRANCH || 'indexnow-state' }}
+  INDEXNOW_ENVIRONMENT: ${{ vars.INDEXNOW_ENVIRONMENT || 'Production' }}
+  INDEXNOW_ALLOWED_CREATOR: ${{ vars.INDEXNOW_ALLOWED_CREATOR || 'vercel[bot]' }}
+
+jobs:
+  plan:
+    name: Read-only notification plan
+    if: >-
+      ${{ github.repository == 'nervosnetwork/nervos-official-website' &&
+          github.event_name == 'workflow_dispatch' && inputs.mode == 'plan' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # A manual plan may use the selected workflow ref; its token is read-only.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate plan without notifying IndexNow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOYMENT_ID: ${{ inputs.deployment_id }}
+          REQUESTED_SCOPE: ${{ inputs.scope }}
+          RETRY_INCOMPLETE: ${{ inputs.retry_incomplete }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--mode plan --scope "$REQUESTED_SCOPE" --output indexnow-output)
+          if [[ -n "$DEPLOYMENT_ID" ]]; then args+=(--deployment-id "$DEPLOYMENT_ID"); fi
+          if [[ "$RETRY_INCOMPLETE" == 'true' ]]; then args+=(--retry-incomplete); fi
+          node scripts/indexnow-deploy.mjs "${args[@]}"
+      - name: Save reviewable plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexnow-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: indexnow-output/
+          if-no-files-found: ignore
+          retention-days: 90
+
+  submit:
+    name: Verified production notification
+    # Do not use deployment.production_environment: the Vercel integration can
+    # report false even for its real Production environment. The runner further
+    # verifies creator, deployment status/domain, and the live production SHA.
+    if: >-
+      ${{ github.repository == 'nervosnetwork/nervos-official-website' &&
+          vars.INDEXNOW_ENABLED == 'true' &&
+          ((github.event_name == 'deployment_status' &&
+            github.event.deployment_status.state == 'success' &&
+            github.event.deployment.environment == (vars.INDEXNOW_ENVIRONMENT || 'Production')) ||
+           (github.event_name == 'workflow_dispatch' && inputs.mode == 'submit')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ github.event_name == 'workflow_dispatch' && 'indexnow-approval' || 'indexnow-production' }}
+    permissions:
+      contents: write
+      deployments: read
+    concurrency:
+      group: indexnow-production
+      cancel-in-progress: false
+    steps:
+      # Execute trusted default-branch tooling, never a deployment SHA/PR ref.
+      - uses: actions/checkout@v4
+        with:
+          repository: nervosnetwork/nervos-official-website
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify release, submit changes, and save durable state
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOYMENT_ID: ${{ github.event_name == 'deployment_status' && github.event.deployment.id || inputs.deployment_id }}
+          REQUESTED_SCOPE: ${{ github.event_name == 'workflow_dispatch' && inputs.scope || '' }}
+          APPROVE_PLAN: ${{ github.event_name == 'workflow_dispatch' && inputs.approve_plan || '' }}
+          RETRY_INCOMPLETE: ${{ github.event_name == 'workflow_dispatch' && inputs.retry_incomplete || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$DEPLOYMENT_ID" ]]; then
+            echo 'A successful Production deployment ID is required for submit.' >&2
+            exit 1
+          fi
+          args=(--mode submit --deployment-id "$DEPLOYMENT_ID" --output indexnow-output)
+          if [[ -n "$REQUESTED_SCOPE" ]]; then args+=(--scope "$REQUESTED_SCOPE"); fi
+          if [[ -n "$APPROVE_PLAN" ]]; then args+=(--approve-plan "$APPROVE_PLAN"); fi
+          if [[ "$RETRY_INCOMPLETE" == 'true' ]]; then args+=(--retry-incomplete); fi
+          node scripts/indexnow-deploy.mjs "${args[@]}"
+      - name: Save notification plan and receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexnow-submit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: indexnow-output/
+          if-no-files-found: ignore
+          retention-days: 90

@@ -27,7 +27,7 @@ test('website build and validation run the content repository checker first', ()
   assert.ok(scripts.build.startsWith(command + ' && '))
   assert.equal(
     scripts.build.slice(command.length + 4),
-    'node ./scripts/generate-articles.mjs && node scripts/generate-sitemap.mjs && next build',
+    'node ./scripts/generate-articles.mjs && node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next build',
   )
 })
 

@@ -22,6 +22,9 @@
 /.next-kb-validation/
 /out/
 /public/sitemap.xml
+/public/indexnow-manifest.json
+/public/indexnow-release.json
+/indexnow-output/
 next-env.d.ts
 
 # production
