@@ -10,7 +10,7 @@ const ts = require('typescript')
 
 const source = fs.readFileSync(new URL('./ContentArticle.tsx', import.meta.url), 'utf8')
 
-function renderArticle() {
+function renderArticle({ eligible = false, variant = 'A', preview = false } = {}) {
   const events = []
   const scrolls = []
   const hashes = []
@@ -33,9 +33,14 @@ function renderArticle() {
     'rehype-sanitize': { defaultSchema: {} },
     './Home': { Icon: () => null, PreviewNotice: () => null },
     './Shared': { PreviewPage: 'main', DiscoverBanner: () => null, useActiveSection: () => '' },
-    './Components': { ArticleCard },
+    './Components': { ArticleCard, ArrowButton: 'a' },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
     '../Header/KnowledgeHeader': { LanguageToggle: () => null },
+    './article-discover-experiment': {
+      ARTICLE_DISCOVER_DESKTOP_QUERY: '(min-width: 1024px)',
+      ARTICLE_DISCOVER_EXPERIMENT_ID: 'article_discover_placement_v1',
+      initializeArticleDiscoverExperiment: () => ({ variant, preview }),
+    },
     './reading-progress': { readingProgress: () => 0 },
     './ArticleLanguageLink': { ArticleLanguageLink: 'a', ArticleContentLink: 'a' },
     './content': { articlePath: article => article.canonicalPath, formatArticleDate: () => 'Existing date' },
@@ -52,11 +57,16 @@ function renderArticle() {
   vm.runInNewContext(outputText, {
     exports,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       assert.ok(Object.hasOwn(imports, name), `Unexpected dependency: ${name}`)
       return imports[name]
     },
     document: { getElementById: id => ({ scrollIntoView: options => scrolls.push({ id, ...options }) }) },
-    window: { history: { replaceState: (_state, _title, hash) => hashes.push(hash) } },
+    window: {
+      history: { replaceState: (_state, _title, hash) => hashes.push(hash) },
+      matchMedia: () => ({ matches: eligible }),
+    },
   })
   const article = {
     id: 'current_article',
@@ -94,8 +104,63 @@ function renderArticle() {
       hub: null,
     }),
   )
-  return { tree, ArticleCard, events, scrolls, hashes }
+  const headerExports = {}
+  vm.runInNewContext(
+    ts.transpileModule(fs.readFileSync(new URL('../Header/KnowledgeHeader.tsx', import.meta.url), 'utf8'), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
+    }).outputText,
+    {
+      exports: headerExports,
+      require: name => {
+        if (name.endsWith('/utils/breakpoints'))
+          return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
+        if (name.endsWith('.svg')) return { default: () => null }
+        if (name.endsWith('.module.scss')) return { default: {} }
+        if (name === 'next-i18next') return { useTranslation: () => ({ t: (key, fallback) => fallback ?? key }) }
+        if (name === '@headlessui/react') return {}
+        if (name === '../KnowledgeHub/Icon') return { Icon: () => null }
+        if (name === '../KnowledgeHub/analytics') return imports['./analytics']
+        if (name === '../KnowledgeHub/content') return imports['./content']
+        if (name === '../KnowledgeHub/article-language') return {}
+        if (name === './navigation-current') return { navigationCurrent: () => undefined }
+        assert.ok(Object.hasOwn(imports, name), `Unexpected header dependency: ${name}`)
+        return imports[name]
+      },
+    },
+  )
+  const headerTree = nodes(headerExports.KnowledgeHeader({ articleLanguage: article }))
+  return { tree, headerTree, ArticleCard, DiscoverBanner: imports['./Shared'].DiscoverBanner, events, scrolls, hashes }
 }
+
+test('article Discover clicks attach the variant and responsive layout outside previews', () => {
+  for (const settings of [
+    { eligible: true, variant: 'A', preview: false },
+    { eligible: true, variant: 'B', preview: false },
+    { eligible: false, variant: 'B', preview: false },
+    { eligible: true, variant: 'B', preview: true },
+  ]) {
+    const { tree, events, DiscoverBanner } = renderArticle(settings)
+    tree.filter(node => node.type === DiscoverBanner).forEach(node => node.props.onDiscoverClick())
+    assert.deepEqual(
+      events.map(event => ({ ...event })),
+      ['article_mobile_banner', 'article_bottom_banner', 'article_right_banner'].map(placement => ({
+        name: 'kb_cta_click',
+        data: {
+          cta_id: 'discover_ckb',
+          placement,
+          ...(!settings.preview
+            ? {
+                experiment_id: 'article_discover_placement_v1',
+                variant: settings.variant,
+                article_id: 'current_article',
+                layout: settings.eligible ? 'desktop' : 'inline',
+              }
+            : {}),
+        },
+      })),
+    )
+  }
+})
 
 test('desktop and mobile TOC clicks include editorial heading text and native section anchors', () => {
   const { tree, events, scrolls, hashes } = renderArticle()
@@ -110,7 +175,7 @@ test('desktop and mobile TOC clicks include editorial heading text and native se
   )
   assert.deepEqual(
     events,
-    ['mobile', 'desktop'].map(placement => ({
+    ['desktop', 'mobile'].map(placement => ({
       name: 'kb_toc_click',
       data: { article_id: 'current_article', section_index: 2, heading_text: 'How does it work?', placement },
     })),
@@ -129,24 +194,17 @@ test('article recommendations carry their own Hub and one-based displayed positi
       { placement: 'more_from_ckb', position: 2, hub_id: undefined },
     ],
   )
-  const recentLinks = tree.filter(node => node.type === 'a' && node.props.href?.startsWith('/knowledge-base/related_'))
-  assert.equal(recentLinks.length, 4, 'Recent posts are retained in both remote mobile and desktop placements')
-  recentLinks.slice(0, 2).forEach(link => link.props.onClick())
-  assert.deepEqual(events, [
-    {
-      name: 'kb_article_click',
-      data: { article_id: 'related_one', placement: 'recent_posts', position: 1, hub_id: 'nervos-ckb' },
-    },
-    {
-      name: 'kb_article_click',
-      data: { article_id: 'related_two', placement: 'recent_posts', position: 2, hub_id: undefined },
-    },
-  ])
+  assert.equal(
+    tree.filter(node => node.type === 'a' && node.props.href?.startsWith('/knowledge-base/related_')).length,
+    0,
+    'The new layout removes the recent-post sidebar',
+  )
+  assert.deepEqual(events, [])
 })
 
 test('Write an article reports the same fixed resource URL as its unchanged link destination', () => {
-  const { tree, events } = renderArticle()
-  const link = tree.find(
+  const { headerTree, events } = renderArticle()
+  const link = headerTree.find(
     node => node.type === 'a' && node.props.href === 'https://github.com/NervosEducationHub/EducationHubArticles',
   )
   link.props.onClick()

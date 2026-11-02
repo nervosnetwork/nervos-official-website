@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import 'src/styles/variables.module';
 @import 'src/components/Header/index.module';
 
@@ -33,12 +34,12 @@
 
 .headerMenu {
   display: flex;
-  gap: 40px;
+  gap: clamp(16px, 2vw, 40px);
   align-items: center;
   font-weight: 600;
   font-size: 1rem;
 
-  @media (width <= 1100px) {
+  @media (width <= #{screens.$tabletMax}) {
     display: none;
   }
 }
@@ -270,7 +271,7 @@
   max-width: 100%;
   overflow: hidden;
 
-  @media (width <= 1000px) {
+  @media (width <= #{screens.$tabletMax}) {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -326,7 +327,7 @@
     gap: 30px;
   }
 
-  @media (width <= 1200px) {
+  @media (width <= #{screens.$tabletMax}) {
     gap: 60px;
   }
 
@@ -359,7 +360,7 @@
       }
     }
 
-    @media (width <= 1200px) {
+    @media (width <= #{screens.$tabletMax}) {
       margin: 0 -10px;
 
       a {

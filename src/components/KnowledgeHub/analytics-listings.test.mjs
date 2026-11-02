@@ -27,7 +27,7 @@ function loadComponent(filename, options = {}) {
     react: {
       useState: value => [options.states?.[stateIndex++] ?? value, () => undefined],
       useEffect: callback => options.effects !== false && callback(),
-      useRef: () => ref,
+      useRef: value => (value === false ? ref : { current: value }),
     },
     'react/jsx-runtime': require('react/jsx-runtime'),
     clsx: { default: (...values) => values.filter(Boolean).join(' ') },
@@ -86,6 +86,9 @@ function loadComponent(filename, options = {}) {
       }
     },
     require: name => {
+      if (name.endsWith('.module.scss')) return { default: {} }
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       assert.ok(Object.hasOwn(imports, name), `Unexpected listing dependency: ${name}`)
       return imports[name]
     },
@@ -136,6 +139,26 @@ test('grid controls only emit layout events for actual changes and preserve the 
   assert.deepEqual(events, [{ name: 'kb_layout_change', data: { placement: 'archive', layout: 'grid', columns: 5 } }])
 })
 
+test('hub layout controls offer two or three columns and reset to three', () => {
+  const { exports, events } = loadComponent('ArticleGridControls.tsx')
+  const changes = []
+  const tree = exports.ArticleGridControls({
+    density: 3,
+    pageType: 'hub',
+    placement: 'topic',
+    onDensityChange: value => changes.push(value),
+  })
+  const range = nodes(tree).find(node => node.props?.type === 'range')
+  assert.equal(range.props.min, 2)
+  assert.equal(range.props.max, 3)
+  range.props.onChange({ target: { value: '2' } })
+  nodes(tree)
+    .find(node => node.props?.['aria-label'] === 'Reset to three cards per row')
+    .props.onClick()
+  assert.deepEqual(changes, [2, 3])
+  assert.deepEqual(events, [{ name: 'kb_layout_change', data: { placement: 'topic', layout: 'grid', columns: 2 } }])
+})
+
 test('Filter counts closed-to-open transitions, including keyboard-driven state, not rerenders or closing', () => {
   const { exports, events } = loadComponent('ArticleGridControls.tsx')
   const tree = exports.ArticleGridControls({
@@ -175,12 +198,31 @@ test('topic subject selection skips the current subject and article cards retain
   const toolbar = nodes(tree).find(node => node.type === 'ArticleGridControls')
   assert.equal(toolbar.props.pageType, 'hub')
   assert.equal(toolbar.props.hubId, 'hub-one')
+  assert.equal(nodes(tree).find(node => node.type === 'RelatedHubs').props.currentHubId, 'hub-one')
+})
+
+test('Related hubs offers three distinct valid destinations and excludes every current hub', () => {
+  for (const current of kbHubs.KB_HUBS) {
+    const { exports, events } = loadComponent('Shared.tsx')
+    const tree = exports.RelatedHubs({ revision: true, currentHubId: current.id })
+    const links = nodes(tree).filter(node => node.type === 'ArrowButton')
+    assert.equal(links.length, 3)
+    assert.equal(new Set(links.map(node => node.props.href)).size, 3)
+    assert.ok(links.every(node => node.props.href !== kbHubs.kbHubPath(current.id)))
+    for (const link of links) {
+      const target = kbHubs.KB_HUBS.find(hub => kbHubs.kbHubPath(hub.id) === link.props.href)
+      assert.ok(target, `Unknown hub URL: ${link.props.href}`)
+      assert.equal(link.props.children, target.name)
+      link.props.onClick()
+      assert.equal(events.at(-1).data.hub_id, target.id)
+    }
+  }
 })
 
 test('archive pagination records destination page without changing existing URLs', () => {
   const { exports, events } = loadComponent('ArticleArchive.tsx')
   const tree = exports.ArticleArchive({ catalog, page: 2, total: 80 })
-  const links = nodes(tree).filter(node => node.type === 'a')
+  const links = nodes(tree).filter(node => node.type === 'a' || node.type === 'ArrowButton')
   assert.equal(events.length, 0)
   assert.deepEqual(
     links.map(node => node.props.href),
@@ -352,7 +394,7 @@ test('resource events carry the existing link destination and guide steps carry 
   const guide = loadComponent('StartHere.tsx', { effects: false })
   const steps = nodes(guide.exports.StartHere({ catalog })).filter(node => node.type === 'SubjectCard')
   const { guideSteps } = loadGuideSteps()
-  assert.equal(steps.length, 4)
+  assert.equal(steps.length, 5)
   steps.forEach((step, index) => {
     assert.equal(step.props.title, guideSteps[index].navTitle)
     step.props.onClick()

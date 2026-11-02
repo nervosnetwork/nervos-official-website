@@ -261,6 +261,48 @@ test('footer documentation, GitHub and explorer resources map to the agreed GA r
   }
 })
 
+test('article experiment exposures and Discover clicks carry the same variant in GA4 and Umami', () => {
+  const analytics = bridge()
+  const context = {
+    experiment_id: 'article_discover_placement_v1',
+    variant: 'B',
+    article_id: 'what_is_ckb',
+    layout: 'inline',
+  }
+  analytics.trackKBEvent('kb_experiment_view', { ...context, unknown_property: 'private-secret' })
+  analytics.trackKBEvent('kb_cta_click', { ...context, cta_id: 'discover_ckb', placement: 'article_right_banner' })
+  assert.deepEqual(analytics.events(), [
+    [
+      'event',
+      'kb_experiment_view',
+      {
+        ...commonPayload,
+        experiment_id: context.experiment_id,
+        variant: 'B',
+        article_slug: 'what_is_ckb',
+        layout: 'inline',
+      },
+    ],
+    [
+      'event',
+      'kb_cta_click',
+      {
+        ...commonPayload,
+        experiment_id: context.experiment_id,
+        variant: 'B',
+        article_slug: 'what_is_ckb',
+        cta_name: 'discover_ckb',
+        cta_location: 'article_right_banner',
+        layout: 'inline',
+      },
+    ],
+  ])
+  assert.deepEqual(
+    analytics.umamiEvents.map(event => event.data),
+    [context, { ...context, cta_id: 'discover_ckb', placement: 'article_right_banner' }],
+  )
+})
+
 test('newsletter result diagnostics never go to GA but remain in production Umami', () => {
   const analytics = bridge()
   for (const outcome of ['accepted', 'error']) {

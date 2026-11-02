@@ -12,14 +12,17 @@ const shared = fs.readFileSync(path.join(__dirname, 'Shared.tsx'), 'utf8')
 const home = fs.readFileSync(path.join(__dirname, 'Home.tsx'), 'utf8')
 const guideData = fs.readFileSync(path.join(__dirname, 'guide-data.ts'), 'utf8')
 
-test('Start Here keeps only four steps and excludes the removed Try it & build step', () => {
-  assert.match(page, /in four steps/)
-  assert.doesNotMatch(page, /in five steps/)
+test('Start Here restores all five steps including Try it & build', () => {
+  assert.match(page, /Understand Nervos CKB in/)
+  assert.match(page, /five steps\b/)
+  assert.doesNotMatch(page, /in four steps/)
   assert.deepEqual(
     [...guideData.matchAll(/id: 'step-(\d+)'/g)].map(match => Number(match[1])),
-    [1, 2, 3, 4],
+    [1, 2, 3, 4, 5],
   )
-  assert.doesNotMatch(guideData, /step-5|Try it & build|Make your next move/)
+  assert.match(guideData, /id: 'step-5'/)
+  assert.match(guideData, /title: 'Make your next move'/)
+  assert.match(guideData, /navTitle: 'Try it & build'/)
 })
 
 test('hero fade progress is clamped across the scroll range', () => {
@@ -33,29 +36,34 @@ test('hero fade progress is clamped across the scroll range', () => {
   assert.equal(getHeroFade(500), 1)
 })
 
-test('start page keeps its navigation rails sticky and lifts step cards', () => {
-  assert.match(page, /className=\{styles\.breadcrumbDock\}/)
-  assert.match(page, /className=\{styles\.stepsRail\}/)
-  assert.match(page, /--heroFade/)
-  assert.match(pageStyles, /\.page \.scrollingHeader[\s\S]*?position:\s*relative/)
-  assert.match(pageStyles, /\.breadcrumbDock[\s\S]*?position:\s*sticky/)
-  assert.match(pageStyles, /\.stepsRail[\s\S]*?position:\s*sticky/)
-  assert.match(componentStyles, /\.subject:is\(:hover, :focus-visible\)[\s\S]*?translateY\(-4px\)/)
+test('guide uses a two-column layout with compact navigation and unchanged step cards', () => {
+  assert.match(page, /className=\{styles\.twoColumnLayout\}/)
+  assert.match(page, /<aside className=\{clsx\(styles\.layoutSidebar, styles\.stepSidebar\)\} ref=\{sidebarRef\}>/)
+  assert.match(page, /<div className=\{styles\.layoutContent\}>/)
+  assert.match(pageStyles, /\.twoColumnLayout\s*\{[^}]*grid-template-columns:\s*280px minmax\(0, 1fr\)/)
+  assert.match(page, /<SubjectCard\s+key=\{step\.id\}\s+compact/)
+  assert.match(page, /<StepSection\s+key=\{step\.id\}/)
+  assert.match(pageStyles, /\.layoutSidebar\.stepSidebar\s*\{[^}]*margin-bottom:\s*80px/)
 })
 
-test('desktop sticky breadcrumb and rail keep their existing measured offsets', () => {
-  assert.match(pageStyles, /\.breadcrumbDock\s*\{[\s\S]*?top:\s*0/)
-  assert.match(pageStyles, /\.stepsRail\s*\{[\s\S]*?top:\s*var\(--breadcrumbHeight, 55px\)/)
-  assert.doesNotMatch(pageStyles, /\.breadcrumbDock\s*\{[^}]*padding-top:\s*(?:[2-9]\d|\d{3,})px/)
+test('selection navigation stays sticky while the navbar, hero and breadcrumbs scroll normally', () => {
+  assert.match(page, /headerClassName=\{styles\.scrollingHeader\}/)
+  assert.match(pageStyles, /\.page \.scrollingHeader\s*\{[^}]*position:\s*relative/)
+  assert.match(pageStyles, /\.twoColumnPage \.breadcrumbDock\s*\{\s*position:\s*static/)
+  assert.match(pageStyles, /\.layoutSidebar\s*\{[^}]*position:\s*sticky;[^}]*top:\s*16px/)
+  assert.match(pageStyles, /\.breadcrumbDock\s*\{[^}]*padding-top:\s*0/)
+  assert.match(pageStyles, /\.twoColumnPage :is\(\.startHeroCopy, \.topicHero\)\s*\{[^}]*opacity:\s*1/)
+  assert.doesNotMatch(page, /useHeroScroll|styles\.stepsRail|--heroFade|--stepsRailHeight/)
 })
 
-test('mobile steps use the measured rail for anchor offsets and keep the selected step visible', () => {
-  assert.match(pageStyles, /\.breadcrumbDock\s*\{\s*position:\s*static/)
-  assert.match(pageStyles, /\.stepsRail\s*\{\s*top:\s*0/)
-  assert.match(pageStyles, /scroll-margin-top:\s*calc\(var\(--stepsRailHeight, 152px\) \+ 16px\)/)
-  assert.match(page, /--stepsRailHeight/)
-  assert.match(page, /nav\.scrollTo/)
+test('mobile navigation scrolls horizontally and step anchors clear the sticky selection row', () => {
+  assert.match(pageStyles, /scroll-margin-top:\s*24px/)
+  assert.match(
+    pageStyles,
+    /\.layoutSidebar :is\(\.stepNav, \.subjectNav\)\s*\{[^}]*grid-auto-flow:\s*column;[^}]*overflow-x:\s*auto/,
+  )
   assert.match(shared, /getComputedStyle\(node\)\.scrollMarginTop/)
+  assert.match(pageStyles, /scroll-margin-top:\s*calc\(var\(--selectionRailHeight, 100px\) \+ 16px\)/)
 })
 
 test('related hubs and all-articles use the shared arrow button interaction', () => {

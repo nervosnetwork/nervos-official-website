@@ -20,6 +20,8 @@ function load(file, imports = {}, globals = {}) {
     URL,
     ...globals,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       if (name === 'react/jsx-runtime') return require(name)
       if (name.endsWith('.module.scss')) return { default: styles }
       if (name.endsWith('.svg')) return { default: () => null }
@@ -80,8 +82,8 @@ test('remote desktop language UI uses real EN/ZH links without placeholders or d
   for (const [language, available, expected] of [
     ['en', ['en', 'zh', 'es'], ['en', 'zh']],
     ['zh', ['en', 'zh'], ['en', 'zh']],
-    ['en', ['en'], ['en']],
-    ['zh', ['zh'], ['zh']],
+    ['en', ['en'], []],
+    ['zh', ['zh'], []],
     ['es', ['es'], []],
   ]) {
     const tree = LanguageToggle({ article: article(language, available) })
@@ -99,6 +101,7 @@ test('remote desktop language UI uses real EN/ZH links without placeholders or d
     }
   }
   assert.equal(LanguageToggle({}), null)
+  assert.equal(LanguageToggle({ article: article('en', ['en']) }), null)
 })
 
 test('desktop language links persist a choice for normal and middle clicks, not context-menu clicks', () => {
@@ -132,13 +135,11 @@ test('remote mobile menu language radios keep the current language and navigate 
   assert.equal(closed, 1)
   assert.deepEqual(JSON.parse(JSON.stringify(routes)), [['/knowledge-base/existing_article', null, { locale: 'en' }]])
   const englishOnly = LanguageRadioGroup({ article: article('en', ['en']) })
-  const englishInput = nodes(englishOnly).filter(node => node.type === 'input')
-  assert.deepEqual(
-    englishInput.map(node => node.props.value),
-    ['en'],
-  )
+  assert.equal(englishOnly, null)
   language.setArticleLanguagePreference('zh')
-  englishInput[0].props.onClick()
-  assert.equal(language.getArticleLanguagePreference(), 'en', 'Selecting active EN resets the saved Chinese choice')
+  const bilingual = LanguageRadioGroup({ article: article('en') })
+  const englishInput = nodes(bilingual).find(node => node.type === 'input' && node.props.value === 'en')
+  englishInput.props.onClick()
+  assert.equal(language.getArticleLanguagePreference(), 'en', 'Selecting active EN saves the explicit choice')
   assert.equal(LanguageRadioGroup({}), null)
 })

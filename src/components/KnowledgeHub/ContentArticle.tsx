@@ -7,26 +7,32 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
-import { Icon, PreviewNotice } from './Home'
+import { Icon } from './Home'
 import { PreviewPage, DiscoverBanner, useActiveSection } from './Shared'
-import { ArticleCard } from './Components'
-import { KBArticle, KBCatalog, articlePath, formatArticleDate } from './content'
+import { ArrowButton, ArticleCard } from './Components'
+import { KBArticle, KBCatalog, formatArticleDate } from './content'
 import styles from './article-v2.module.scss'
 import contentStyles from './pages-v2.module.scss'
 import { headingPlugin } from './markdown-headings'
-import { articleSocialActionsEnabled } from './article-features'
 import { trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
 import type { KBImageDimensions } from '../../server/kb-images'
-import { ArticleContentLink, ArticleLanguageLink } from './ArticleLanguageLink'
-import { LanguageToggle } from '../Header/KnowledgeHeader'
+import { ArticleContentLink } from './ArticleLanguageLink'
 import { readingProgress } from './reading-progress'
+import {
+  ARTICLE_DISCOVER_DESKTOP_QUERY,
+  ARTICLE_DISCOVER_EXPERIMENT_ID,
+  initializeArticleDiscoverExperiment,
+  type ArticleDiscoverVariant,
+} from './article-discover-experiment'
+
+// TODO: Restore article likes once real counts and persisted votes are available.
+const articleLikesEnabled = false
 
 export function ContentArticle({
   article,
   markdown,
-  related,
-  recent = [],
+  related = [],
   hub,
   subjects,
   headings,
@@ -36,8 +42,7 @@ export function ContentArticle({
 }: {
   article: KBArticle
   markdown: string
-  related: KBArticle[]
-  recent?: KBArticle[]
+  related?: KBArticle[]
   hub: KBCatalog['hubs'][number] | null
   subjects: KBCatalog['subjects']
   headings: { id: string; label: string; depth: number }[]
@@ -46,32 +51,145 @@ export function ContentArticle({
   languagesByArticle?: Record<string, string[]>
 }) {
   const router = useRouter()
+  const experimentPath = (router.asPath ?? article.id).split('#')[0] || article.id
+  const [experiment, setExperiment] = useState<{
+    variant: ArticleDiscoverVariant
+    preview: boolean
+    path: string
+  } | null>(null)
+  const experimentViewRef = useRef('')
+  useEffect(() => {
+    setExperiment({ ...initializeArticleDiscoverExperiment(), path: experimentPath })
+  }, [experimentPath])
+  useEffect(() => {
+    if (!experiment || experiment.preview || experiment.path !== experimentPath) return
+    const media = window.matchMedia(ARTICLE_DISCOVER_DESKTOP_QUERY)
+    const expose = () => {
+      const layout = media.matches ? 'desktop' : 'inline'
+      const key = `${experimentPath}:${experiment.variant}:${layout}`
+      if (experimentViewRef.current === key) return
+      experimentViewRef.current = key
+      trackKBEvent('kb_experiment_view', {
+        experiment_id: ARTICLE_DISCOVER_EXPERIMENT_ID,
+        variant: experiment.variant,
+        article_id: article.id,
+        layout,
+      })
+    }
+    expose()
+    media.addEventListener('change', expose)
+    return () => media.removeEventListener('change', expose)
+  }, [article.id, experiment, experimentPath])
+  const trackDiscover = (placement: string) => {
+    const assignment = typeof window !== 'undefined' ? initializeArticleDiscoverExperiment() : null
+    trackKBEvent('kb_cta_click', {
+      cta_id: 'discover_ckb',
+      placement,
+      ...(assignment && !assignment.preview
+        ? {
+            experiment_id: ARTICLE_DISCOVER_EXPERIMENT_ID,
+            variant: assignment.variant,
+            article_id: article.id,
+            layout: window.matchMedia?.(ARTICLE_DISCOVER_DESKTOP_QUERY).matches ? 'desktop' : 'inline',
+          }
+        : {}),
+    })
+  }
   const contents = headings.map(heading => ({ ...heading, id: `user-content-${heading.id}` }))
   const mobileContents = contents.filter(heading => heading.depth === 2)
-  const active = useActiveSection(contents.map(item => item.id))
-  const [notice, setNotice] = useState('')
-  const navRef = useRef<HTMLDivElement>(null)
+  const active = useActiveSection(
+    contents.map(item => item.id),
+    true,
+    true,
+  )
+  const desktopContents: { heading: (typeof contents)[number]; children: typeof contents }[] = []
+  for (const heading of contents) {
+    // Markdown H1s are rendered as H2s. Keep orphan headings navigable when
+    // an article starts at a lower level or has no top-level sections.
+    const parent = desktopContents[desktopContents.length - 1]
+    if (heading.depth <= 2 || !parent) desktopContents.push({ heading, children: [] })
+    else parent.children.push(heading)
+  }
+  const activeGroup = desktopContents.find(
+    group => group.heading.id === active || group.children.some(heading => heading.id === active),
+  )
+  const trackDesktopSection = (item: (typeof contents)[number]) =>
+    trackKBEvent('kb_toc_click', {
+      article_id: article.id,
+      section_index: contents.findIndex(heading => heading.id === item.id) + 1,
+      heading_text: item.label,
+      placement: 'desktop',
+    })
+  const [liked, setLiked] = useState(false)
+  const headerRef = useRef<HTMLDivElement>(null)
   const articleRef = useRef<HTMLElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
+  const bottomDiscoverRef = useRef<HTMLDivElement>(null)
+  const [bottomDiscoverReached, setBottomDiscoverReached] = useState(false)
+  const contentsRef = useRef<HTMLElement>(null)
+  const contentsMarkerRef = useRef<HTMLLIElement>(null)
   const [progress, setProgress] = useState(0)
-  const [navHeight, setNavHeight] = useState(80)
+  const [navHeight, setNavHeight] = useState(64)
+  useEffect(() => {
+    const nav = contentsRef.current
+    const marker = contentsMarkerRef.current
+    if (!nav || !marker) return
+    if (!active) {
+      marker.removeAttribute('data-visible')
+      return
+    }
+    const list = nav.querySelector('ol')
+    if (!list) return
+    const revealActive = () => {
+      const link = nav.querySelector<HTMLElement>('[aria-current="location"]')
+      if (!link || !nav.clientHeight) return
+      const previousTop = marker.getBoundingClientRect().top
+      const bounds = nav.getBoundingClientRect()
+      const item = link.getBoundingClientRect()
+      if (item.top < bounds.top + 8) nav.scrollTop += item.top - bounds.top - 8
+      else if (item.bottom > bounds.bottom - 8) nav.scrollTop += item.bottom - bounds.bottom + 8
+
+      const trackTop = list.getBoundingClientRect().top
+      const target = link.getBoundingClientRect().top - trackTop + 13
+      // Keep both ends of the motion inside the visible scrollport, including
+      // when the TOC scrolls to reveal a distant section or expands children.
+      const start = Math.max(bounds.top + 8, Math.min(previousTop, bounds.bottom - 13)) - trackTop
+      const visible = marker.dataset.visible === 'true'
+      marker.getAnimations().forEach(animation => animation.cancel())
+      marker.style.transform = `translateY(${target}px)`
+      marker.dataset.visible = 'true'
+      if (visible && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && Math.abs(start - target) > 0.5)
+        marker.animate([{ transform: `translateY(${start}px)` }, { transform: `translateY(${target}px)` }], {
+          duration: 260,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        })
+    }
+    revealActive()
+    // Expansion changes the active entry's position over several animation frames.
+    const observer = new ResizeObserver(revealActive)
+    observer.observe(nav)
+    observer.observe(list)
+    return () => observer.disconnect()
+  }, [active])
   useEffect(() => {
     const observer = new ResizeObserver(() => {
-      if (navRef.current) setNavHeight(navRef.current.getBoundingClientRect().height)
+      if (headerRef.current) setNavHeight(headerRef.current.getBoundingClientRect().height)
     })
-    if (navRef.current) observer.observe(navRef.current)
+    if (headerRef.current) observer.observe(headerRef.current)
     return () => observer.disconnect()
   }, [])
   useEffect(() => {
     let frame = 0
     const update = () => {
-      if (!articleRef.current || !textRef.current || !navRef.current) return
+      if (!articleRef.current || !textRef.current || !headerRef.current) return
+      if (bottomDiscoverRef.current)
+        setBottomDiscoverReached(bottomDiscoverRef.current.getBoundingClientRect().top < window.innerHeight)
       setProgress(
         readingProgress(
           articleRef.current.getBoundingClientRect().top,
           textRef.current.getBoundingClientRect().bottom,
           window.innerHeight,
-          (navRef.current.getBoundingClientRect().height || 56) + 2,
+          (headerRef.current.getBoundingClientRect().height || 56) + 2,
         ),
       )
     }
@@ -80,7 +198,7 @@ export function ContentArticle({
       frame = requestAnimationFrame(update)
     }
     const observer = new ResizeObserver(schedule)
-    for (const element of [articleRef.current, textRef.current, navRef.current]) {
+    for (const element of [articleRef.current, textRef.current, headerRef.current]) {
       if (element) observer.observe(element)
     }
     update()
@@ -123,7 +241,7 @@ export function ContentArticle({
     // Match the existing reading-column breakpoints; width/height preserve
     // intrinsic layout, while sizes controls only the downloaded resource.
     const cap = Math.min(dimensions.width, hero ? 650 : 690)
-    const sizes = `(max-width: 900px) min(calc(100vw - 40px), ${cap}px), (max-width: 1100px) min(calc(100vw - 364px), ${cap}px), min(calc(100vw - 472px), ${cap}px)`
+    const sizes = `(max-width: 1023px) min(calc(100vw - 40px), ${cap}px), min(calc(100vw - 354px), ${cap}px)`
     return (
       <Image
         src={src}
@@ -140,34 +258,15 @@ export function ContentArticle({
       />
     )
   }
-  const recentPosts = (
-    <>
-      <h2>Recent posts:</h2>
-      <div className={styles.recentPosts}>
-        {recent.map((item, index) => (
-          <ArticleLanguageLink
-            key={item.id}
-            article={item}
-            href={articlePath(item)}
-            onClick={() =>
-              trackKBEvent('kb_article_click', {
-                article_id: item.id,
-                placement: 'recent_posts',
-                position: index + 1,
-                hub_id: item.hub ?? undefined,
-              })
-            }
-          >
-            {item.title}
-            <span className={styles.recentPostArrow} aria-hidden="true">
-              {' '}
-              →
-            </span>
-          </ArticleLanguageLink>
-        ))}
-      </div>
-    </>
-  )
+  const shareUrl = encodeURIComponent(`https://www.nervos.org${article.canonicalPath}`)
+  const shareTitle = encodeURIComponent(article.title)
+  const shareLinks = [
+    { name: 'Twitter', icon: 'twitter', href: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}` },
+    { name: 'LinkedIn', icon: 'linkedin', href: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}` },
+    { name: 'Reddit', icon: 'reddit', href: `https://www.reddit.com/submit?url=${shareUrl}&title=${shareTitle}` },
+    { name: 'Facebook', icon: 'facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}` },
+  ]
+  useEffect(() => setLiked(false), [article.id])
   const categoryTags = hub && (
     <div className={styles.categories}>
       <button
@@ -207,6 +306,7 @@ export function ContentArticle({
       articleNavigation
       readingProgress={progress}
       articleLanguage={article}
+      headerRef={headerRef}
       preview={preview}
       canonicalPath={article.canonicalPath}
       openGraph={{
@@ -225,48 +325,70 @@ export function ContentArticle({
       }}
     >
       <div className={styles.articlePage} style={{ '--articleNavHeight': `${navHeight}px` } as CSSProperties}>
-        <div className={styles.articleNav} ref={navRef}>
-          <Link href="/knowledge-base" locale="en" className={styles.articleBrand}>
-            <span>
-              <Icon name="articleNav-imgGroup" size={28} />
-            </span>
-            <div>
-              <strong>Knowledge Base</strong>
-              <br />
-              Education Hub
-            </div>
-          </Link>
-          <div className={styles.articleNavActions}>
-            <a
-              className={styles.writeArticle}
-              href="https://github.com/NervosEducationHub/EducationHubArticles"
-              onClick={() =>
-                trackKBEvent('kb_resource_click', {
-                  resource_id: 'write_article',
-                  placement: 'article_nav',
-                  link_url: 'https://github.com/NervosEducationHub/EducationHubArticles',
-                })
-              }
-            >
-              <span className={styles.writeArticleFace}>
-                <Icon name="articleNav-imgGroup1" size={19} />
-                Write an article
-              </span>
-            </a>
-            <LanguageToggle article={article} />
-          </div>
-          <div
-            className={styles.readingProgress}
-            role="progressbar"
-            aria-label="Article reading progress"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress}
-          >
-            <span style={{ transform: `scaleX(${progress / 100})` }} />
-          </div>
-        </div>
         <div className={styles.articleLayout}>
+          <aside className={styles.sidebar} aria-label="Article navigation">
+            <nav className={styles.stickyContents} aria-label="Table of contents" ref={contentsRef}>
+              {contents.length > 0 && (
+                <>
+                  <h2>Table of contents</h2>
+                  <ol className={styles.toc}>
+                    <li className={styles.tocMarker} ref={contentsMarkerRef} aria-hidden="true" role="presentation" />
+                    {desktopContents.map(({ heading, children }) => {
+                      const expanded = activeGroup?.heading.id === heading.id
+                      const childrenId = `${heading.id}-contents`
+                      return (
+                        <li key={heading.id}>
+                          <a
+                            href={`#${heading.id}`}
+                            aria-current={active === heading.id ? 'location' : undefined}
+                            aria-expanded={children.length ? expanded : undefined}
+                            aria-controls={children.length ? childrenId : undefined}
+                            onClick={() => trackDesktopSection(heading)}
+                          >
+                            {heading.label}
+                          </a>
+                          {children.length > 0 && (
+                            <div
+                              id={childrenId}
+                              className={styles.tocChildren}
+                              data-expanded={expanded}
+                              aria-hidden={!expanded}
+                            >
+                              <ol>
+                                {children.map(item => (
+                                  <li
+                                    key={item.id}
+                                    style={{ '--tocIndent': `${Math.max(1, item.depth - 2) * 12}px` } as CSSProperties}
+                                  >
+                                    <a
+                                      href={`#${item.id}`}
+                                      aria-current={active === item.id ? 'location' : undefined}
+                                      tabIndex={expanded ? undefined : -1}
+                                      onClick={() => trackDesktopSection(item)}
+                                    >
+                                      {item.label}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ol>
+                </>
+              )}
+              <Link
+                href="/knowledge-base/start-here"
+                locale="en"
+                className={styles.discoverSteps}
+                onClick={() => trackDiscover('article_sidebar')}
+              >
+                Discover CKB in 5 Steps
+              </Link>
+            </nav>
+          </aside>
           <article className={styles.articleBody} ref={articleRef}>
             <div className={styles.articleMeta}>
               <div className={clsx(styles.meta, styles.largeMeta)}>
@@ -282,8 +404,8 @@ export function ContentArticle({
             <header>
               <h1>{article.title}</h1>
               {article.subtitle && <p className={styles.subhead}>{article.subtitle}</p>}
+              {hub && <div className={styles.articleCategories}>{categoryTags}</div>}
             </header>
-            {hub && <div className={styles.mobileCategories}>{categoryTags}</div>}
             {mobileContents.length > 0 && (
               <nav className={styles.inlineContents} aria-label="On this page">
                 <h2>On this page:</h2>
@@ -308,6 +430,15 @@ export function ContentArticle({
                 </ul>
               </nav>
             )}
+            <div className={styles.mobileDiscover}>
+              <p>New to CKB? Start with the essentials.</p>
+              <Link href="/knowledge-base/start-here" locale="en" onClick={() => trackDiscover('article_mobile_intro')}>
+                Discover CKB in 5 Steps <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className={styles.mobileDiscoverBanner}>
+              <DiscoverBanner revision onDiscoverClick={() => trackDiscover('article_mobile_banner')} />
+            </div>
             {article.coverImage && renderImage(article.coverImage, article.title, true)}
             <div ref={textRef}>
               <ReactMarkdown
@@ -351,7 +482,45 @@ export function ContentArticle({
                 {markdown}
               </ReactMarkdown>
             </div>
-            {recent.length > 0 && <section className={styles.mobileRecentPosts}>{recentPosts}</section>}
+            <div className={styles.articleActions}>
+              {articleLikesEnabled && (
+                <button
+                  type="button"
+                  className={styles.likeButton}
+                  aria-label="Like this article"
+                  aria-pressed={liked}
+                  title="Like this article (sample count)"
+                  onClick={() => setLiked(value => !value)}
+                >
+                  <span className={styles.likeHeart} aria-hidden="true">
+                    <img src="/images/knowledge-hub/article-like.svg" width="12" height="10.6909" alt="" />
+                    <img
+                      className={styles.likeHeartFill}
+                      src="/images/knowledge-hub/article-like-filled.svg"
+                      width="12"
+                      height="10.6909"
+                      alt=""
+                    />
+                  </span>
+                  <span>{509 + Number(liked)}</span>
+                </button>
+              )}
+              <div className={styles.shareActions} role="group" aria-label="Share this article">
+                <span>Share</span>
+                {shareLinks.map(({ name, icon, href }) => (
+                  <a
+                    key={name}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Share on ${name}`}
+                    onClick={() => trackKBEvent('kb_social_click', { network: icon, placement: 'article_end' })}
+                  >
+                    <Image src={`/images/${icon}.svg`} width={20} height={20} alt="" unoptimized />
+                  </a>
+                ))}
+              </div>
+            </div>
             <div className={styles.ckbMark} aria-label="CKB">
               <span aria-hidden="true">
                 <Icon name="article-endmark" size={12} />
@@ -360,93 +529,45 @@ export function ContentArticle({
               <span>K</span>
               <span>B</span>
             </div>
-            <DiscoverBanner revision />
-            {related.length > 0 && (
-              <section className={styles.moreArticles} aria-labelledby="more-articles">
-                <h2 id="more-articles">More from CKB</h2>
-                {related.map((a, index) => (
-                  <ArticleCard
-                    key={a.id}
-                    article={a}
-                    imageSizes="(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 160px, 200px"
-                    title={a.title}
-                    horizontal
-                    analyticsContext={{ placement: 'more_from_ckb', position: index + 1, hub_id: a.hub ?? undefined }}
-                  />
-                ))}
-              </section>
-            )}
-          </article>
-          <aside className={styles.sidebar} aria-label="Article navigation and related content">
-            <DiscoverBanner compact revision />
-            {contents.length > 0 && (
-              <div className={styles.tocSlot}>
-                <nav className={styles.stickyContents} aria-label="Table of contents">
-                  <h2>Table of contents</h2>
-                  <ol className={styles.toc}>
-                    {contents.map((item, index) => (
-                      <li key={item.id}>
-                        <a
-                          href={`#${item.id}`}
-                          aria-current={active === item.id ? 'location' : undefined}
-                          onClick={() =>
-                            trackKBEvent('kb_toc_click', {
-                              article_id: article.id,
-                              section_index: index + 1,
-                              heading_text: item.label,
-                              placement: 'desktop',
-                            })
-                          }
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </nav>
+            <div ref={bottomDiscoverRef} data-discover-banner="bottom">
+              <DiscoverBanner revision onDiscoverClick={() => trackDiscover('article_bottom_banner')} />
+            </div>
+            <section className={styles.moreArticles} aria-labelledby="more-articles">
+              <h2 id="more-articles">More from CKB</h2>
+              {related.map((item, index) => (
+                <ArticleCard
+                  key={item.id}
+                  article={item}
+                  imageSizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1023px) 160px, 200px"
+                  title={item.title}
+                  horizontal
+                  analyticsContext={{ placement: 'more_from_ckb', position: index + 1, hub_id: item.hub ?? undefined }}
+                />
+              ))}
+              <div className={styles.allArticlesAction}>
+                <ArrowButton
+                  className={styles.allArticlesButton}
+                  href="/knowledge-base/articles"
+                  locale="en"
+                  onClick={() =>
+                    trackKBEvent('kb_cta_click', { cta_id: 'all_articles', placement: 'article_recommended' })
+                  }
+                >
+                  See all articles
+                </ArrowButton>
               </div>
-            )}
-            {recent.length > 0 && <section className={styles.desktopRecentPosts}>{recentPosts}</section>}
-            {hub && (
-              <section className={styles.desktopCategories}>
-                <h2>Categories:</h2>
-                {categoryTags}
-              </section>
-            )}
-            {articleSocialActionsEnabled && (
-              <section className={styles.sharing}>
-                <h2>Share this article:</h2>
-                <div className={styles.socials}>
-                  <Image
-                    src="/images/knowledge-hub/articleSidebar-imgFrame442.svg"
-                    width={140}
-                    height={20}
-                    alt=""
-                    unoptimized
-                  />
-                  {['Twitter', 'LinkedIn', 'Reddit', 'Facebook'].map(name => (
-                    <button
-                      key={name}
-                      aria-label={`Share on ${name}`}
-                      onClick={() =>
-                        setNotice(
-                          'Sharing is a visual preview until the final public article URLs are connected. Nothing has been posted.',
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-            {articleSocialActionsEnabled && (
-              <section className={styles.like}>
-                <h2>Like this post:</h2>
-                <button disabled title="Visual preview only — no live like service">
-                  <Icon name="articleSidebar-imgVector" size={12} />
-                  LIKE
-                </button>
-              </section>
-            )}
+            </section>
+          </article>
+          <aside className={styles.experimentSidebar} aria-label="Discover CKB">
+            <div
+              className={clsx(styles.stickyDiscover, bottomDiscoverReached && styles.discoverHidden)}
+              aria-hidden={bottomDiscoverReached}
+              ref={element => {
+                if (element) element.inert = bottomDiscoverReached
+              }}
+            >
+              <DiscoverBanner revision onDiscoverClick={() => trackDiscover('article_right_banner')} />
+            </div>
           </aside>
         </div>
       </div>
@@ -458,7 +579,6 @@ export function ContentArticle({
       >
         ↑
       </a>
-      <PreviewNotice notice={notice} onClose={() => setNotice('')} />
     </PreviewPage>
   )
 }

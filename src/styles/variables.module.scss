@@ -1,7 +1,11 @@
-$mobileBreakPoint: 750px;
-$wideBreakPoint: 1800px;
+@use './breakpoints' as screens;
+
+$mobileBreakPoint: screens.$mobileMax;
+$tabletBreakPoint: screens.$tabletMax;
+$desktopBreakPoint: screens.$desktopMin;
 
 :export {
   mobileBreakPoint: $mobileBreakPoint;
-  wideBreakPoint: $wideBreakPoint;
+  tabletBreakPoint: $tabletBreakPoint;
+  desktopBreakPoint: $desktopBreakPoint;
 }

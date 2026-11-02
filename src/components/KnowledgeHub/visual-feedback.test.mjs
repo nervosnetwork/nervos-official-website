@@ -82,7 +82,7 @@ test('desktop subject and step rails size to all cards while tablets keep scroll
   assert.equal(declaration(pageCss, selector, 'grid-auto-flow'), 'column')
   assert.equal(declaration(pageCss, selector, 'grid-auto-columns'), 'minmax(0, 1fr)')
   assert.equal(declaration(pageCss, selector, 'grid-template-columns'), 'none')
-  assert.equal(declaration(pageCss, selector, 'grid-auto-columns', '(width <= 1024px)'), 'minmax(190px, 1fr)')
+  assert.equal(declaration(pageCss, selector, 'grid-auto-columns', '(width <= 1023px)'), 'minmax(190px, 1fr)')
   assert.equal(declaration(componentCss, '.subject', 'border'), '1px solid var(--kbNeutral400)')
   assert.equal(declaration(componentCss, '.subject > span:last-child', 'max-width'), '100%')
   assert.equal(declaration(pageCss, '.stepNav a', 'font-size'), '16px')

@@ -54,7 +54,7 @@ test('cover selection rejects external, cross-article and traversal paths', () =
   }
 })
 
-test('wide covers become proportional 1200-pixel PNGs and a second pass is unchanged', async () => {
+test('wide covers become proportional 1200-pixel PNG images and a second pass is unchanged', async () => {
   const input = await png()
   const result = await optimizeCover(input)
   assert.equal(result.before.sha256, sha256(input))

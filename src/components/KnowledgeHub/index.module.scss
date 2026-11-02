@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import '../../styles/variables.module';
 
 .page {
@@ -554,7 +555,7 @@
   outline-offset: 4px;
 }
 
-@media (width <= 1200px) {
+@media (width <= #{screens.$tabletMax}) {
   .searchWrap {
     width: 260px;
   }
@@ -586,7 +587,7 @@
   }
 }
 
-@media (width <= 950px) {
+@media (width <= #{screens.$tabletMax}) {
   .heading h1 {
     font-size: 50px;
   }
@@ -717,7 +718,7 @@
   }
 }
 
-@media (width <= 540px) {
+@media (width <= #{screens.$mobileMax}) {
   .hubGrid,
   .popularGrid {
     grid-template-columns: 1fr;
