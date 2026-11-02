@@ -72,7 +72,7 @@ export function ArticleGridControls({
               <Icon name="topicBody-imgInterfaceSlider03" size={24} />
               Sort
             </MenuButton>
-            <MenuItems className={styles.filterOptions}>
+            <MenuItems anchor={{ to: 'bottom start', gap: 8, padding: 16 }} className={styles.filterOptions}>
               <MenuItem>
                 <button className={styles.filterOption} type="button">
                   Latest to oldest <Icon name="interface-check" size={16} />

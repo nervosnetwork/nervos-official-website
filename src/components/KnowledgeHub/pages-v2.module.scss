@@ -259,12 +259,12 @@
 .archiveRail .topicToolbar {
   align-items: center;
   margin-top: 0;
-  padding: 12px 0;
+  padding: 0 0 16px;
 }
 
 .archiveRail {
   position: static;
-  padding-top: 32px;
+  padding-top: 16px;
 }
 
 .archivePage .breadcrumbDock {
@@ -365,11 +365,11 @@
 }
 
 .filterOptions {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 10;
-  width: 200px;
+  // Anchored menus render outside the page so they can avoid clipping ancestors.
+  @include tokens.theme;
+
+  z-index: 50;
+  width: min(200px, calc(100vw - 32px));
   padding: 6px;
   background: var(--kbSurface);
   border: 1px solid var(--kbBorder);
@@ -387,6 +387,8 @@
   color: var(--kbText);
   font-weight: 500;
   font-size: 14px;
+  font-family: inherit;
+  line-height: 1.4;
   text-align: left;
   background: transparent;
   border: 0;
@@ -703,11 +705,6 @@
     justify-content: flex-start;
   }
 
-  .filterOptions {
-    right: auto;
-    left: 0;
-  }
-
   .controls > input,
   .gridReset {
     display: none;
@@ -722,6 +719,7 @@
   .archiveRail .topicToolbar {
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
   }
 
   .archiveRail .controls {
