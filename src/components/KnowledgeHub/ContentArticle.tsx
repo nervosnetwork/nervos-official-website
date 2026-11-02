@@ -436,9 +436,6 @@ export function ContentArticle({
                 Discover CKB in 5 Steps <span aria-hidden="true">→</span>
               </Link>
             </div>
-            <div className={styles.mobileDiscoverBanner}>
-              <DiscoverBanner revision onDiscoverClick={() => trackDiscover('article_mobile_banner')} />
-            </div>
             {article.coverImage && renderImage(article.coverImage, article.title, true)}
             <div ref={textRef}>
               <ReactMarkdown

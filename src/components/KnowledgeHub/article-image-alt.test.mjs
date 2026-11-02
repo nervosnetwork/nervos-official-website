@@ -34,8 +34,8 @@ function articleBodyWithoutAlts(html) {
   for (const node of Array.from(body.getElementsByTagName('button'))) {
     if (node.getAttribute('class') === 'likeButton') node.parentNode.removeChild(node)
   }
-  // Exclude the new B-only intro and unwrap the neutral bottom-banner tracking
-  // container; continue comparing all existing content and image attributes.
+  // Normalize the removed legacy B-only intro in the approved baseline and
+  // unwrap bottom-banner tracking; keep comparing article text and images.
   for (const node of Array.from(body.getElementsByTagName('div'))) {
     if (node.getAttribute('class') === 'mobileDiscoverBanner') node.parentNode.removeChild(node)
     if (node.getAttribute('data-discover-banner') === 'bottom') {

@@ -20,7 +20,6 @@
 .mobileCategories,
 .mobileRecentPosts,
 .mobileDiscover,
-.mobileDiscoverBanner,
 .inlineContents {
   display: none;
 }
@@ -1139,13 +1138,6 @@
 :global(html[data-article-discover-variant='B']) .sidebar .discoverSteps,
 :global(html[data-article-discover-variant='B']) .mobileDiscover {
   display: none;
-}
-
-@media (width <= #{screens.$tabletMax}) {
-  :global(html[data-article-discover-variant='B']) .mobileDiscoverBanner {
-    display: block;
-    margin-top: 24px;
-  }
 }
 
 .experimentSidebar .discoverBanner .discoverButton {

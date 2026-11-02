@@ -143,7 +143,7 @@ test('article Discover clicks attach the variant and responsive layout outside p
     tree.filter(node => node.type === DiscoverBanner).forEach(node => node.props.onDiscoverClick())
     assert.deepEqual(
       events.map(event => ({ ...event })),
-      ['article_mobile_banner', 'article_bottom_banner', 'article_right_banner'].map(placement => ({
+      ['article_bottom_banner', 'article_right_banner'].map(placement => ({
         name: 'kb_cta_click',
         data: {
           cta_id: 'discover_ckb',
