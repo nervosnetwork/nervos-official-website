@@ -86,7 +86,10 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
   }
   const published = i18nConfig.i18n.locales.flatMap(locale => content.getKBCatalog(locale).articles)
   assert.equal(articles, published.length)
-  assert.equal(entries.length, 390, 'Current reviewed snapshot; re-audit after a content update')
+  // 2026-11-03 upstream sync: 471 articles + 20 actual archive pages +
+  // 48 translated core pages + KB home/guide/six Hubs. No invented translations.
+  assert.equal(published.length, 471, 'Current source inventory; re-audit after a content update')
+  assert.equal(entries.length, 547, 'Current reviewed snapshot; re-audit after a content update')
   for (const hub of hubs.KB_HUBS) assert(paths.has(hubs.kbHubPath(hub.id)))
   for (const excluded of [
     '/home',
@@ -96,6 +99,7 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
     '/knowledge-base?page=2',
     '/knowledge-base/articles?page=1',
     '/knowledge-base/articles?page=10',
+    '/zh/knowledge-base/articles?page=10',
     '/zh/knowledge-base/topic/nervos-ckb',
     '/fr/knowledge-base/articles',
     '/ko',
@@ -106,6 +110,7 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
   for (const included of [
     '/knowledge-base/articles?page=9',
     '/zh/knowledge-base/articles?page=3',
+    '/zh/knowledge-base/articles?page=9',
     '/es/knowledge-base/articles?page=2',
     '/ko/journey',
     '/tr/journey',

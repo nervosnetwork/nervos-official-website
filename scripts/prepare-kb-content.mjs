@@ -47,6 +47,11 @@ for (const folder of fs.readdirSync(root).sort()) {
     if (!match) continue
     const language = match[1] || 'en'
     const existing = previousArticles.get(`${folder}:${language}`)
+    // A new rendition shares the article's current classification, not a stale
+    // historical proposal. This does not approve its translated copy: even an
+    // English record marked approved cannot confer review status on a new file.
+    const inheritedEnglish = !existing && language !== 'en' ? previousArticles.get(`${folder}:en`) : undefined
+    const classification = existing ?? inheritedEnglish
     const sourceFile = `${folder}/${file}`
     const raw = fs.readFileSync(path.join(root, sourceFile), 'utf8')
     let parsed
@@ -76,11 +81,11 @@ for (const folder of fs.readdirSync(root).sort()) {
     const proposal = distinct.size === 1 ? matches[0] : null
     matches.forEach(c => used.add(candidates.indexOf(c)))
     const warnings = []
-    if (!proposal) warnings.push(matches.length ? 'conflicting-candidates' : 'no-exact-candidate')
+    if (!proposal && !inheritedEnglish) warnings.push(matches.length ? 'conflicting-candidates' : 'no-exact-candidate')
     // Regeneration refreshes source metadata, not already reviewed editorial
     // choices. In particular, an explicit null classification is intentional.
-    const hub = existing ? existing.hub : proposal?.hub || null
-    const subjects = existing ? existing.subjects : proposal?.subjects || []
+    const hub = classification ? classification.hub : proposal?.hub || null
+    const subjects = classification ? classification.subjects : proposal?.subjects || []
     if (
       hub &&
       (!handoff.hubs.some(h => h.id === hub) ||
@@ -134,14 +139,16 @@ for (const folder of fs.readdirSync(root).sort()) {
       authors,
       hub,
       subjects,
-      internalTags: existing?.internalTags ?? [...new Set(proposal?.internalTags || [])],
+      internalTags: classification?.internalTags ?? [...new Set(proposal?.internalTags || [])],
       legacyTags: data.category ?? null,
-      librarySection: existing?.librarySection ?? (hub ? 'hub' : 'general'),
+      librarySection: classification?.librarySection ?? (hub ? 'hub' : 'general'),
       reviewStatus: existing?.reviewStatus ?? 'pending-editorial',
-      matchMethod: existing?.matchMethod ?? (proposal ? matchMethod : 'unmatched'),
-      candidateKeys: existing?.candidateKeys ?? matches.map(c => c.key),
-      relatedArticleIds: (existing?.relatedArticleIds ?? []).map(id => renames.get(id) ?? id),
-      excludedFromRecommendations: existing?.excludedFromRecommendations ?? false,
+      matchMethod:
+        existing?.matchMethod ??
+        (inheritedEnglish ? 'current-english-translation' : proposal ? matchMethod : 'unmatched'),
+      candidateKeys: existing?.candidateKeys ?? (inheritedEnglish ? [] : matches.map(c => c.key)),
+      relatedArticleIds: (classification?.relatedArticleIds ?? []).map(id => renames.get(id) ?? id),
+      excludedFromRecommendations: classification?.excludedFromRecommendations ?? false,
       draft: data.draft === true || data.published === false,
       readingMinutes: Math.max(1, Math.ceil(text.length / (language === 'zh' ? 500 : 1300))),
       bodySHA256: hash(content),

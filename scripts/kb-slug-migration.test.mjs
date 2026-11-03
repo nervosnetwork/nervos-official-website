@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
 import ts from 'typescript'
@@ -12,8 +13,23 @@ const catalog = JSON.parse(fs.readFileSync(path.join(root, 'metadata/catalog.jso
 const baseline = JSON.parse(
   fs.readFileSync(new URL('./fixtures/kb-slug-migration-baseline.json', import.meta.url), 'utf8'),
 )
+const approvedMigrations = JSON.parse(
+  fs.readFileSync(new URL('./fixtures/kb-approved-slug-migrations.json', import.meta.url), 'utf8'),
+)
+const migrationManifest = JSON.parse(fs.readFileSync(path.join(root, 'metadata/slug-migrations.json'), 'utf8'))
+const fromApprovedCommit = filename =>
+  JSON.parse(
+    execFileSync('git', ['-C', root, 'show', `${approvedMigrations.sourceArticleCommit}:${filename}`], {
+      encoding: 'utf8',
+    }),
+  )
+const originalCatalog = fromApprovedCommit('metadata/catalog.json')
+const originalReport = fromApprovedCommit('metadata/reconciliation.json')
+const historicalSources = new Set(originalCatalog.articles.map(article => article.sourceFile))
+const handoff = JSON.parse(fs.readFileSync(path.join(root, 'metadata/handoff.json'), 'utf8'))
 const renames = readSlugMigrations(root)
 const targets = new Set(renames.values())
+const d18Targets = new Set(approvedMigrations.approvedD18Renames.map(({ to }) => to))
 const originalIds = new Map([...renames].map(([from, to]) => [to, from]))
 const descriptionImport = JSON.parse(fs.readFileSync(path.join(root, 'metadata/description-import.json'), 'utf8'))
 const require = createRequire(import.meta.url)
@@ -73,7 +89,7 @@ function metadataBeforeApprovedD08(articles, imported = descriptionImport) {
     bySource.set(entry.sourceFile, entry.description)
   }
   let matched = 0
-  const metadata = articles.map(source => {
+  const metadata = historicalArticles(articles).map(source => {
     const article = { ...source }
     delete article.sourceSHA256
     delete article.bodySHA256
@@ -93,21 +109,98 @@ function metadataBeforeApprovedD08(articles, imported = descriptionImport) {
   return metadata.sort(originalSourceOrder)
 }
 
+function historicalArticles(articles) {
+  const historical = articles.filter(article => historicalSources.has(article.sourceFile))
+  assert.equal(historicalSources.size, baseline.renditions)
+  assert.equal(historical.length, baseline.renditions, 'Every original rendition must remain, with no duplicates')
+  assert.deepEqual(new Set(historical.map(article => article.sourceFile)), historicalSources)
+  return historical
+}
+
+function newlyMatchedCandidates(articles) {
+  const groupingKey = value =>
+    value
+      .toLowerCase()
+      .replace(/_\(explainckbot\)$/, '')
+      .replace(/%20/g, '')
+      .replace(/\s/g, '')
+  const candidateKey = candidate => JSON.stringify([candidate.key, candidate.language, candidate.url])
+  const matched = new Set()
+  for (const article of articles.filter(article => !historicalSources.has(article.sourceFile))) {
+    const originalId = originalIds.get(article.id) ?? article.id
+    const originalPath = `${article.language === 'en' ? '' : `/${article.language}`}/knowledge-base/${originalId}`
+    let matches = handoff.candidates.filter(candidate => {
+      if (candidate.language !== article.language) return false
+      try {
+        return decodeURIComponent(new URL(candidate.url).pathname).replace(/\/$/, '') === originalPath
+      } catch {
+        return false
+      }
+    })
+    if (!matches.length)
+      matches = handoff.candidates.filter(
+        candidate => candidate.language === article.language && groupingKey(candidate.key) === groupingKey(originalId),
+      )
+    if (!matches.length && article.language !== 'en')
+      matches = handoff.candidates.filter(
+        candidate => candidate.language === 'en' && groupingKey(candidate.key) === groupingKey(originalId),
+      )
+    matches.forEach(candidate => matched.add(candidateKey(candidate)))
+  }
+  return originalReport.unmatchedCandidates.filter(candidate => !matched.has(candidateKey(candidate)))
+}
+
 function reconciliationBeforeApprovedD08(report) {
   // The generator refreshes the source HEAD, not an editorial decision. Check
   // the two generated sidecars agree before restoring the old comparison value.
   assert.equal(report.sourceCommit, catalog.sourceCommit)
   assert.match(report.sourceCommit, /^[a-f0-9]{40}$/)
+  const historical = historicalArticles(catalog.articles)
+  const languages = articles =>
+    articles.reduce((counts, article) => {
+      counts[article.language] = (counts[article.language] ?? 0) + 1
+      return counts
+    }, {})
+  assert.equal(report.articles, new Set(catalog.articles.map(article => article.id)).size)
+  assert.equal(report.renditions, catalog.articles.length)
+  assert.deepEqual(report.languages, languages(catalog.articles))
+  assert.equal(report.classified, catalog.articles.filter(article => article.hub).length)
+  assert.deepEqual(
+    report.issues,
+    catalog.articles
+      .filter(article => article.warnings.length)
+      .map(({ sourceFile, warnings }) => ({ sourceFile, warnings })),
+  )
+  assert.deepEqual(
+    report.unmatchedCandidates,
+    newlyMatchedCandidates(catalog.articles),
+    'Only candidates matched by newly added renditions may leave the historical unresolved inventory',
+  )
   return {
     ...report,
     sourceCommit: baseline.approvedD08Import.reconciliationSourceCommitBeforeRegeneration,
-    issues: [...report.issues].sort(originalSourceOrder),
+    articles: new Set(historical.map(article => article.id)).size,
+    renditions: historical.length,
+    languages: languages(historical),
+    classified: historical.filter(article => article.hub).length,
+    unmatchedCandidates: originalReport.unmatchedCandidates,
+    issues: report.issues.filter(issue => historicalSources.has(issue.sourceFile)).sort(originalSourceOrder),
   }
 }
 
-test('D-18 is exactly 50 unique, non-chained, case-sensitive migrations, not a slug normalizer', () => {
-  assert.equal(renames.size, 50)
-  assert.equal(targets.size, 50)
+test('the exact 50 approved D-18 migrations remain unchanged, with only the separately approved CKBuilders2 addition', () => {
+  assert.equal(approvedMigrations.approvedD18Renames.length, 50)
+  assert.deepEqual(fromApprovedCommit('metadata/slug-migrations.json').renames, approvedMigrations.approvedD18Renames)
+  assert.deepEqual(migrationManifest.renames, [
+    ...approvedMigrations.approvedD18Renames,
+    ...approvedMigrations.additionalRenames,
+  ])
+  assert.deepEqual(
+    approvedMigrations.additionalRenames.map(({ from, to }) => ({ from, to })),
+    [{ from: 'CKBuilders2', to: 'ckbuilders2' }],
+  )
+  assert.equal(renames.size, 51)
+  assert.equal(targets.size, 51)
   const folders = new Set(fs.readdirSync(root))
   for (const [from, to] of renames) {
     assert.notEqual(from, to)
@@ -129,15 +222,23 @@ test('D-18 is exactly 50 unique, non-chained, case-sensitive migrations, not a s
 })
 
 test('D-18 preserves all 320 renditions and approved article metadata, hub taxonomy and editorial choices', () => {
-  assert.equal(catalog.articles.length, baseline.renditions)
+  const historical = historicalArticles(catalog.articles)
+  assert.deepEqual(handoff, fromApprovedCommit('metadata/handoff.json'), 'Historical matching evidence must not change')
   assert.deepEqual(
-    catalog.articles.reduce((counts, article) => {
+    new Set([
+      ...descriptionImport.entries.map(entry => entry.sourceFile),
+      ...Object.keys(descriptionImport.untouchedMarkdown),
+    ]),
+    historicalSources,
+  )
+  assert.deepEqual(
+    historical.reduce((counts, article) => {
       counts[article.language] = (counts[article.language] ?? 0) + 1
       return counts
     }, {}),
     baseline.languages,
   )
-  assert.equal(catalog.articles.filter(article => targets.has(article.id)).length, baseline.migratedRenditions)
+  assert.equal(historical.filter(article => d18Targets.has(article.id)).length, baseline.migratedRenditions)
   for (const article of catalog.articles) {
     assert.equal(renames.has(article.id), false)
     assert.equal(article.sourceFile.split('/')[0], article.id)
@@ -165,7 +266,50 @@ test('D-18 preserves all 320 renditions and approved article metadata, hub taxon
   assert.equal(JSON.stringify(catalog), before, 'Comparison normalization must never mutate actual catalog data')
 })
 
+test('new renditions and approved historical body/link updates pass the independent three-way upstream validator', () => {
+  const added = catalog.articles.filter(article => !historicalSources.has(article.sourceFile))
+  assert.deepEqual(
+    added.reduce((counts, article) => {
+      counts[article.language] = (counts[article.language] ?? 0) + 1
+      return counts
+    }, {}),
+    approvedMigrations.upstreamSync.addedRenditions,
+  )
+  assert.equal(new Set(catalog.articles.map(article => article.sourceFile)).size, catalog.articles.length)
+  assert.equal(
+    catalog.articles.length,
+    baseline.renditions +
+      Object.values(approvedMigrations.upstreamSync.addedRenditions).reduce((sum, count) => sum + count, 0),
+  )
+  // This is not a source-hash refresh exception: the separate validator checks
+  // each current file against the fixed old fork and upstream Git trees.
+  execFileSync(
+    process.execPath,
+    [
+      'scripts/check-kb-upstream-sync.mjs',
+      '--root',
+      root,
+      '--old',
+      approvedMigrations.sourceArticleCommit,
+      '--upstream',
+      approvedMigrations.upstreamSync.commit,
+    ],
+    { encoding: 'utf8', stdio: 'pipe' },
+  )
+})
+
 test('D-08 comparison allowance cannot hide unapproved copy, article fields, taxonomy or editorial reordering', () => {
+  const firstHistorical = historicalArticles(catalog.articles)[0]
+  assert.throws(
+    () => metadataBeforeApprovedD08(catalog.articles.filter(article => article !== firstHistorical)),
+    /Every original rendition must remain/,
+  )
+  const secondHistorical = historicalArticles(catalog.articles)[1]
+  assert.throws(() =>
+    metadataBeforeApprovedD08(
+      catalog.articles.map(article => (article === firstHistorical ? { ...secondHistorical } : article)),
+    ),
+  )
   const changedImport = structuredClone(descriptionImport)
   changedImport.entries[0].description = 'Unapproved replacement copy.'
   assert.throws(() => metadataBeforeApprovedD08(catalog.articles, changedImport), /exact workbook-approved/)
@@ -189,7 +333,7 @@ test('D-08 comparison allowance cannot hide unapproved copy, article fields, tax
     { unapprovedField: true },
   ])
     assert.notEqual(hash(metadataBeforeApprovedD08(mutate(changes))), baseline.articleMetadataSHA256)
-  const translated = catalog.articles.find(article => article.language !== 'en')
+  const translated = historicalArticles(catalog.articles).find(article => article.language !== 'en')
   const translatedCopy = catalog.articles.map(article =>
     article === translated ? { ...article, description: 'Unapproved translated copy.' } : article,
   )
@@ -201,6 +345,13 @@ test('D-08 comparison allowance cannot hide unapproved copy, article fields, tax
   subjects[0].name = 'Unapproved subject name'
   assert.notEqual(hash({ hubs: catalog.hubs, subjects }), baseline.hubsAndSubjectsSHA256)
   const report = JSON.parse(fs.readFileSync(path.join(root, 'metadata/reconciliation.json'), 'utf8'))
+  const missingUnmatched = structuredClone(report)
+  missingUnmatched.unmatchedCandidates.pop()
+  assert.throws(() => reconciliationBeforeApprovedD08(missingUnmatched), /Only candidates matched by newly added/)
+  const missingIssue = structuredClone(report)
+  missingIssue.issues.pop()
+  assert.throws(() => reconciliationBeforeApprovedD08(missingIssue))
+  assert.throws(() => reconciliationBeforeApprovedD08({ ...report, renditions: report.renditions - 1 }))
   report.unresolvedFeatured = []
   assert.notEqual(hash(reconciliationBeforeApprovedD08(report)), baseline.reconciliationSHA256)
 })
@@ -303,5 +454,5 @@ test('the completed migration has an empty read-only plan and does not need anot
   assert.equal(plan.changedMarkdown, 0)
   assert.equal(plan.linkReplacements, 0)
   assert.equal(plan.changedMetadata, 0)
-  assert.equal(plan.renditions, baseline.renditions)
+  assert.equal(plan.renditions, catalog.articles.length)
 })

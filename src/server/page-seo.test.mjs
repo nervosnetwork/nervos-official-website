@@ -63,14 +63,14 @@ const alternatives = (route, available) => [
   ...(available.includes('en') ? [{ language: 'x-default', url: `${origin}${route}` }] : []),
 ]
 
-test('all 320 real article renditions use actual language, one canonical and reciprocal published translation sets', () => {
+test('all 471 real article renditions use actual language, one canonical and reciprocal published translation sets', () => {
   const catalog = JSON.parse(
     fs.readFileSync(path.join(repository, 'public/education_hub_articles/metadata/catalog.json'), 'utf8'),
   )
   const published = catalog.articles.filter(
     article => !article.draft && (!article.date || Date.parse(article.date) <= Date.now()),
   )
-  assert.equal(published.length, 320)
+  assert.equal(published.length, 471)
   const byID = new Map()
   for (const article of published) {
     const group = byID.get(article.id) ?? []
@@ -103,7 +103,7 @@ test('all 320 real article renditions use actual language, one canonical and rec
       checked++
     }
   }
-  assert.equal(checked, 320)
+  assert.equal(checked, 471)
 })
 
 // Exercise the real publication/hash-aware article loader with an in-memory

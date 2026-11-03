@@ -240,10 +240,10 @@ test('fixture article body HTML is identical to the approved Git revision after 
   )
 })
 
-test('all 320 published article renditions preserve source hashes and body HTML except image alt', context => {
+test('all 471 published article renditions preserve source hashes and body HTML except image alt', context => {
   const catalog = JSON.parse(read('public/education_hub_articles/metadata/catalog.json'))
   const articles = catalog.articles.filter(article => !article.draft)
-  assert.equal(articles.length, 320)
+  assert.equal(articles.length, 471)
   const counts = { articles: articles.length, covers: 0, bodyImages: 0, blank: 0, placeholder: 0, preserved: 0 }
   for (const article of articles) {
     const sourceFile = `public/education_hub_articles/${article.sourceFile}`

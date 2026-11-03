@@ -22,10 +22,26 @@ const fixture = JSON.parse(fs.readFileSync(new URL('./fixtures/kb-legacy-urls.js
 const { renames } = JSON.parse(
   fs.readFileSync(new URL('../public/education_hub_articles/metadata/slug-migrations.json', import.meta.url), 'utf8'),
 )
+const approvedMigrations = JSON.parse(
+  fs.readFileSync(new URL('./fixtures/kb-approved-slug-migrations.json', import.meta.url), 'utf8'),
+)
 const now = Date.now()
 const isPublished = article => !article.draft && (!article.date || Date.parse(article.date) <= now)
 const publishedPaths = new Set(catalog.articles.filter(isPublished).map(article => encodeURI(article.canonicalPath)))
 const currentRules = currentKBLegacyRedirects(i18n)
+
+// Keep the historical source/row fixture immutable. A newly published rendition
+// may replace its former English fallback, but never change its target article.
+function currentFixtureDestination(source, historicalDestination) {
+  const original = catalog.articles.find(article => encodeURI(article.canonicalPath) === historicalDestination)
+  assert.ok(original, `Historical target disappeared: ${historicalDestination}`)
+  const { detectedLocale } = normalizeLocalePath(new URL(source, 'https://www.nervos.org').pathname, i18n.locales)
+  const locale = detectedLocale ?? i18n.defaultLocale
+  const translated = catalog.articles.find(article => article.id === original.id && article.language === locale)
+  const target = translated ?? catalog.articles.find(article => article.id === original.id && article.language === 'en')
+  assert.ok(target && isPublished(target), `Historical source targets an unpublished article: ${source}`)
+  return encodeURI(target.canonicalPath)
+}
 
 // Exercise Next's own config expansion, matching, i18n normalization and
 // destination construction. There is no HTTP listener or filesystem route mock
@@ -122,17 +138,24 @@ test('D-01 fixture accounts for every audited URL and all main destinations are 
   assert.equal(new Set(sources).size, 499)
   for (const [row, source, destination] of fixture.redirects) {
     assert.ok(publishedPaths.has(destination), `Row ${row}: ${source} targets an unavailable path ${destination}`)
+    assert.ok(publishedPaths.has(currentFixtureDestination(source, destination)))
   }
 })
 
 test('all 474 audited main URLs resolve in one permanent Next redirect to the current destination', async () => {
   for (const [row, source, destination] of fixture.redirects) {
-    await assertSingleRedirect(route, source, destination, `Workbook row ${row}: ${source}`)
+    await assertSingleRedirect(
+      route,
+      source,
+      currentFixtureDestination(source, destination),
+      `Workbook row ${row}: ${source}`,
+    )
   }
 })
 
-test('all 50 bare D-18 old slugs resolve exactly once for every locale and explicit English; previews stay 404', async () => {
-  assert.equal(renames.length, 50)
+test('all 50 D-18 slugs and the separately approved CKBuilders2 slug resolve once for every locale; previews stay 404', async () => {
+  assert.deepEqual(renames, [...approvedMigrations.approvedD18Renames, ...approvedMigrations.additionalRenames])
+  assert.equal(renames.length, 51)
   for (const { from, to } of renames) {
     const english = catalog.articles.find(article => article.id === to && article.language === 'en')
     assert.ok(english, `Missing migrated English article: ${to}`)
@@ -161,7 +184,7 @@ test('all 50 bare D-18 old slugs resolve exactly once for every locale and expli
   }
 })
 
-test('all 50 old suffix slugs bypass the bare migration and missing-translation redirects', async () => {
+test('all 51 approved old suffix slugs bypass the bare migration and missing-translation redirects', async () => {
   for (const { from, to } of renames) {
     const english = catalog.articles.find(article => article.id === to && article.language === 'en')
     for (const locale of i18n.locales) {

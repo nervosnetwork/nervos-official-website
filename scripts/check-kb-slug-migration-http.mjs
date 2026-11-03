@@ -46,7 +46,19 @@ const oldArticles = renames.flatMap(({ from, to }) =>
 )
 await concurrent(oldArticles, ([source, target]) => redirected(source, target))
 console.log(`${oldArticles.length} old D-18 article requests redirect directly with query preserved`)
-await concurrent(fixture.redirects, ([, source, target]) => redirected(source, target))
+await concurrent(fixture.redirects, ([, source, historicalTarget]) => {
+  // Preserve every audited source and article identity; only replace a former
+  // English fallback when that same article now has the requested rendition.
+  const original = catalog.articles.find(article => encodeURI(article.canonicalPath) === historicalTarget)
+  assert.ok(original, `Historical target disappeared: ${historicalTarget}`)
+  const prefix = new URL(source, origin).pathname.split('/')[1]
+  const locale = locales.includes(prefix) ? prefix : 'en'
+  const target =
+    catalog.articles.find(article => article.id === original.id && article.language === locale) ??
+    catalog.articles.find(article => article.id === original.id && article.language === 'en')
+  assert.ok(target && !target.draft && (!target.date || Date.parse(target.date) <= Date.now()), source)
+  return redirected(source, encodeURI(target.canonicalPath))
+})
 console.log(`${fixture.redirects.length} D-01 historical requests still redirect directly to final paths`)
 await concurrent(catalog.articles, async article => {
   const response = await fetch(origin + encodeURI(article.canonicalPath), {

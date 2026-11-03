@@ -286,7 +286,7 @@ test('every published cover and rendered local body image has real dimensions, w
   const articles = catalog.articles.filter(
     article => !article.draft && (!article.date || Date.parse(article.date) <= Date.now()),
   )
-  assert.equal(articles.length, 320)
+  assert.equal(articles.length, 471)
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -347,14 +347,19 @@ test('every published cover and rendered local body image has real dimensions, w
     visit(tree)
     assert.equal(hash(fs.readFileSync(source)), article.sourceSHA256, `${article.sourceFile}: source remains unchanged`)
   }
-  assert.deepEqual(counts, { articles: 320, covers: 320, body: 430, localBody: 429, animatedGIFReferences: 3 })
-  assert.equal(coverFiles.size, 218)
+  assert.deepEqual(counts, { articles: 471, covers: 471, body: 524, localBody: 522, animatedGIFReferences: 3 })
+  assert.equal(coverFiles.size, 219)
   assert.equal(bodyFiles.size, 233)
-  assert.equal(imageHashes.size, 451)
+  assert.equal(imageHashes.size, 452)
   assert.deepEqual(external, [
     {
       id: 'chain_abstraction_bringing_web2_user_experience_to_web3',
       language: 'en',
+      ref: 'https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2F90GHScLe5U8',
+    },
+    {
+      id: 'chain_abstraction_bringing_web2_user_experience_to_web3',
+      language: 'zh',
       ref: 'https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2F90GHScLe5U8',
     },
   ])

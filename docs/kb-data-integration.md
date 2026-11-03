@@ -7,6 +7,45 @@ The existing `public/education_hub_articles` submodule now points to
 `feat/kb-metadata-cleanup`. The gitlink pins the exact reviewed source revision;
 normal setup must not implicitly pull latest main.
 
+### Current content sync — November 3, 2026
+
+The feature content branch imports upstream `94e5127b6b918e932acdd8fed9dc46eaa72e0c27`
+(translation PRs #341–#343, the new CKBuilders Volume 2 article, and merged link/KYC
+fixes). Our content feature commit is `681c633160f0959b4c1bfa72e661b6dd5e85595a`.
+This adds 150 Chinese renditions and one English article: **214 article
+concepts / 471 renditions (214 EN, 214 ZH, 43 ES)**. Earlier counts below describe
+historical snapshots, not this current inventory.
+
+The original 50 D-18 mappings are unchanged. One separately user-approved mapping,
+`CKBuilders2` → `ckbuilders2`, is appended with its own approval provenance;
+article and asset recovery use the same mapping. The 43 newly translated files
+uploaded under historical directory names now live in the existing normalized
+directories. Only 77 Markdown link destinations were canonicalized; translated
+prose was not rewritten. Existing 91 English SEO descriptions, classification
+choices, recommendations and all existing optimized image bytes are retained.
+
+New translations inherit an existing English record's current structural
+classification/recommendation metadata, never English copy or review approval.
+Existing translations retain their own metadata. All new records remain
+`pending-editorial`; the new `ckbuilders2` article has no supplied classification,
+so its EN/ZH records remain unclassified rather than guessing a Hub. Its new
+1,848,755-byte cover is imported unchanged and needs a separate optimization
+review. The upstream root `index.md` is retained but is not a second article.
+
+`metadata/upstream-sync.json` records the imported upstream revision and previous
+feature baseline. `catalog.sourceCommit` is the HEAD used during metadata
+preparation, not the deployed source pin: the website gitlink is authoritative.
+The content source remains our fork/feature branch; no switch to live upstream
+main, main-branch merge, UI changes or IndexNow notification is part of this sync.
+
+Local acceptance: 520 website tests, 23 content slug tests and production build
+passed; all 471 article pages and 547 sitemap URLs served directly. HTTP checks
+also covered 408 migrated article requests, 474 historical aliases, 456 assets
+and 81 legacy asset paths. Source checks independently compare old feature,
+upstream and final bytes; they do not replace the historical migration fixtures.
+IndexNow acceptance used mocked notifications only. No browser-visual or final
+deployed-preview acceptance is implied by these HTTP checks.
+
 ```sh
 git submodule update --init public/education_hub_articles
 yarn kb:validate

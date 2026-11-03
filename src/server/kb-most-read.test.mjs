@@ -54,12 +54,8 @@ test('the English homepage gets the verified annual GA order rather than catalog
 })
 
 test('each language uses only real translations, with no invented article or editorial padding', () => {
-  assert.deepEqual(ids(getKBMostRead(localized('zh'))), [
-    'block_time_in_blockchain',
-    'secp256k1_a_key_algorithm',
-    'zk_rollup_vs_optimistic_rollup',
-    'what_is_secp256r1',
-  ])
+  // Upstream now supplies a real Chinese rendition of the first-ranked article.
+  assert.deepEqual(ids(getKBMostRead(localized('zh'))), englishTopFour)
   assert.deepEqual(ids(getKBMostRead(localized('es'))), [
     'secp256k1_a_key_algorithm',
     'zk_rollup_vs_optimistic_rollup',

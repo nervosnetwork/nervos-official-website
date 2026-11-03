@@ -123,7 +123,7 @@ test('Next 14 extracts and compiles middleware matchers that reach real HTML art
   }
 })
 
-test('all 50 bare old paths use the final translated or English URL through real Next locale normalization', () => {
+test('all approved bare old paths use the final translated or English URL through real Next locale normalization', () => {
   const query = '?utm_source=d18&tag=first&tag=second&term=a%20b&locale=custom&oldSlug=kept'
   for (const { from, to } of migrations.renames) {
     const english = catalog.articles.find(article => article.id === to && article.language === 'en')

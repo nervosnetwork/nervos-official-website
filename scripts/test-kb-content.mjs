@@ -182,13 +182,17 @@ for (const language of ['zh', 'es']) {
   assert.equal(page.props.preview, false)
   assert.equal(translationRequests.at(-1), language)
   assert.equal((await articleStaticProps('preview')(context)).props.preview, true)
-
-  const untranslated = englishArticles.find(article => source.getKBArticleStatus(article.id, language) === 'missing')
-  assert(untranslated, `Expected an untranslated English article in ${language}`)
-  assert.deepEqual(await articleStaticProps('canonical')({ params: { slug: untranslated.id }, locale: language }), {
-    redirect: { destination: encodeURI(untranslated.canonicalPath), permanent: true },
-  })
 }
+// The November upstream sync supplies Chinese files for every English article.
+// Keep a real-source missing-translation check in Spanish, and exercise missing
+// Chinese explicitly with the controlled fixture below instead of requiring a
+// genuine Chinese upload to remain absent forever.
+assert(englishArticles.every(article => source.getKBArticleStatus(article.id, 'zh') === 'published'))
+const untranslatedSpanish = englishArticles.find(article => source.getKBArticleStatus(article.id, 'es') === 'missing')
+assert(untranslatedSpanish, 'Expected an untranslated English article in Spanish')
+assert.deepEqual(await articleStaticProps('canonical')({ params: { slug: untranslatedSpanish.id }, locale: 'es' }), {
+  redirect: { destination: encodeURI(untranslatedSpanish.canonicalPath), permanent: true },
+})
 for (const route of ['canonical', 'preview']) {
   for (const language of ['en', 'zh', 'fr']) {
     for (const slug of [
@@ -275,9 +279,18 @@ for (const route of ['canonical', 'preview']) {
     })
   }
 }
-assert.deepEqual(await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'published' }, locale: 'fr' }), {
-  redirect: { destination: '/knowledge-base/published', permanent: true },
-})
+for (const language of ['zh', 'fr']) {
+  assert.deepEqual(
+    await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'published' }, locale: language }),
+    { redirect: { destination: '/knowledge-base/published', permanent: true } },
+  )
+  assert.deepEqual(
+    await fixtureRoutes.articleStaticProps('preview')({ params: { slug: 'published' }, locale: language }),
+    {
+      notFound: true,
+    },
+  )
+}
 assert.deepEqual(
   await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'Legacy_Slug with_space' }, locale: 'fr' }),
   {
