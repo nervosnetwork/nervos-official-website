@@ -126,6 +126,12 @@ as usual; adding descriptions does not require another template code change.
   English content under the requested locale. Actual translations serve directly;
   unknown, draft and future entries return 404. Publishing status is independent
   of metadata review status. Unknown metadata does not remove existing articles.
+- Article language selection changes the article title, summary, body and
+  content-derived headings, not the surrounding interface. The KB brand,
+  contribution controls and desktop/mobile article navigation stay English,
+  while EN / 中文 options and the current article's selected language remain
+  intact. This does not change the locale, canonical/hreflang, saved article
+  preference, or localization of ordinary non-KB website pages.
 
 The redesigned homepage and supporting pages now live under `/knowledge-base`,
 matching the existing public prefix. The old `/kb` route family, including the

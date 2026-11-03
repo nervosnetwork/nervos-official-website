@@ -52,7 +52,7 @@ export const Header: FC<HeaderProps> = props => {
         {...divProps}
       >
         <div className={clsx(styles.knowledgeDesktopMenu, styles.articleDesktopMenu)}>
-          {!singleColumn && <MenuPopover alignRight />}
+          {!singleColumn && <MenuPopover alignRight uiLanguage="en" />}
         </div>
       </KnowledgeHeader>
     )
@@ -62,7 +62,7 @@ export const Header: FC<HeaderProps> = props => {
     <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
       <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
       <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
-        {!singleColumn && <MenuPopover alignRight />}
+        {!singleColumn && <MenuPopover alignRight uiLanguage={variant === 'knowledgeHub' ? 'en' : undefined} />}
       </div>
       <Link
         className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)}
@@ -95,8 +95,8 @@ export function useHeaderHeight(): number {
   }, [isMobile])
 }
 
-const MenuPopover: FC<{ alignRight?: boolean }> = ({ alignRight }) => {
-  const [t] = useTranslation('common', { keyPrefix: 'navigation' })
+const MenuPopover: FC<{ alignRight?: boolean; uiLanguage?: 'en' }> = ({ alignRight, uiLanguage }) => {
+  const [t] = useTranslation('common', { keyPrefix: 'navigation', lng: uiLanguage })
   const isMobile = useIsMobile()
   return (
     <Popover className={styles.menuPopover}>

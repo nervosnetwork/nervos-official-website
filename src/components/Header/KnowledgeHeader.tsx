@@ -131,7 +131,7 @@ function articleLanguages(article?: KBArticle) {
 }
 
 export function LanguageToggle({ article }: { article?: KBArticle }) {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' })
+  const { t } = useTranslation('common', { keyPrefix: 'navigation', lng: 'en' })
   const languages = articleLanguages(article)
   if (!article || languages.length < 2) return null
   return (
@@ -161,7 +161,7 @@ export function LanguageToggle({ article }: { article?: KBArticle }) {
 }
 
 export function LanguageRadioGroup({ article, onSelect }: { article?: KBArticle; onSelect?: () => void }) {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' })
+  const { t } = useTranslation('common', { keyPrefix: 'navigation', lng: 'en' })
   const router = useRouter()
   const languages = articleLanguages(article)
   if (!article || languages.length < 2) return null
@@ -196,7 +196,8 @@ export function LanguageRadioGroup({ article, onSelect }: { article?: KBArticle;
 }
 
 function KnowledgeBrand({ onClick }: { onClick?: () => void }) {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' })
+  // Article content follows its locale; the surrounding KB interface stays English.
+  const { t } = useTranslation('common', { keyPrefix: 'navigation', lng: 'en' })
   return (
     <Link href="/knowledge-base" locale="en" className={styles.brand} onClick={onClick}>
       <span className={styles.brandIcon}>
@@ -238,7 +239,7 @@ export function NavigationMenu({
   articleLanguage?: KBArticle
   className?: string
 }) {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' })
+  const { t } = useTranslation('common', { keyPrefix: 'navigation', lng: article ? 'en' : undefined })
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -439,7 +440,7 @@ export function KnowledgeHeader({
   articleLanguage?: KBArticle
   headerRef?: RefObject<HTMLDivElement>
 }) {
-  const { t } = useTranslation('common', { keyPrefix: 'navigation' })
+  const { t } = useTranslation('common', { keyPrefix: 'navigation', lng: 'en' })
   return (
     <div
       ref={headerRef}
