@@ -1,18 +1,15 @@
 import clsx from 'clsx'
-import { useState } from 'react'
-import type { CSSProperties } from 'react'
-import { Icon } from './Home'
+import { useEffect, useRef, useState } from 'react'
 import { hubs } from './fixtures'
 import { Breadcrumb, PreviewPage, RelatedHubs } from './Shared'
 import styles from './pages-v2.module.scss'
 import { SubjectCard, ArticleCard } from './Components'
 import { ArticleGridControls } from './ArticleGridControls'
-import { useHeroScroll } from './useHeroScroll'
 import { byDate, type KBCatalog } from './content'
 import { trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
 
-const subjectPresentation: Record<string, { icon: string; description?: string }> = {
+const subjectPresentation: Record<string, { icon: string }> = {
   'hash-functions': { icon: 'subject-hash-functions' },
   'digital-signatures-elliptic-curves': { icon: 'subject-digital-signatures' },
   'cryptographic-primitives': { icon: 'subject-cryptographic-primitives' },
@@ -31,26 +28,28 @@ const subjectPresentation: Record<string, { icon: string; description?: string }
   'risc-v-ckb-vm': { icon: 'subject-risc-v' },
   'scaling-fundamentals': {
     icon: 'topicControls-imgArrowExpand',
-    description:
-      'The core trade-offs. What throughput really means, why the scalability trilemma exists, and the difference between scaling at Layer 1 and scaling at Layer 2.',
   },
   'rollups-data-availability-sidechains': {
     icon: 'topicControls-imgSystemData',
-    description: 'Explore rollups, data availability and sidechains.',
   },
   'payment-channels-networks': {
     icon: 'topicControls-imgInterfaceCreditCard01',
-    description: 'Explore payment channels and networks.',
   },
   'bitcoin-scaling-rgbpp': {
     icon: 'topicControls-img1421344023328',
-    description: 'Explore Bitcoin scaling and RGB++.',
   },
   'agent-payments-micropayments': { icon: 'subject-agent-payments' },
   'nervos-ckb-introduction': { icon: 'subject-nervos-introduction' },
   'ckb-architecture': { icon: 'subject-ckb-architecture' },
   'ckb-tokenomics-issuance': { icon: 'subject-tokenomics' },
   'ckb-ecosystem-development': { icon: 'subject-ecosystem-development' },
+}
+
+// Desktop reserves 280px for navigation plus a 32px gap. Tablet stacks the
+// selector above two cards; mobile uses one card across the content width.
+const hubImageSizes = {
+  2: '(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(50vw - 198px), 434px)',
+  3: '(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(33.333333vw - 138px), 283.333333px)',
 }
 
 export interface TopicProps {
@@ -73,25 +72,69 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
       .map(item => ({
         ...item,
         icon: subjectPresentation[item.id]?.icon ?? 'topicHero-imgInterfaceBookOpen',
-        description: subjectPresentation[item.id]?.description ?? '',
       })),
     {
       id: 'all',
       name: 'View all',
       icon: 'topics-imgGroup59',
-      description: '',
     },
   ]
   const [selectedSubject, setSelectedSubject] = useState(
     subjects.find(item => item.id === subjectId)?.id ?? subjects[0]?.id ?? 'all',
   )
-  const [density, setDensity] = useState(4)
-  const { heroFade, breadcrumbHeight, breadcrumbRef } = useHeroScroll()
+  const [density, setDensity] = useState(3)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const transitionRef = useRef<Animation | null>(null)
+  const requestedSubject = useRef(selectedSubject)
+
+  useEffect(() => () => transitionRef.current?.cancel(), [])
+  useEffect(() => {
+    const grid = gridRef.current
+    if (!grid || !transitionRef.current) return
+    transitionRef.current.cancel()
+    transitionRef.current = null
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    transitionRef.current = grid.animate(
+      [
+        { opacity: 0, transform: 'translateY(12px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+    )
+  }, [selectedSubject])
+
+  const selectSubject = (id: string) => {
+    if (requestedSubject.current === id) return
+    requestedSubject.current = id
+    trackKBEvent('kb_subject_select', { hub_id: hubId, subject_id: id, placement: 'topic' })
+    const grid = gridRef.current
+    const current = grid ? getComputedStyle(grid) : null
+    const from = { opacity: current?.opacity ?? '1', transform: current?.transform ?? 'none' }
+    transitionRef.current?.cancel()
+    transitionRef.current = null
+    if (!grid || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setSelectedSubject(id)
+      return
+    }
+    if (id === selectedSubject) {
+      transitionRef.current = grid.animate([from, { opacity: 1, transform: 'translateY(0)' }], {
+        duration: 220,
+        easing: 'ease-out',
+      })
+      return
+    }
+    const exit = grid.animate([from, { opacity: 0, transform: 'translateY(-8px)' }], {
+      duration: 140,
+      easing: 'ease-in',
+      fill: 'forwards',
+    })
+    transitionRef.current = exit
+    exit.onfinish = () => setSelectedSubject(id)
+  }
   const subject = subjects.find(item => item.id === selectedSubject) ?? {
     id: 'all',
     name: 'View all',
     icon: 'topics-imgGroup59',
-    description: '',
   }
   // Keep one set of cards in the HTML; the existing subject controls toggle their visibility.
   const hubPosts = catalog.articles.filter(post => post.hub === hubId).sort(byDate)
@@ -106,90 +149,83 @@ export function Topic({ catalog, hubId, subjectId }: TopicProps) {
       revision
       headerClassName={styles.scrollingHeader}
     >
-      <div
-        className={styles.container}
-        style={{ '--heroFade': heroFade, '--breadcrumbHeight': `${breadcrumbHeight}px` } as CSSProperties}
-      >
-        <div className={styles.breadcrumbDock} ref={breadcrumbRef}>
+      <div className={clsx(styles.container, styles.twoColumnPage)}>
+        <div className={styles.breadcrumbDock}>
           <Breadcrumb current={heading} revision />
         </div>
         <header className={styles.topicHero}>
           <h1>{heading}</h1>
           <p>{description}</p>
         </header>
-        <div className={styles.topicRail} style={{ paddingTop: `${48 * (1 - heroFade)}px` }}>
-          <h2 className={styles.subjectsLabel}>
-            <Icon name="topicHero-imgInterfaceBookOpen" size={24} />
-            Subjects
-          </h2>
-          <nav className={styles.subjectNav} aria-label="Subjects">
-            {subjects.map(item => (
-              <SubjectCard
-                key={item.id}
-                title={item.name}
-                icon={item.icon}
-                selected={subject.id === item.id}
-                onClick={() => {
-                  if (selectedSubject !== item.id)
-                    trackKBEvent('kb_subject_select', {
-                      hub_id: hubId,
-                      subject_id: item.id,
-                      placement: 'topic',
-                    })
-                  setSelectedSubject(item.id)
-                }}
+        <div className={styles.twoColumnLayout}>
+          <aside className={styles.layoutSidebar}>
+            <nav className={styles.subjectNav} aria-label="Subjects">
+              {subjects.map(item => (
+                <SubjectCard
+                  key={item.id}
+                  compact
+                  title={item.name}
+                  icon={item.icon}
+                  selected={subject.id === item.id}
+                  onClick={() => selectSubject(item.id)}
+                />
+              ))}
+            </nav>
+          </aside>
+          <div className={styles.layoutContent}>
+            <div className={styles.topicToolbar}>
+              <div>
+                <h2 id="subject-title">{subject.name === 'View all' ? 'All subjects' : subject.name}</h2>
+              </div>
+              <ArticleGridControls
+                density={density}
+                onDensityChange={setDensity}
+                placement="topic"
+                pageType="hub"
+                hubId={hubId}
               />
-            ))}
-          </nav>
-          <div className={styles.topicToolbar}>
-            <div>
-              <h2 id="subject-title">{subject.name === 'View all' ? 'All subjects' : subject.name}</h2>
-              {subject.description && <p>{subject.description}</p>}
             </div>
-            <ArticleGridControls
-              density={density}
-              onDensityChange={setDensity}
-              placement="topic"
-              pageType="hub"
-              hubId={hubId}
-            />
+            <section className={styles.topicArticles} aria-labelledby="subject-title">
+              <div className={clsx(styles.topicGrid, styles[`density${density}`])} ref={gridRef}>
+                {hubPosts.map(post => (
+                  <ArticleCard
+                    key={post.id}
+                    compact
+                    title={post.title}
+                    article={post}
+                    hidden={!visiblePositions.has(post.id)}
+                    analyticsContext={
+                      visiblePositions.has(post.id)
+                        ? {
+                            placement: 'topic_articles',
+                            hub_id: hubId,
+                            subject_id: subject.id,
+                            position: visiblePositions.get(post.id),
+                          }
+                        : undefined
+                    }
+                    tag={
+                      subject.id === 'all'
+                        ? catalog.subjects.find(item => item.id === post.subjects[0])?.name
+                        : undefined
+                    }
+                    size={density === 2 ? 'large' : 'medium'}
+                    imageSizes={hubImageSizes[density === 2 ? 2 : 3]}
+                  />
+                ))}
+              </div>
+              {visiblePosts.length === 0 && (
+                <p role="status" className={styles.empty}>
+                  No articles in this subject yet.
+                </p>
+              )}
+              <p className={styles.srOnly} aria-live="polite">
+                Showing {visiblePosts.length} articles, latest to oldest
+              </p>
+            </section>
           </div>
         </div>
-        <section className={styles.topicArticles} aria-labelledby="subject-title">
-          <div className={clsx(styles.topicGrid, styles[`density${density}`])}>
-            {hubPosts.map(post => (
-              <ArticleCard
-                key={post.id}
-                title={post.title}
-                article={post}
-                hidden={!visiblePositions.has(post.id)}
-                analyticsContext={
-                  visiblePositions.has(post.id)
-                    ? {
-                        placement: 'topic_articles',
-                        hub_id: hubId,
-                        subject_id: subject.id,
-                        position: visiblePositions.get(post.id),
-                      }
-                    : undefined
-                }
-                tag={
-                  subject.id === 'all' ? catalog.subjects.find(item => item.id === post.subjects[0])?.name : undefined
-                }
-                size={density === 5 ? 'small' : density === 3 ? 'large' : 'medium'}
-              />
-            ))}
-          </div>
-          {visiblePosts.length === 0 && (
-            <p role="status" className={styles.empty}>
-              No articles in this subject yet.
-            </p>
-          )}
-          <p className={styles.srOnly} aria-live="polite">
-            Showing {visiblePosts.length} articles, latest to oldest
-          </p>
-        </section>
-        <RelatedHubs revision />
+        <RelatedHubs revision currentHubId={hubId} />
       </div>
     </PreviewPage>
   )

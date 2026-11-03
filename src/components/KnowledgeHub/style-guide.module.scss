@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @use './tokens' as tokens;
 
 .guide {
@@ -80,7 +81,7 @@
     @include tokens.type($role);
   }
 }
-@media (width <= 750px) {
+@media (width <= #{screens.$mobileMax}) {
   .subjects {
     display: flex;
     overflow-x: auto;

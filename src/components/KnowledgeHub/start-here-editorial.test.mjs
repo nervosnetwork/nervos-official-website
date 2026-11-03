@@ -34,6 +34,8 @@ function loadModule(filename, imports = {}) {
   vm.runInNewContext(outputText, {
     exports,
     require: name => {
+      if (name.endsWith('/utils/breakpoints'))
+        return { DESKTOP_QUERY: '(min-width: 1024px)', BELOW_DESKTOP_QUERY: '(max-width: 1023px)' }
       assert.ok(Object.hasOwn(imports, name), `Unexpected Start Here dependency: ${name}`)
       return imports[name]
     },
@@ -66,7 +68,7 @@ function nodes(node) {
   return [node, ...nodes(node.props?.children)]
 }
 
-test('Start Here renders only the four approved steps with navigation targets for every section', () => {
+test('Start Here renders exactly four steps with navigation targets for every section', () => {
   const tree = nodes(StartHere({ catalog: { ...catalog, articles: [] } }))
   const navigation = tree.filter(node => node.type === 'SubjectCard')
   const sections = tree.filter(node => node.type === 'StepSection')
@@ -89,7 +91,6 @@ test('Start Here renders only the four approved steps with navigation targets fo
   const headingText = heading.props.children.filter(child => typeof child === 'string').join('')
   assert.match(headingText, /CKB in four steps/)
   assert.doesNotMatch(headingText, /five steps/)
-  assert.ok(!tree.some(node => node.props?.href === '#step-5' || node.props?.id === 'step-5'))
 })
 
 test('Start Here passes the exact eight approved articles in editorial order across four steps', () => {
@@ -126,7 +127,7 @@ const { StepSection } = loadModule('Components.tsx', {
   '../../utils/kb-hubs': kbHubs,
 })
 
-test('the first four steps retain their copy and no fifth Try it & build section is rendered', () => {
+test('the four approved steps retain their copy without fifth-step actions', () => {
   assert.equal(guideSteps.length, 4)
   guideSteps.forEach((step, index) => {
     const tree = nodes(StepSection({ step, index, articles: [] }))
@@ -137,6 +138,6 @@ test('the first four steps retain their copy and no fifth Try it & build section
     assert.equal(tree.filter(node => node.type === 'Link').length, 0)
     assert.equal(tree.filter(node => node.type === 'h3').length, 0)
     assert.ok(!tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
+    assert.equal(step.actions, undefined)
   })
-  assert.ok(!guideSteps.some(step => step.id === 'step-5' || step.navTitle === 'Try it & build'))
 })

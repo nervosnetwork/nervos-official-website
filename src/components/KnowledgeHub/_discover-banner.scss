@@ -1,0 +1,20 @@
+@mixin surface {
+  position: relative;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 214px;
+  padding: 32px 48px;
+  overflow: hidden;
+  background: var(--kbDark) url('/images/knowledge-hub/discover-banner-background.jpg') center / cover no-repeat;
+
+  // Preserve the original crop/resolution and JPEG for older browsers.
+  background-image: image-set(
+    url('/images/knowledge-hub/discover-banner-background.f824b2b2.avif') type('image/avif'),
+    url('/images/knowledge-hub/discover-banner-background.cb4683e2.webp') type('image/webp'),
+    url('/images/knowledge-hub/discover-banner-background.jpg') type('image/jpeg')
+  );
+  border-radius: 9px;
+  isolation: isolate;
+}

@@ -1,3 +1,4 @@
+@use '../../styles/breakpoints' as screens;
 @import '../../styles/variables.module';
 
 .page {
@@ -992,7 +993,7 @@
   outline-offset: 4px;
 }
 
-@media (width <= 1100px) {
+@media (width <= #{screens.$tabletMax}) {
   .articleLayout {
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: 40px;
@@ -1218,7 +1219,7 @@
   }
 }
 
-@media (width <= 480px) {
+@media (width <= #{screens.$mobileMax}) {
   .topicGrid {
     grid-template-columns: 1fr;
   }

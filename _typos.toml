@@ -1,4 +1,9 @@
 [default]
+# Preserve the Spanish alt-text fixture and the existing public article slug.
+extend-ignore-re = ["Diagrama de células"]
+
+[default.extend-identifiers]
+what_is_a_partially_signed_bitcoin_transacion = "what_is_a_partially_signed_bitcoin_transacion"
 
 [files]
 extend-exclude = ["public/locales/pt", "public/locales/fr", "public/locales/es"]

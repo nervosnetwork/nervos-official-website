@@ -37,7 +37,12 @@ function load(filename, imports = {}) {
   })
   const loaded = { exports: {} }
   new Function('require', 'module', 'exports', outputText)(
-    name => (Object.hasOwn(imports, name) ? imports[name] : require(name)),
+    name =>
+      name.endsWith('/utils/breakpoints')
+        ? { DESKTOP_QUERY: '(min-width: 1024px)' }
+        : Object.hasOwn(imports, name)
+          ? imports[name]
+          : require(name),
     loaded,
     loaded.exports,
   )
@@ -84,10 +89,11 @@ const { ContentArticle } = load('src/components/KnowledgeHub/ContentArticle.tsx'
     DiscoverBanner: () => null,
     useActiveSection: () => '',
   },
-  './Components': { ArticleCard: () => null },
+  './Components': { ArticleCard: () => null, ArrowButton: 'a' },
   './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
   '../Header/KnowledgeHeader': { LanguageToggle: () => null },
   './reading-progress': load('src/components/KnowledgeHub/reading-progress.ts'),
+  './article-discover-experiment': load('src/components/KnowledgeHub/article-discover-experiment.ts'),
   './ArticleLanguageLink': {
     ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
     ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>

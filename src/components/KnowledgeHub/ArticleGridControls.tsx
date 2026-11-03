@@ -38,22 +38,30 @@ export function ArticleGridControls({
   pageType?: 'all_articles' | 'search' | 'hub'
   hubId?: string
 }) {
+  const hubLayout = pageType === 'hub'
+  const minColumns = hubLayout ? 2 : 3
+  const maxColumns = hubLayout ? 3 : 5
+  const defaultColumns = hubLayout ? 3 : 4
   const changeDensity = (value: number) => {
     if (value !== density) trackKBEvent('kb_layout_change', { placement, layout: 'grid', columns: value })
     onDensityChange(value)
   }
   return (
     <div className={styles.controls} aria-label="Article layout">
-      <button className={styles.gridReset} aria-label="Reset to four cards per row" onClick={() => changeDensity(4)}>
+      <button
+        className={styles.gridReset}
+        aria-label={`Reset to ${hubLayout ? 'three' : 'four'} cards per row`}
+        onClick={() => changeDensity(defaultColumns)}
+      >
         <span className={styles.gridIcon} aria-hidden="true" />
       </button>
       <input
         aria-label="Cards per row"
         type="range"
-        min="3"
-        max="5"
+        min={minColumns}
+        max={maxColumns}
         value={density}
-        style={{ '--rangeProgress': `${((density - 3) / 2) * 100}%` } as CSSProperties}
+        style={{ '--rangeProgress': `${((density - minColumns) / (maxColumns - minColumns)) * 100}%` } as CSSProperties}
         onChange={event => changeDensity(Number(event.target.value))}
       />
       <Menu as="div" className={styles.filterMenu}>
@@ -62,9 +70,9 @@ export function ArticleGridControls({
             <FilterOpenTracker open={open} placement={placement} pageType={pageType} hubId={hubId} />
             <MenuButton className={styles.filterButton}>
               <Icon name="topicBody-imgInterfaceSlider03" size={24} />
-              Filter
+              Sort
             </MenuButton>
-            <MenuItems className={styles.filterOptions}>
+            <MenuItems anchor={{ to: 'bottom start', gap: 8, padding: 16 }} className={styles.filterOptions}>
               <MenuItem>
                 <button className={styles.filterOption} type="button">
                   Latest to oldest <Icon name="interface-check" size={16} />

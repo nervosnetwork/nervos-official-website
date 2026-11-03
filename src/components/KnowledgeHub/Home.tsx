@@ -276,7 +276,7 @@ export function KnowledgeHubHome({
                       <ArticleCover
                         src={article.coverImage}
                         className={styles.coverPlaceholder}
-                        sizes="(max-width: 540px) calc(100vw - 40px), (max-width: 750px) calc(50vw - 28px), (max-width: 950px) calc(50vw - 40px), (max-width: 1264px) calc(25vw - 28px), 288px"
+                        sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1023px) calc(50vw - 42px), min(calc(25vw - 30px), 286px)"
                         ariaLabel={article.coverImage ? 'Article cover' : 'Article cover placeholder'}
                       >
                         {!article.coverImage && <span>Cover image</span>}

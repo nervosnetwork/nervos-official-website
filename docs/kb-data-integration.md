@@ -36,13 +36,18 @@ review. The upstream root `index.md` is retained but is not a second article.
 feature baseline. `catalog.sourceCommit` is the HEAD used during metadata
 preparation, not the deployed source pin: the website gitlink is authoritative.
 The content source remains our fork/feature branch; no switch to live upstream
-main, main-branch merge, UI changes or IndexNow notification is part of this sync.
+main or main-branch merge is part of this sync. The website also retains the
+already-merged PR #29 UI at `0bd96e9`; only the explicitly retained four-step
+guide and its CTA copy are restored. No layout/style redesign or IndexNow
+notification is included.
 
-Local acceptance: 520 website tests, 23 content slug tests and production build
+Local acceptance: 541 website tests, 23 content slug tests and production build
 passed; all 471 article pages and 547 sitemap URLs served directly. HTTP checks
 also covered 408 migrated article requests, 474 historical aliases, 456 assets
 and 81 legacy asset paths. Source checks independently compare old feature,
 upstream and final bytes; they do not replace the historical migration fixtures.
+The content branch's Linux slug CI also passed for `681c633`
+([run](https://github.com/HappySonnyDev/EducationHubArticles/actions/runs/41573778182)).
 IndexNow acceptance used mocked notifications only. No browser-visual or final
 deployed-preview acceptance is implied by these HTTP checks.
 
