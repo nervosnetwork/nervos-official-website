@@ -257,6 +257,7 @@
 }
 
 .archiveRail .topicToolbar {
+  gap: 16px;
   align-items: center;
   margin-top: 0;
   padding: 0 0 16px;
@@ -265,6 +266,11 @@
 .archiveRail {
   position: static;
   padding-top: 16px;
+}
+
+.archiveSearch {
+  flex: 1;
+  min-width: 0;
 }
 
 .archivePage .breadcrumbDock {
@@ -277,9 +283,144 @@
   will-change: auto;
 }
 
-.archiveCount {
+.searchPage .topicHero {
+  margin-bottom: 0;
+  transform: none;
+  opacity: 1;
+  will-change: auto;
+}
+
+.searchPage .searchToolbar {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-bottom: 24px;
+  border: 0;
+}
+
+.searchToolbar > div:first-child {
+  flex: 1;
+  min-width: 0;
+  max-width: 373px;
+}
+
+.layoutToggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--kbSurface);
+  border: 1px solid var(--kbText);
+  border-radius: 8px;
+}
+
+.layoutButton {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 46px;
+  padding: 10px 16px;
   color: var(--kbMuted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
   @include tokens.type(body);
+}
+
+.layoutButton[aria-pressed='true'] {
+  color: var(--kbInverseText);
+  background: var(--kbDark);
+}
+
+.layoutButton + .layoutButton {
+  border-left: 1px solid var(--kbText);
+}
+
+.layoutButton:is(:hover, :focus-visible):not([aria-pressed='true']) {
+  color: var(--kbText);
+  background: var(--kbInput);
+}
+
+.layoutButton :is(.gridIcon, svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.page .layoutButton:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: -4px;
+}
+
+.searchList > a {
+  grid-template-columns: minmax(0, 1fr) 200px;
+  width: 100%;
+}
+
+.searchList > a:first-child {
+  padding-top: 0;
+}
+
+.searchPage .searchEmpty {
+  margin: 0;
+  padding-bottom: 80px;
+}
+
+.searchList h3 {
+  font-size: 18px;
+}
+
+.page .numberedPagination {
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  margin: 32px auto 80px;
+}
+
+.page .numberedPagination > :is(a, span) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 8px;
+  color: var(--kbSecondary);
+  font-size: 14px;
+  border: 1px solid var(--kbBorder);
+  border-radius: 6px;
+}
+
+.numberedPagination img {
+  width: 8px;
+  height: 12px;
+}
+
+.page .numberedPagination > [aria-current='page'] {
+  color: var(--kbInverseText);
+  background: var(--kbDark);
+  border-color: var(--kbDark);
+}
+
+.page .numberedPagination > [aria-disabled='true'] {
+  opacity: 0.35;
+}
+
+.numberedPagination a:is(:hover, :focus-visible) {
+  background: var(--kbInput);
+  border-color: var(--kbMuted);
+}
+
+.numberedPagination a:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 2px;
 }
 
 .archivePage .pageCount {
@@ -297,6 +438,10 @@
 
 .controls {
   gap: 8px;
+}
+
+.archiveRail .controls {
+  flex-shrink: 0;
 }
 
 .controls input {
@@ -410,6 +555,10 @@
   margin-top: 24px;
 }
 
+.searchPage .topicGrid {
+  margin-top: 0;
+}
+
 .density2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -514,6 +663,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .layoutButton {
+    transition: none;
+  }
+
   .startHeroCopy,
   .topicHero {
     transform: none;
@@ -726,10 +879,6 @@
     width: auto;
   }
 
-  .archiveCount {
-    white-space: nowrap;
-  }
-
   .pager,
   nav.topicToolbar {
     flex-flow: row wrap;
@@ -759,21 +908,32 @@
     max-width: 100%;
     white-space: normal;
   }
-
-  .searchPage .topicHero {
-    margin-bottom: 24px;
-  }
-
-  .searchPage .topicToolbar > a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
 }
 
 @media (width <= #{screens.$mobileMax}) {
   .topicGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layoutButton {
+    padding: 8px;
+  }
+
+  .layoutLabel {
+    display: none;
+  }
+
+  .searchList > a {
+    grid-template-columns: minmax(0, 1fr) 90px;
+  }
+
+  .page .numberedPagination {
+    gap: 4px;
+  }
+
+  .page .numberedPagination > :is(a, span) {
+    min-width: 32px;
+    padding: 4px;
   }
 }
 

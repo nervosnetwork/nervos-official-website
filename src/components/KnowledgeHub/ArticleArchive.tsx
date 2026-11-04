@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowButton, ArticleCard } from './Components'
 import { ArticleGridControls } from './ArticleGridControls'
+import { ArticleSearch } from './ArticleSearch'
 import { Breadcrumb, PreviewPage } from './Shared'
 import type { LibraryProps } from './Library'
 import styles from './pages-v2.module.scss'
@@ -29,12 +30,14 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
           <Breadcrumb current="All articles" revision />
         </div>
         <header className={styles.topicHero}>
-          <h1 id="all-articles-title">All articles</h1>
+          <h1 id="all-articles-title">{`All articles (${total})`}</h1>
           <p>Explore articles from across the Knowledge Base.</p>
         </header>
         <div className={styles.archiveRail}>
           <div className={styles.topicToolbar}>
-            <span className={styles.archiveCount}>{total} articles</span>
+            <div className={styles.archiveSearch}>
+              <ArticleSearch />
+            </div>
             <ArticleGridControls
               density={density}
               onDensityChange={setDensity}

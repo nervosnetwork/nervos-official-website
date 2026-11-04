@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
@@ -15,7 +14,6 @@ const catalog = JSON.parse(
   fs.readFileSync(path.join(root, 'public/education_hub_articles/metadata/catalog.json'), 'utf8'),
 )
 const currentSource = fs.readFileSync(path.join(root, archivePath), 'utf8')
-const previousSource = execFileSync('git', ['show', `HEAD:${archivePath}`], { cwd: root, encoding: 'utf8' })
 
 function loadSource(source, imports = {}) {
   const compiled = ts.transpileModule(source, {
@@ -45,6 +43,7 @@ function loadArchive(source) {
     './Shared': { PreviewPage: 'PreviewPage', Breadcrumb: 'Breadcrumb' },
     './Components': { ArticleCard: 'ArticleCard', ArrowButton: 'a' },
     './ArticleGridControls': { ArticleGridControls: 'ArticleGridControls' },
+    './ArticleSearch': { ArticleSearch: 'ArticleSearch' },
     './useHeroScroll': {
       useHeroScroll: () => ({ heroFade: 0.35, breadcrumbHeight: 42, breadcrumbRef: null }),
     },
@@ -57,7 +56,6 @@ function loadArchive(source) {
   return { ArticleArchive, events }
 }
 const current = loadArchive(currentSource)
-const previous = loadArchive(previousSource)
 const content = loadSource(fs.readFileSync(path.join(root, 'src/components/KnowledgeHub/content.ts'), 'utf8'))
 const source = loadSource(fs.readFileSync(path.join(root, 'src/server/kb-content.ts'), 'utf8'))
 const { libraryProps } = loadSource(fs.readFileSync(path.join(root, 'src/server/kb-page.ts'), 'utf8'), {
@@ -84,29 +82,6 @@ function nodes(node) {
   if (!node || typeof node !== 'object') return []
   if (Array.isArray(node)) return node.flatMap(nodes)
   return [node, ...nodes(node.props?.children)]
-}
-
-// Preserve content, card order, links and callbacks across metadata and layout
-// updates without treating presentation classes or spacing as article content.
-function comparable(value) {
-  if (value === 'Keep reading →') return 'Keep reading'
-  if (typeof value === 'function') return '[function]'
-  if (Array.isArray(value)) return value.map(comparable)
-  if (value && typeof value === 'object') {
-    if (value.$$typeof) {
-      const props = { ...value.props }
-      delete props.className
-      delete props.style
-      if (value.type === 'ArticleCard' && props.analyticsContext) {
-        props.analyticsContext = { ...props.analyticsContext }
-        delete props.analyticsContext.position
-      }
-      if (value.type === 'ArticleGridControls') delete props.pageType
-      return { type: value.type, key: value.key, props: comparable(props) }
-    }
-    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, comparable(item)]))
-  }
-  return value
 }
 
 test('archive page 1 retains its title and clean self-canonical; subsequent real-language pages have distinct metadata', () => {
@@ -148,11 +123,15 @@ test('archive copy, H1, article order and pagination are unchanged by layout upd
     for (const page of new Set([1, ...(total ? [2, Math.ceil(total / 24)] : [])])) {
       const props = archiveProps(language, page)
       const tree = current.ArticleArchive(props)
-      const before = previous.ArticleArchive(props)
-      assert.deepEqual(comparable(tree.props.children), comparable(before.props.children), `${language} page ${page}`)
+      assert.ok(
+        nodes(tree).some(
+          node => node.type === 'p' && node.props.children === 'Explore articles from across the Knowledge Base.',
+        ),
+      )
+      assert.equal(nodes(tree).filter(node => node.type === 'ArticleSearch').length, 1)
       const headings = nodes(tree).filter(node => node.type === 'h1')
       assert.equal(headings.length, 1)
-      assert.equal(headings[0].props.children, 'All articles')
+      assert.equal(headings[0].props.children, `All articles (${props.total})`)
       assert.equal(headings[0].props.id, 'all-articles-title')
       assert.deepEqual(
         nodes(tree)
@@ -173,7 +152,6 @@ test('archive copy, H1, article order and pagination are unchanged by layout upd
     }
   }
   assert.deepEqual(current.events, [], 'Rendering metadata must not trigger analytics')
-  assert.deepEqual(previous.events, [])
 })
 
 test('the real archive loader keeps valid page data distinct and canonical metadata excludes tracking/filter keys', async () => {

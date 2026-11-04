@@ -33,7 +33,14 @@ function loadComponent(filename, options = {}) {
     clsx: { default: (...values) => values.filter(Boolean).join(' ') },
     'next/link': { default: 'a' },
     'next/image': { default: 'img' },
-    'next/router': { useRouter: () => ({ locale: 'es', push: url => routes.push(url) }) },
+    'next/router': {
+      useRouter: () => ({
+        locale: 'es',
+        push: url => routes.push(url),
+        query: options.routerQuery ?? {},
+        pathname: options.routerPath ?? '/knowledge-base/search',
+      }),
+    },
     'next/head': { default: 'Head' },
     '../Page': { Page: 'Page' },
     '@headlessui/react': { Menu: 'Menu', MenuButton: 'MenuButton', MenuItem: 'MenuItem', MenuItems: 'MenuItems' },
@@ -61,6 +68,8 @@ function loadComponent(filename, options = {}) {
     './useNewsletterSignup': { useNewsletterSignup: () => ({}) },
     './guide-data': loadGuideSteps(),
     './ArticleGridControls': { ArticleGridControls: 'ArticleGridControls' },
+    './ArticleSearch': { ArticleSearch: 'ArticleSearch' },
+    '../Pagination': { default: 'Pagination' },
     './useHeroScroll': { useHeroScroll: () => ({ heroFade: 0, breadcrumbHeight: 0, breadcrumbRef: null }) },
     './content': { byDate: () => 0, articlePath: article => article.canonicalPath },
     './components.module.scss': { default: {} },
@@ -77,6 +86,7 @@ function loadComponent(filename, options = {}) {
   }
   vm.runInNewContext(outputText, {
     exports,
+    URLSearchParams,
     FormData: class {
       constructor(form) {
         this.value = form.q
@@ -243,20 +253,51 @@ test('archive pagination records destination page without changing existing URLs
   assert.equal(card.props.analyticsContext.placement, 'archive_articles')
   assert.equal(card.props.analyticsContext.position, 1)
   assert.equal(nodes(tree).find(node => node.type === 'ArticleGridControls').props.pageType, 'all_articles')
+  assert.equal(nodes(tree).filter(node => node.type === 'ArticleSearch').length, 1)
 })
 
-test('search instrumentation captures the submitted term and only reuses totals belonging to that query', () => {
-  const { exports, events, routes, searches } = loadComponent('Library.tsx')
+test('archive search submits encoded queries and tracks suggestions and full results separately', () => {
+  const article = { ...catalog.articles[0], canonicalPath: '/knowledge-base/article-one' }
+  const query = 'payment & channels'
+  const { exports, events, routes, searches } = loadComponent('ArticleSearch.tsx', {
+    effects: false,
+    states: [query, true, [article], ''],
+  })
+  const tree = nodes(exports.ArticleSearch())
+  const input = tree.find(node => node.type === 'input')
+  assert.equal(input.props.placeholder, 'Search all articles')
+  assert.equal(input.props.maxLength, 200)
+  assert.equal(events.length, 0)
+  let prevented = false
+  tree[0].props.onKeyDown({ key: 'Escape', preventDefault: () => (prevented = true) })
+  assert.equal(prevented, true, 'Escape closes suggestions without the search input clearing and reopening them')
+  tree.find(node => node.type === 'form').props.onSubmit({ preventDefault: () => undefined })
+  assert.deepEqual(routes, [`/knowledge-base/search?q=${encodeURIComponent(query)}`])
+  assert.deepEqual(searches[0], { query, placement: 'archive_search', locale: 'es', knownResultsCount: undefined })
+  tree.find(node => node.type === 'a' && node.props.href === article.canonicalPath).props.onClick()
+  assert.deepEqual(events, [
+    {
+      name: 'kb_article_click',
+      data: { article_id: article.id, placement: 'archive_search_suggestion', hub_id: 'hub-one', position: 1 },
+    },
+  ])
+  tree.find(node => node.type === 'a' && node.props.href.startsWith('/knowledge-base/search?')).props.onClick()
+  assert.deepEqual(searches[1], {
+    query,
+    placement: 'archive_all_search_results',
+    locale: 'es',
+    knownResultsCount: undefined,
+  })
+})
+
+test('search results pass the current query and total to the shared search bar', () => {
+  const { exports, events } = loadComponent('Library.tsx')
   const tree = exports.Library({ catalog, mode: 'search', hubId: '', query: 'test', page: 2, total: 80 })
   assert.equal(events.length, 0, 'Restoring a layout preference must not emit an event')
-  const query = 'learning about payment channels and settlements'
-  const form = nodes(tree).find(node => node.type === 'form')
-  form.props.onSubmit({ preventDefault: () => undefined, currentTarget: { q: query } })
-  assert.deepEqual(searches, [{ query, placement: 'search', locale: 'es', knownResultsCount: undefined }])
-  assert.equal(events.length, 0, 'The helper owns asynchronous search event emission')
-  assert.deepEqual(routes, [`/knowledge-base/search?q=${encodeURIComponent(query)}`])
-  form.props.onSubmit({ preventDefault: () => undefined, currentTarget: { q: 'test' } })
-  assert.deepEqual(searches[1], { query: 'test', placement: 'search', locale: 'es', knownResultsCount: 80 })
+  const search = nodes(tree).find(node => node.type === 'ArticleSearch')
+  assert.equal(search.props.initialQuery, 'test')
+  assert.equal(search.props.placement, 'search')
+  assert.equal(search.props.resultsCount, 80)
   const card = nodes(tree).find(node => node.type === 'ArticleCard')
   assert.equal(card.props.analyticsContext.placement, 'search_results')
   assert.equal(card.props.analyticsContext.position, 1)
@@ -265,15 +306,157 @@ test('search instrumentation captures the submitted term and only reuses totals 
   assert.equal(events.length, 0, 'Clicking the selected layout is not a change')
   layoutButtons[1].props.onClick()
   assert.deepEqual(events[0], { name: 'kb_layout_change', data: { placement: 'search', layout: 'list', columns: 1 } })
-  const next = nodes(tree).find(node => node.props?.href?.startsWith('/knowledge-base/search?page=3'))
-  next.props.onClick()
+  const pagination = nodes(tree).find(node => node.type === 'Pagination')
+  assert.equal(pagination.props.pageCount, 4)
+  assert.equal(pagination.props.currentPage, 2)
+  assert.equal(pagination.props.hrefForPage(3), '/knowledge-base/search?page=3&q=test')
+  pagination.props.onPageChange(3)
   assert.deepEqual(events[1], {
     name: 'kb_pagination_click',
     data: { placement: 'search', page: 3, page_type: 'search', direction: 'next' },
   })
-  const all = nodes(tree).find(node => node.props?.href === '/knowledge-base/articles')
-  all.props.onClick()
-  assert.deepEqual(events[2], { name: 'kb_cta_click', data: { cta_id: 'all_articles', placement: 'search' } })
+  const breadcrumb = nodes(tree).find(node => node.type === 'Breadcrumb')
+  assert.equal(breadcrumb.props.current, 'Search results')
+  assert.deepEqual(
+    Array.from(breadcrumb.props.parents, value => ({ ...value })),
+    [{ label: 'All articles', href: '/knowledge-base/articles', ctaId: 'all_articles' }],
+  )
+  assert.equal(nodes(tree).find(node => node.type === 'h1').props.children, '80 results')
+  assert.equal(nodes(tree).filter(node => node.type === 'h2').length, 0)
+  assert.equal(nodes(tree).filter(node => node.props?.href === '/knowledge-base/articles').length, 0)
+})
+
+test('shared search instrumentation only reuses totals belonging to the submitted query', () => {
+  for (const query of ['test', 'learning about payment channels and settlements']) {
+    const { exports, routes, searches } = loadComponent('ArticleSearch.tsx', {
+      effects: false,
+      states: [query],
+    })
+    const tree = nodes(exports.ArticleSearch({ initialQuery: 'test', placement: 'search', resultsCount: 80 }))
+    tree.find(node => node.type === 'form').props.onSubmit({ preventDefault: () => undefined })
+    assert.deepEqual(routes, [`/knowledge-base/search?q=${encodeURIComponent(query)}`])
+    assert.deepEqual(searches, [
+      {
+        query,
+        placement: 'search',
+        locale: 'es',
+        knownResultsCount: query === 'test' ? 80 : undefined,
+      },
+    ])
+  }
+})
+
+test('empty search guidance stays in the dropdown and blank submissions do not navigate or emit analytics', () => {
+  for (const query of ['', '   ']) {
+    const { exports, routes, searches } = loadComponent('ArticleSearch.tsx', {
+      effects: false,
+      states: [query, true, [catalog.articles[0]]],
+    })
+    const tree = nodes(exports.ArticleSearch())
+    const prompt = tree.find(node => node.props.role === 'status')
+    assert.equal(prompt.props.children, 'Enter a search term.')
+    assert.equal(tree.filter(node => node.type === 'a').length, 0, 'Empty queries must not offer stale or full results')
+    tree.find(node => node.type === 'form').props.onSubmit({ preventDefault: () => undefined })
+    assert.deepEqual(routes, [])
+    assert.deepEqual(searches, [])
+    const library = loadComponent('Library.tsx')
+    const results = nodes(
+      library.exports.Library({
+        catalog: { ...catalog, articles: [] },
+        mode: 'search',
+        hubId: '',
+        query,
+        page: 1,
+        total: 0,
+      }),
+    )
+    assert.equal(results.filter(node => node.props.role === 'status').length, 0)
+  }
+})
+
+test('unmatched search results name the submitted query and suggest adjusting the terms', () => {
+  const { exports } = loadComponent('Library.tsx')
+  const tree = nodes(
+    exports.Library({
+      catalog: { ...catalog, articles: [] },
+      mode: 'search',
+      hubId: '',
+      query: '  unknown topic  ',
+      page: 1,
+      total: 0,
+    }),
+  )
+  const message = tree.find(node => node.props.role === 'status')
+  assert.equal(nodes(message).find(node => node.type === 'strong').props.children, 'unknown topic')
+  assert.deepEqual(
+    Array.from(message.props.children.props.children).filter(child => typeof child === 'string'),
+    ["No results for '", "'. Try adjusting your search terms."],
+  )
+})
+
+test('numbered pagination marks the current page and keeps boundary arrows noninteractive', () => {
+  const { exports } = loadComponent('../Pagination/index.tsx')
+  for (const pageCount of [1, 3, 9]) {
+    for (const currentPage of new Set([1, Math.ceil(pageCount / 2), pageCount])) {
+      const destinations = []
+      const tree = nodes(
+        exports.default({
+          pageCount,
+          currentPage,
+          hrefForPage: page => `/knowledge-base/search?page=${page}&q=nervos`,
+          onPageChange: page => destinations.push(page),
+        }),
+      )
+      assert.equal(tree[0].props['aria-label'], 'Pagination')
+      assert.equal(tree.find(node => node.props['aria-current'] === 'page').props.children, currentPage)
+      assert.equal(
+        tree.some(node => node.props['aria-label'] === 'Previous page' && node.type === 'a'),
+        currentPage > 1,
+      )
+      assert.equal(
+        tree.some(node => node.props['aria-label'] === 'Next page' && node.type === 'a'),
+        currentPage < pageCount,
+      )
+      const links = tree.filter(node => node.type === 'a')
+      for (const link of links) {
+        const url = new URL(link.props.href, 'https://www.nervos.org')
+        const destination = Number(url.searchParams.get('page'))
+        assert.ok(destination >= 1 && destination <= pageCount)
+        assert.equal(url.searchParams.get('q'), 'nervos')
+        link.props.onClick()
+        assert.equal(destinations.at(-1), destination)
+      }
+    }
+  }
+  assert.equal(exports.default({ pageCount: 0 }), null)
+})
+
+test('shared pagination still preserves the current route and query when custom links are omitted', () => {
+  const { exports } = loadComponent('../Pagination/index.tsx', {
+    routerPath: '/knowledge-base',
+    routerQuery: { page: '2', category: 'Nervos' },
+  })
+  const tree = nodes(exports.default({ pageCount: 5 }))
+  for (const link of tree.filter(node => node.type === 'a')) {
+    const url = new URL(link.props.href, 'https://www.nervos.org')
+    assert.equal(url.pathname, '/knowledge-base')
+    assert.equal(url.searchParams.get('category'), 'Nervos')
+  }
+})
+
+test('search breadcrumbs link back to All articles and retain breadcrumb click tracking', () => {
+  const { exports, events } = loadComponent('Shared.tsx')
+  const tree = nodes(
+    exports.Breadcrumb({
+      current: 'Search results',
+      revision: true,
+      parents: [{ label: 'All articles', href: '/knowledge-base/articles', ctaId: 'all_articles' }],
+    }),
+  )
+  const parent = tree.find(node => node.type === 'a' && node.props.href === '/knowledge-base/articles')
+  assert.equal(parent.props.children, 'All articles')
+  parent.props.onClick()
+  assert.deepEqual(events, [{ name: 'kb_cta_click', data: { cta_id: 'all_articles', placement: 'breadcrumb' } }])
 })
 
 test('search grid selection reports four columns and does not emit a duplicate for the selected list layout', () => {

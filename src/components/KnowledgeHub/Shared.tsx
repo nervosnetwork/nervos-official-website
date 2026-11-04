@@ -90,7 +90,15 @@ export function PreviewPage({
   )
 }
 
-export function Breadcrumb({ current, revision = false }: { current: string; revision?: boolean }) {
+export function Breadcrumb({
+  current,
+  revision = false,
+  parents = [],
+}: {
+  current: string
+  revision?: boolean
+  parents?: { label: string; href: string; ctaId: string }[]
+}) {
   return (
     <nav className={revision ? revisedStyles.breadcrumb : styles.breadcrumb} aria-label="Breadcrumb">
       <Link
@@ -100,6 +108,18 @@ export function Breadcrumb({ current, revision = false }: { current: string; rev
       >
         Knowledge Base
       </Link>
+      {parents.map(parent => (
+        <span key={parent.href}>
+          <span aria-hidden="true"> / </span>
+          <Link
+            href={parent.href}
+            locale="en"
+            onClick={() => trackKBEvent('kb_cta_click', { cta_id: parent.ctaId, placement: 'breadcrumb' })}
+          >
+            {parent.label}
+          </Link>
+        </span>
+      ))}
       <span aria-hidden="true"> / </span>
       <span aria-current="page">{current}</span>
     </nav>
