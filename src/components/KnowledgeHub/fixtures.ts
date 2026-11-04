@@ -1,28 +1,27 @@
-// Figma review fixtures only: these are not verified article metadata or analytics.
 export const hubs = [
   {
     name: 'Blockchain Cryptography',
-    description: 'Hash functions, elliptic curves and signatures, the primitives every blockchain is built on.',
+    description: 'Explore the cryptographic building blocks that keep blockchains secure.',
   },
   {
     name: 'Quantum Computing & Blockchain Security',
-    description: 'The quantum threat to crypto, and how a chain prepares for a post-quantum world.',
+    description: 'Understand the quantum threat and how blockchains can prepare for it.',
   },
   {
     name: 'Blockchain Architecture',
-    description: 'UTXO and the Cell model, modularity, state and account abstraction, how CKB is put together.',
+    description: 'Explore the design choices that shape how blockchains work.',
   },
   {
     name: 'Blockchain VMs & RISC-V',
-    description: 'Why CKB runs a RISC-V VM, the Cell model in practice, and building on hardware, not software.',
+    description: 'Learn how blockchains execute code, from virtual machines to RISC-V.',
   },
   {
     name: 'Blockchain Scalability',
-    description: 'Why CKB runs a RISC-V VM, the Cell model in practice, and building on hardware, not software.',
+    description: 'Explore how blockchains scale, from rollups to payment channels.',
   },
   {
     name: 'Nervos CKB',
-    description: 'What CKB is, its tokenomics and issuance, NervosDAO, iCKB and the RGB++ ecosystem.',
+    description: "Understand CKB's architecture, economic model, and unique capabilities.",
   },
 ]
 

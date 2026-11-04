@@ -16,6 +16,9 @@ const readingIds = [
   ['blockchain_crypto_agility', 'ckb_blockchain_developers_dream'],
 ]
 
+const guideDescription =
+  "Discover how CKB builds on Bitcoin's foundations to make blockchains more programmable, flexible, and ready for whatever comes next."
+
 export function StartHere({ catalog }: { catalog: KBCatalog }) {
   const sidebarRef = useRef<HTMLElement>(null)
   const navRef = useRef<HTMLElement>(null)
@@ -55,7 +58,7 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
   return (
     <PreviewPage
       title="Start Here"
-      description="Nervos CKB explores what becomes possible when Bitcoin’s design principles meet open-ended programmability. Discover a blockchain built for people who want to push the technology further."
+      description={guideDescription}
       canonicalPath="/knowledge-base/start-here"
       revision
       headerClassName={styles.scrollingHeader}
@@ -68,13 +71,10 @@ export function StartHere({ catalog }: { catalog: KBCatalog }) {
           <div className={styles.startHeroCopy}>
             <h1>
               Understand Nervos CKB in <br className={styles.startTitleBreak} />
-              four steps
+              five steps
             </h1>
-            <strong>Inspired by Bitcoin’s foundations. Built for what comes next.</strong>
-            <p>
-              Nervos CKB explores what becomes possible when Bitcoin’s design principles meet open-ended
-              programmability. Discover a blockchain built for people who want to push the technology further.
-            </p>
+            <strong>Bitcoin&apos;s principles. A new world of possibilities.</strong>
+            <p>{guideDescription}</p>
           </div>
         </header>
         <div className={styles.twoColumnLayout}>

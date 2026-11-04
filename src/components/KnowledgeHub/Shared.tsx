@@ -173,12 +173,8 @@ export function DiscoverBanner({
         />
       )}
       <div data-life-exclusion>
-        <h2>
-          {revision
-            ? 'Meet Nervos CKB, a blockchain built for flexibility.'
-            : 'Meet the blockchain built for what comes next.'}
-        </h2>
-        <p>Explore the ideas, architecture, and ecosystem behind CKB.</p>
+        <h2>New to Nervos? Start here.</h2>
+        <p>Everything you need to understand Nervos, how it works, and what makes it different.</p>
       </div>
       <span className={design.discoverAction} data-life-exclusion>
         <ArrowButton
@@ -194,7 +190,7 @@ export function DiscoverBanner({
               })
           }}
         >
-          {revision ? 'Discover CKB in 4 Steps' : 'Discover CKB'}
+          Explore the guide
         </ArrowButton>
       </span>
     </aside>

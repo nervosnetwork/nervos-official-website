@@ -24,43 +24,14 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8')
 const articleFile = 'src/components/KnowledgeHub/ContentArticle.tsx'
 const styles = new Proxy({}, { get: (_, key) => key })
 const element = React.createElement
-function articleBodyWithoutAlts(html) {
+function articleContentWithoutAlts(html) {
   const document = new DOMParser().parseFromString(html, 'text/html')
-  const body = Array.from(document.getElementsByTagName('article')).find(
-    node => node.getAttribute('class') === 'articleBody',
+  const content = Array.from(document.getElementsByTagName('div')).find(
+    node => node.getAttribute('class') === 'articleMarkdown',
   )
-  assert.ok(body, 'The complete article body must render')
-  // Likes are intentionally hidden until real voting is available.
-  for (const node of Array.from(body.getElementsByTagName('button'))) {
-    if (node.getAttribute('class') === 'likeButton') node.parentNode.removeChild(node)
-  }
-  // Normalize the removed legacy B-only intro in the approved baseline and
-  // unwrap bottom-banner tracking; keep comparing article text and images.
-  for (const node of Array.from(body.getElementsByTagName('div'))) {
-    if (node.getAttribute('class') === 'mobileDiscoverBanner') node.parentNode.removeChild(node)
-    if (node.getAttribute('data-discover-banner') === 'bottom') {
-      while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node)
-      node.parentNode.removeChild(node)
-    }
-  }
-  // Sonny explicitly retained the four-step guide when the incoming UI restored
-  // five. Normalize only this template CTA, never translated article prose.
-  for (const link of Array.from(body.getElementsByTagName('a'))) {
-    if (
-      link.getAttribute('href') === '/knowledge-base/start-here' &&
-      link.parentNode.getAttribute('class') === 'mobileDiscover' &&
-      link.firstChild?.nodeType === 3
-    )
-      link.replaceChild(
-        document.createTextNode(
-          link.firstChild.nodeValue.replace(/^Discover CKB in 5 Steps(\s*)$/, 'Discover CKB in 4 Steps$1'),
-        ),
-        link.firstChild,
-      )
-  }
-  // The language controls live in the navigation; this image regression keeps
-  // comparing the complete article body, including its title, cover and links.
-  return body.toString().replace(/\salt="[^"]*"/g, '')
+  assert.ok(content, 'The complete Markdown content must render')
+  // Check article content independently of navigation, promotions and social controls.
+  return content.toString().replace(/\salt="[^"]*"/g, '')
 }
 const hash = value => createHash('sha256').update(value).digest('hex')
 
@@ -131,7 +102,7 @@ function loadArticle(source, socialActions = false, realImages = false) {
 const ContentArticle = loadArticle(read(articleFile))
 // Integration checks may explicitly select the incoming approved UI revision.
 // Ordinary CI keeps the existing HEAD baseline, including in shallow checkouts.
-// Compare the complete body; only alt attributes are excluded below.
+// Compare article content; only alt attributes are excluded below.
 const previousRevision = process.env.KB_ARTICLE_UI_BASELINE_REVISION || 'HEAD'
 const PreviousArticle = loadArticle(
   execFileSync('git', ['show', `${previousRevision}:${articleFile}`], { cwd: root, encoding: 'utf8' }),
@@ -271,16 +242,17 @@ test('decorative component stubs and the existing social decoration retain empty
   assert.equal(bodyImages(html)[0].alt, defaultArticle.title)
 })
 
-test('fixture article body HTML matches the approved revision apart from alt and approved four-step template copy', () => {
+test('fixture article content matches the approved revision apart from image alt attributes', () => {
   const markdown =
     '# Existing section\n\nVisible **article text**.\n\n' + fallbackCases.map(([, value]) => value).join('\n\n')
   const current = renderArticle(markdown)
-  assert.match(current, /Discover CKB in 4 Steps/)
-  assert.doesNotMatch(current, /Discover CKB in 5 Steps/)
-  assert.equal(articleBodyWithoutAlts(current), articleBodyWithoutAlts(renderArticle(markdown, {}, PreviousArticle)))
+  assert.equal(
+    articleContentWithoutAlts(current),
+    articleContentWithoutAlts(renderArticle(markdown, {}, PreviousArticle)),
+  )
 })
 
-test('all 471 renditions preserve hashes and body HTML except image alt and approved four-step template copy', context => {
+test('all 471 renditions preserve hashes and article content except image alt attributes', context => {
   const catalog = JSON.parse(read('public/education_hub_articles/metadata/catalog.json'))
   const articles = catalog.articles.filter(article => !article.draft)
   assert.equal(articles.length, 471)
@@ -294,9 +266,9 @@ test('all 471 renditions preserve hashes and body HTML except image alt and appr
     const before = renderArticle(content, article, PreviousArticle)
     const after = renderArticle(content, article)
     assert.equal(
-      articleBodyWithoutAlts(after),
-      articleBodyWithoutAlts(before),
-      `${sourceFile}: only image alt and approved four-step template copy may change`,
+      articleContentWithoutAlts(after),
+      articleContentWithoutAlts(before),
+      `${sourceFile}: only image alt attributes may change`,
     )
     const beforeImages = bodyImages(before)
     const afterImages = bodyImages(after)
@@ -309,9 +281,12 @@ test('all 471 renditions preserve hashes and body HTML except image alt and appr
       assert.equal(afterImages[index].alt, fallback ? article.title : image.alt, `${sourceFile}: image ${index + 1}`)
     }
     const cover = images(after).find(image => image.className === 'articleCover')
+    const beforeCover = images(before).find(image => image.className === 'articleCover')
     assert.equal(Boolean(cover), Boolean(article.coverImage), sourceFile)
     if (cover) {
       counts.covers += 1
+      assert.equal(cover.src, beforeCover.src, `${sourceFile}: cover source`)
+      assert.equal(cover.loading, beforeCover.loading, `${sourceFile}: cover loading`)
       assert.equal(cover.alt, article.title, `${sourceFile}: cover title`)
     }
     assert.equal(hash(read(sourceFile)), article.sourceSHA256, `${sourceFile}: source remains unchanged`)

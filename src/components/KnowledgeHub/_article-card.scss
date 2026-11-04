@@ -30,6 +30,8 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   @include tokens.type(h4);
+
+  font-size: 18px;
 }
 
 @mixin metadata {
@@ -44,13 +46,8 @@
   white-space: normal;
   @include tokens.type(footnote);
 
-  > img:first-child {
-    width: 18px;
-    height: 18px;
-  }
-
-  > img:not(:first-child) {
-    width: 12px;
-    height: 12px;
+  > img {
+    width: 14px;
+    height: 14px;
   }
 }

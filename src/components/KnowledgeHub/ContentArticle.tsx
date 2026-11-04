@@ -385,7 +385,7 @@ export function ContentArticle({
                 className={styles.discoverSteps}
                 onClick={() => trackDiscover('article_sidebar')}
               >
-                Discover CKB in 4 Steps
+                Discover CKB in 5 steps
               </Link>
             </nav>
           </aside>
@@ -431,9 +431,9 @@ export function ContentArticle({
               </nav>
             )}
             <div className={styles.mobileDiscover}>
-              <p>New to CKB? Start with the essentials.</p>
+              <p>New to Nervos? Start here.</p>
               <Link href="/knowledge-base/start-here" locale="en" onClick={() => trackDiscover('article_mobile_intro')}>
-                Discover CKB in 4 Steps <span aria-hidden="true">→</span>
+                Explore the guide <span aria-hidden="true">→</span>
               </Link>
             </div>
             {article.coverImage && renderImage(article.coverImage, article.title, true)}

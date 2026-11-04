@@ -140,6 +140,12 @@ test('article Discover clicks attach the variant and responsive layout outside p
     { eligible: true, variant: 'B', preview: true },
   ]) {
     const { tree, events, DiscoverBanner } = renderArticle(settings)
+    assert.ok(tree.some(node => node.type === 'p' && node.props.children === 'New to Nervos? Start here.'))
+    assert.ok(
+      tree.some(
+        node => node.props.href === '/knowledge-base/start-here' && node.props.children === 'Discover CKB in 5 steps',
+      ),
+    )
     tree.filter(node => node.type === DiscoverBanner).forEach(node => node.props.onDiscoverClick())
     assert.deepEqual(
       events.map(event => ({ ...event })),

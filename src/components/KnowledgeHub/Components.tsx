@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { Icon } from './Icon'
 import type { guideSteps } from './guide-data'
 import styles from './components.module.scss'
-import { KBArticle, formatArticleDate, articlePath } from './content'
+import { KBArticle, articlePath } from './content'
 import { ArticleAnalyticsContext, trackKBEvent } from './analytics'
 import { kbHubPath } from '../../utils/kb-hubs'
 import { ArticleLanguageLink } from './ArticleLanguageLink'
@@ -293,11 +293,14 @@ export function StepSection({
         )}
       </div>
       {step.actions && (
-        <ul className={clsx(styles.readingList, styles.stepActions)}>
+        <ul className={styles.stepActions}>
           {step.actions.map(action => (
-            <li key={action.resourceId}>
+            <li key={action.resourceId} className={styles.stepAction}>
               <Link
+                className={styles.stepActionLink}
                 href={action.href}
+                aria-label={action.label}
+                aria-describedby={`${step.id}-${action.resourceId}-description`}
                 onClick={() =>
                   trackKBEvent('kb_resource_click', {
                     resource_id: action.resourceId,
@@ -305,13 +308,16 @@ export function StepSection({
                   })
                 }
               >
-                <span className={styles.readingTitle}>
-                  {action.title}: {action.description}
+                <span className={styles.stepActionIcon} aria-hidden="true">
+                  <span
+                    className={styles.stepActionGlyph}
+                    style={{ maskImage: `url("/images/knowledge-hub/${action.icon}.svg")` }}
+                  />
                 </span>
-                <span className={styles.stepActionEnd}>
-                  <span className={styles.stepActionLabel}>{action.label}</span>
-                  <span className={styles.stepActionArrow} aria-hidden="true">
-                    →
+                <span className={styles.stepActionLabel}>{action.label}</span>
+                <span className={styles.stepActionDetails}>
+                  <span className={styles.stepActionClip} id={`${step.id}-${action.resourceId}-description`}>
+                    {action.title}: {action.description}
                   </span>
                 </span>
               </Link>
@@ -335,19 +341,10 @@ export function StepSection({
   )
 }
 
-export function CardMeta({ author = false, article }: { author?: boolean; article?: KBArticle }) {
+export function CardMeta({ article }: { article?: KBArticle }) {
   return (
     <div className={styles.meta}>
-      <Icon name="articleBody-imgGroup58" size={18} />
-      {author && (
-        <>
-          <span>{article ? article.authors.join(', ') || 'Nervos Network' : 'Nervos'}</span>
-          <span>·</span>
-        </>
-      )}
-      <span>{article ? formatArticleDate(article.date) : 'February 28, 2023'}</span>
-      <span>·</span>
-      <Icon name="topics-imgLayer15" size={12} />
+      <Icon name="topics-imgLayer15" size={14} />
       <span>{article?.readingMinutes ?? 5} min read</span>
     </div>
   )
@@ -403,7 +400,7 @@ export function ArticleCard({
               <span key={t}>{t}</span>
             ))}
           </div>
-          <CardMeta author article={article} />
+          <CardMeta article={article} />
         </div>
         <ArticleCover
           src={article?.coverImage}

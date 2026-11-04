@@ -18,12 +18,14 @@ const approvedIds = [
   ['comparing_blockchain_virtual_machines', 'account_abstraction_where_we_are_going'],
   ['what_is_fiber', 'the_case_for_rgbpp'],
   ['blockchain_crypto_agility', 'ckb_blockchain_developers_dream'],
+  [],
 ]
 const approvedTitles = [
   'What is Nervos CKB?',
   'Why it’s built differently?',
   'What it makes possible',
   'Crypto-Agile & Quantum-Ready',
+  'Make your next move',
 ]
 
 function loadModule(filename, imports = {}) {
@@ -68,15 +70,21 @@ function nodes(node) {
   return [node, ...nodes(node.props?.children)]
 }
 
-test('Start Here renders exactly four steps with navigation targets for every section', () => {
+test('Start Here renders five steps with navigation targets for every section', () => {
   const tree = nodes(StartHere({ catalog: { ...catalog, articles: [] } }))
   const navigation = tree.filter(node => node.type === 'SubjectCard')
   const sections = tree.filter(node => node.type === 'StepSection')
-  assert.equal(navigation.length, 4)
-  assert.equal(sections.length, 4)
+  assert.equal(navigation.length, 5)
+  assert.equal(sections.length, 5)
   assert.deepEqual(
     navigation.map(node => node.props.title),
-    ['What is Nervos CKB?', 'Why it’s built differently', 'CKB & Bitcoin', 'Quantum & crypto agility'],
+    [
+      'What is Nervos CKB?',
+      'Why it’s built differently',
+      'What it makes possible',
+      'Quantum & crypto agility',
+      'Try it & build',
+    ],
   )
   assert.deepEqual(
     sections.map(node => node.props.step.title),
@@ -84,23 +92,30 @@ test('Start Here renders exactly four steps with navigation targets for every se
   )
   assert.deepEqual(
     navigation.map(node => node.props.href),
-    ['#step-1', '#step-2', '#step-3', '#step-4'],
+    ['#step-1', '#step-2', '#step-3', '#step-4', '#step-5'],
   )
   const heading = tree.find(node => node.type === 'h1')
   assert.ok(heading)
   const headingText = heading.props.children.filter(child => typeof child === 'string').join('')
-  assert.match(headingText, /CKB in four steps/)
-  assert.doesNotMatch(headingText, /five steps/)
+  assert.match(headingText, /CKB in five steps/)
+  assert.ok(
+    tree.some(
+      node => node.type === 'strong' && node.props.children === "Bitcoin's principles. A new world of possibilities.",
+    ),
+  )
+  const description =
+    "Discover how CKB builds on Bitcoin's foundations to make blockchains more programmable, flexible, and ready for whatever comes next."
+  assert.ok(tree.some(node => node.type === 'p' && node.props.children === description))
+  assert.equal(tree.find(node => node.type === 'PreviewPage').props.description, description)
 })
 
-test('Start Here passes the exact eight approved articles in editorial order across four steps', () => {
+test('Start Here keeps the eight approved articles in order and reserves step five for actions', () => {
   const articles = catalog.articles.filter(article => article.language === 'en').reverse()
   const sections = nodes(StartHere({ catalog: { ...catalog, articles } })).filter(node => node.type === 'StepSection')
   const selections = sections.map(node => Array.from(node.props.articles, article => article.id))
   assert.deepEqual(selections, approvedIds)
   assert.equal(selections.flat().length, 8)
-  assert.equal(sections.length, 4)
-  assert.equal(sections.at(-1).props.step.id, 'step-4')
+  assert.equal(sections.at(-1).props.step.id, 'step-5')
 })
 
 test('every approved selection resolves to its existing English source and unchanged canonical URL', () => {
@@ -114,6 +129,7 @@ test('every approved selection resolves to its existing English source and uncha
   assert.ok(!approvedIds.flat().includes('account_abstraction_where_were_going'), 'Do not use the feedback URL typo')
 })
 
+const resourceEvents = []
 const { StepSection } = loadModule('Components.tsx', {
   clsx: { default: (...values) => values.filter(Boolean).join(' ') },
   'next/link': { default: 'Link' },
@@ -123,13 +139,12 @@ const { StepSection } = loadModule('Components.tsx', {
   './ArticleLanguageLink': { ArticleLanguageLink: 'ArticleLanguageLink' },
   './components.module.scss': { default: {} },
   './content': {},
-  './analytics': { trackKBEvent: () => undefined },
+  './analytics': { trackKBEvent: (name, data) => resourceEvents.push({ name, data: { ...data } }) },
   '../../utils/kb-hubs': kbHubs,
 })
 
-test('the four approved steps retain their copy without fifth-step actions', () => {
-  assert.equal(guideSteps.length, 4)
-  guideSteps.forEach((step, index) => {
+test('the first four steps retain their copy and step five restores the resource links', () => {
+  guideSteps.slice(0, 4).forEach((step, index) => {
     const tree = nodes(StepSection({ step, index, articles: [] }))
     assert.equal(tree.find(node => node.type === 'section').props.id, `step-${index + 1}`)
     assert.equal(tree.find(node => node.type === 'h2').props.children, approvedTitles[index])
@@ -140,4 +155,30 @@ test('the four approved steps retain their copy without fifth-step actions', () 
     assert.ok(!tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
     assert.equal(step.actions, undefined)
   })
+  const tree = nodes(StepSection({ step: guideSteps[4], index: 4, articles: [] }))
+  assert.equal(tree.find(node => node.type === 'section').props.id, 'step-5')
+  assert.ok(tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
+  const actions = tree.filter(node => node.type === 'Link')
+  assert.deepEqual(
+    actions.map(node => node.props.href),
+    ['https://ckbdapps.com/ecosystem', 'https://talk.nervos.org/', 'https://docs.nervos.org/'],
+  )
+  assert.deepEqual(
+    actions.map(node => node.props['aria-label']),
+    ['Explore CKB', 'Visit NervosTalk', 'Developer Docs & Quick Start'],
+  )
+  actions.forEach((action, index) => {
+    const description = action.props.children[2].props.children
+    const expected = guideSteps[4].actions[index]
+    assert.equal(description.props.id, action.props['aria-describedby'])
+    assert.equal(description.props.children.join(''), `${expected.title}: ${expected.description}`)
+  })
+  actions.forEach(action => action.props.onClick())
+  assert.deepEqual(
+    resourceEvents,
+    ['ecosystem', 'community', 'developer_docs'].map(resource_id => ({
+      name: 'kb_resource_click',
+      data: { resource_id, placement: 'start_here_actions' },
+    })),
+  )
 })

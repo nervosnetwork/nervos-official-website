@@ -42,7 +42,7 @@
 }
 
 .hero {
-  min-height: 687px;
+  min-height: 0;
   padding-top: 48px;
 }
 
@@ -64,12 +64,11 @@
 }
 
 .guideBanner {
-  min-height: 340px;
   margin-top: 64px;
   padding: 32px 48px;
   background: #111 url('/images/knowledge-hub/guide-background.jpg') center / cover no-repeat;
 
-  // Keep the original geometry and texture resolution. The AVIF URL matches
+  // Keep the original texture resolution. The AVIF URL matches
   // the single, typed preload on the KB homepage; older browsers retain JPEG.
   background-image: image-set(
     url('/images/knowledge-hub/guide-background.1c63b618.avif') type('image/avif'),
@@ -148,7 +147,7 @@
 }
 
 .topics {
-  padding: 80px 0;
+  padding: 80px 0 0;
 }
 
 .topicIntro {
@@ -156,12 +155,6 @@
   margin-top: 24px !important;
   color: var(--kbSecondary);
   @include tokens.type(subheader);
-}
-
-@media (width <= #{screens.$mobileMax}) {
-  .topicIntroBreak {
-    display: none;
-  }
 }
 
 .hubGrid {
@@ -232,24 +225,6 @@
   margin-top: 48px;
 }
 
-.searchActions {
-  gap: 16px;
-}
-
-.searchWrap form {
-  --kbFieldBackground: var(--kbInput);
-
-  height: 48px;
-  background: var(--kbInput);
-  transition: background-color 180ms ease;
-}
-
-.searchWrap form:is(:hover, :focus-within) {
-  --kbFieldBackground: var(--kbDivider);
-
-  background: var(--kbDivider);
-}
-
 .allArticles {
   display: flex;
   width: fit-content;
@@ -265,9 +240,9 @@
   .popular > .container {
     display: grid;
     grid-template-areas:
-      'heading search action'
-      'articles articles articles';
-    grid-template-columns: minmax(0, 1fr) auto auto;
+      'heading action'
+      'articles articles';
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 0 16px;
     align-items: end;
   }
@@ -280,10 +255,6 @@
     grid-area: heading;
   }
 
-  .searchActions {
-    grid-area: search;
-  }
-
   .popularGrid {
     grid-area: articles;
   }
@@ -294,99 +265,12 @@
   }
 }
 
-.searchWrap input {
-  @include tokens.type(body);
-}
-
-.searchWrap input::-webkit-search-cancel-button {
-  appearance: none;
-}
-
-.clearSearch:focus-visible {
-  border-radius: 50%;
-  outline: 2px solid var(--kbAccent);
-  outline-offset: 2px;
-}
-
-.searchWrap form .clearSearch {
-  flex-shrink: 0;
-  padding: 0 4px;
-  color: var(--kbMuted);
-  font-size: 20px;
-  line-height: 1;
-}
-
-.searchResults {
-  top: calc(100% + 8px);
-  z-index: 10;
-  box-sizing: border-box;
-  max-height: min(360px, 60vh);
-  padding: 8px;
-  overflow-y: auto;
-  color: var(--kbText);
-  background: var(--kbSurface);
-  border: 1px solid var(--kbBorder);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgb(17 17 17 / 8%);
-}
-
-.searchCaption {
-  gap: 16px;
-  padding: 4px 8px 8px;
-  color: var(--kbMuted);
-  @include tokens.type(body2);
-}
-
-.searchCaption button {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 6px;
-  color: var(--kbMuted);
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    color 180ms ease,
-    background-color 180ms ease;
-}
-
-.searchResults > button,
-.searchResults > a,
-.searchResults > p {
-  display: block;
-  margin: 0;
-  padding: 12px;
-  @include tokens.type(subheader);
-}
-
-.searchResults > p {
-  color: var(--kbMuted);
-}
-
-.searchResults > button,
-.searchResults > a {
-  color: var(--kbText);
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    color 180ms ease,
-    background-color 180ms ease;
-}
-
 .page .newsletterCopy input {
   font-weight: 400;
   font-size: 15px;
   font-family: inherit;
   line-height: 1;
   letter-spacing: 0.75px;
-}
-
-.searchWrap form button {
-  align-items: center;
-  justify-content: center;
 }
 
 .newsletterCopy form button {
@@ -404,27 +288,6 @@
   @include tokens.type(body);
 }
 
-.searchResults button:is(:hover, :focus-visible),
-.searchResults a:is(:hover, :focus-visible) {
-  color: var(--kbBrand);
-  background: var(--kbInput);
-}
-
-.searchResults button:focus-visible,
-.searchResults a:focus-visible {
-  outline: 2px solid var(--kbAccent);
-  outline-offset: -2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .searchWrap form,
-  .searchResults button {
-    transition: none;
-  }
-}
-
-.page .searchWrap input:focus,
-.page .searchWrap input:focus-visible,
 .page .newsletterCopy input:focus,
 .page .newsletterCopy input:focus-visible {
   outline: none;
@@ -724,7 +587,10 @@
     margin-top: 24px;
   }
 
-  .topics,
+  .topics {
+    padding: 48px 0 0;
+  }
+
   .popular {
     padding: 48px 0;
   }
@@ -735,31 +601,8 @@
     align-items: stretch;
   }
 
-  .searchActions,
-  .searchWrap {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .searchWrap input,
   .newsletterCopy input {
     font-size: 16px;
-  }
-
-  .searchWrap form {
-    padding-right: 4px;
-    padding-left: 16px;
-  }
-
-  .searchCaption button,
-  .searchWrap form button {
-    justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .searchResults {
-    max-height: min(360px, 50dvh);
   }
 
   .popularGrid {

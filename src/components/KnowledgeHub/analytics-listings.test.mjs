@@ -336,7 +336,7 @@ test('shared article cards and reading lists use actual article hubs and one-bas
   assert.equal(events.at(-1).data.hub_id, 'selected-hub', 'An explicit listing hub retains precedence')
 })
 
-test('Home tracks displayed positions and submitted searches independently of the five suggestion cards', () => {
+test('Home tracks recommendation positions and its single See all articles button', () => {
   const articles = [
     { ...catalog.articles[0], canonicalPath: '/knowledge-base/article-one', readingMinutes: 5 },
     {
@@ -347,11 +347,7 @@ test('Home tracks displayed positions and submitted searches independently of th
       readingMinutes: 3,
     },
   ]
-  const query = 'payment channels'
-  const { exports, events, routes, searches } = loadComponent('Home.tsx', {
-    effects: false,
-    states: [query, true, articles, ''],
-  })
+  const { exports, events } = loadComponent('Home.tsx')
   const root = nodes(
     exports.KnowledgeHubHome({
       catalog: { articles: [], hubs: [], subjects: [], featured: [] },
@@ -361,25 +357,24 @@ test('Home tracks displayed positions and submitted searches independently of th
   ).find(node => node.type === 'Page')
   const tree = nodes(root.props.children({ renderHeader: () => null }))
   const articleLinks = tree.filter(node => articles.some(article => article.canonicalPath === node.props?.href))
-  assert.equal(articleLinks.length, 4)
+  assert.equal(articleLinks.length, 2)
   for (const link of articleLinks) link.props.onClick()
   assert.deepEqual(
     events.map(event => event.data),
     [
-      { article_id: 'article-one', placement: 'home_search_suggestion', hub_id: 'hub-one', position: 1 },
-      { article_id: 'article-two', placement: 'home_search_suggestion', hub_id: 'hub-two', position: 2 },
       { article_id: 'article-one', placement: 'recommended_reading', hub_id: 'hub-one', position: 1 },
       { article_id: 'article-two', placement: 'recommended_reading', hub_id: 'hub-two', position: 2 },
     ],
   )
-  tree.find(node => node.type === 'form').props.onSubmit({ preventDefault: () => undefined })
-  const allResults = tree.find(node => node.props?.href === `/knowledge-base/search?q=${encodeURIComponent(query)}`)
-  allResults.props.onClick()
-  assert.deepEqual(searches, [
-    { query, placement: 'home_search', locale: 'es', knownResultsCount: undefined },
-    { query, placement: 'home_all_search_results', locale: 'es', knownResultsCount: undefined },
-  ])
-  assert.deepEqual(routes, [`/knowledge-base/search?q=${encodeURIComponent(query)}`])
+  assert.ok(!tree.some(node => node.props?.role === 'search' || node.props?.type === 'search'))
+  const archiveLinks = tree.filter(node => node.props?.href === '/knowledge-base/articles')
+  assert.equal(archiveLinks.length, 1)
+  assert.equal(archiveLinks[0].props.children, 'See all articles')
+  archiveLinks[0].props.onClick()
+  assert.deepEqual(events.at(-1), {
+    name: 'kb_cta_click',
+    data: { cta_id: 'all_articles', placement: 'home_recommended' },
+  })
 })
 
 test('resource events carry the existing link destination and guide steps carry their actual labels', () => {
@@ -394,7 +389,7 @@ test('resource events carry the existing link destination and guide steps carry 
   const guide = loadComponent('StartHere.tsx', { effects: false })
   const steps = nodes(guide.exports.StartHere({ catalog })).filter(node => node.type === 'SubjectCard')
   const { guideSteps } = loadGuideSteps()
-  assert.equal(steps.length, 4)
+  assert.equal(steps.length, 5)
   steps.forEach((step, index) => {
     assert.equal(step.props.title, guideSteps[index].navTitle)
     step.props.onClick()

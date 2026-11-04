@@ -125,16 +125,13 @@ test('updated Discover banners keep static artwork, revised copy, CTA and click 
     )
     assert.equal(children[0].hasAttribute('data-life-exclusion'), true)
     assert.equal(children[1].hasAttribute('data-life-exclusion'), true)
-    assert.equal(
-      aside.getElementsByTagName('h2')[0].textContent,
-      'Meet Nervos CKB, a blockchain built for flexibility.',
-    )
+    assert.equal(aside.getElementsByTagName('h2')[0].textContent, 'New to Nervos? Start here.')
     assert.equal(
       aside.getElementsByTagName('p')[0].textContent,
-      'Explore the ideas, architecture, and ecosystem behind CKB.',
+      'Everything you need to understand Nervos, how it works, and what makes it different.',
     )
     const link = aside.getElementsByTagName('a')[0]
-    assert.equal(link.textContent, 'Discover CKB in 4 Steps')
+    assert.equal(link.textContent, 'Explore the guide')
     assert.equal(link.getAttribute('href'), '/knowledge-base/start-here')
     assert.equal(link.getAttribute('class'), 'article-discoverButton')
     assert.deepEqual(canvasProps, [], 'The revised article banner has no decorative canvas')
@@ -188,13 +185,13 @@ test('Discover geometry follows the revised layout while preserving artwork stac
   for (const [property, value] of Object.entries({
     position: 'relative',
     gap: '16px',
-    'min-height': '214px',
     padding: '32px 48px',
     overflow: 'hidden',
     'border-radius': '9px',
     isolation: 'isolate',
   }))
     assert.equal(banner[property], value)
+  assert.equal(banner['min-height'], undefined, 'The bottom banner height follows its content')
   const compact = declarations('.discoverCompact')
   for (const [property, value] of Object.entries({
     position: 'relative',
@@ -228,7 +225,7 @@ test('Discover geometry follows the revised layout while preserving artwork stac
   assert.equal(mobileBanner['flex-direction'], 'column')
   assert.equal(mobileBanner['align-items'], 'flex-start')
   assert.equal(mobileBanner.padding, '32px 48px')
-  assert.equal(declarations('.articleBody .discoverBanner', '(width <= 767px)').padding, '24px')
+  assert.equal(declarations('.articleBody .discoverBanner', '(width <= 767px)').padding, '28px 24px')
   assert.equal(declarations('.discoverBanner .discoverAction', '(width <= 1023px)')['align-self'], 'flex-start')
   const mobileCompact = declarations('.discoverCompact', '(width <= 1023px)')
   assert.equal(mobileCompact['min-height'], '0')
