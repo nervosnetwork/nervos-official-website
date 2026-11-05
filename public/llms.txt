@@ -1,0 +1,28 @@
+# Nervos Network
+
+> Nervos Network is a blockchain network whose Layer 1, Common Knowledge Base (CKB), is secured by Proof-of-Work. CKB uses the Cell Model, an extension of Bitcoin's UTXO model, and a RISC-V-based virtual machine (CKB-VM).
+
+## Start here
+
+- [Nervos CKB](https://www.nervos.org/ckbpage): An introduction to CKB, its native token, and the Nervos DAO.
+- [Knowledge Base](https://www.nervos.org/knowledge-base): Educational articles covering blockchain fundamentals and Nervos CKB.
+- [CKB introduction](https://www.nervos.org/knowledge-base/start-here): A guided introduction to CKB's architecture and applications.
+- [All articles](https://www.nervos.org/knowledge-base/articles): Browse the published Knowledge Base articles.
+
+## Key concepts
+
+- [Nervos architecture](https://www.nervos.org/knowledge-base/nervos_overview_of_a_layered_blockchain): CKB's layered architecture, Cell Model, consensus, and virtual machine.
+- [UTXO model](https://www.nervos.org/knowledge-base/utxo_model_explained): Unspent transaction outputs and the UTXO accounting model.
+- [CKB tokenomics](https://www.nervos.org/knowledge-base/tokenomics_of_nervos_network): Token issuance, state rent, miner incentives, and the Nervos DAO.
+- [Blockchain virtual machines](https://www.nervos.org/knowledge-base/comparing_blockchain_virtual_machines): A comparison of blockchain virtual machines, including CKB-VM.
+
+## Build and explore
+
+- [Developers](https://www.nervos.org/developers): Resources for building on Nervos CKB.
+- [Developer documentation](https://docs.nervos.org/): Technical documentation and development guides.
+- [Wallets](https://www.nervos.org/wallets): Wallet resources for Nervos CKB.
+- [Mining](https://www.nervos.org/mining): Information about CKB's Proof-of-Work mining.
+
+## Site index
+
+- [Sitemap](https://www.nervos.org/sitemap.xml): The build-generated index of published canonical pages and available article translations.

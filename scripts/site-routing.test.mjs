@@ -48,8 +48,27 @@ test('D-19 default-English aliases never add a looping default-locale config red
   assert.equal((await route('/blog')).statusCode, 307, 'Existing archive redirect remains unchanged')
 })
 
+test('llms.txt has a plain-text header on its canonical root URL without a redirect', async () => {
+  for (const host of ['localhost:3999', 'preview.vercel.app', 'www.nervos.org']) {
+    const result = await route('/llms.txt', host)
+    assert.equal(result.statusCode, undefined, host)
+    assert.equal(result.resHeaders['Content-Type'], 'text/plain; charset=utf-8', host)
+  }
+  const rules = await settings.headers()
+  const llms = rules.filter(rule => rule.source === '/llms.txt')
+  assert.equal(llms.length, 1)
+  assert.equal(llms[0].locale, undefined, 'Next must match its internally inferred default locale')
+})
+
 test('D-19 baseline security headers cover pages/assets; HSTS is scoped to the exact production hostname', async () => {
-  for (const path of ['/', '/zh/mining', '/knowledge-base/articles?page=2', '/robots.txt', '/_next/static/test.js']) {
+  for (const path of [
+    '/',
+    '/zh/mining',
+    '/knowledge-base/articles?page=2',
+    '/robots.txt',
+    '/llms.txt',
+    '/_next/static/test.js',
+  ]) {
     for (const host of [
       'localhost:3999',
       'preview.vercel.app',
