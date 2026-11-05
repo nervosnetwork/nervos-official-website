@@ -24,6 +24,7 @@
 /public/sitemap.xml
 /public/indexnow-manifest.json
 /public/indexnow-release.json
+/public/kb-content-release.json
 /indexnow-output/
 next-env.d.ts
 

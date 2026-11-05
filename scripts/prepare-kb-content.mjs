@@ -12,10 +12,16 @@ const renames = fs.existsSync(path.join(root, 'metadata/slug-migrations.json')) 
 const originalIds = new Map([...renames].map(([from, to]) => [to, from]))
 const catalogPath = path.join(root, 'metadata/catalog.json')
 const previous = fs.existsSync(catalogPath) ? JSON.parse(fs.readFileSync(catalogPath, 'utf8')) : null
+// The committed sidecar remains a curated seed, not source metadata authority.
+// Refresh hashes/frontmatter from the resolved checkout while preserving only
+// the existing editorial choices below. Build-generated files are not committed.
+const hubs = previous?.hubs ?? handoff.hubs
+const subjectsByHub = previous?.subjects ?? handoff.subjects
 const previousArticles = new Map(
   (previous?.articles ?? []).map(article => [`${renames.get(article.id) ?? article.id}:${article.language}`, article]),
 )
 const sha = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+if (!/^[a-f0-9]{40}$/.test(sha)) throw new Error('Content provenance must be an exact Git commit')
 const hash = value => crypto.createHash('sha256').update(value).digest('hex')
 const candidatePath = value => {
   try {
@@ -54,6 +60,12 @@ for (const folder of fs.readdirSync(root).sort()) {
     const classification = existing ?? inheritedEnglish
     const sourceFile = `${folder}/${file}`
     const raw = fs.readFileSync(path.join(root, sourceFile), 'utf8')
+    // Never let a content file select gray-matter's executable JS engine, even
+    // when this low-level preparation command is called outside the build gate.
+    if (!/^\uFEFF?---[^\S\r\n]*\r?\n/.test(raw))
+      throw new Error(
+        `${sourceFile}: only standard YAML frontmatter is allowed; executable/custom engines are forbidden`,
+      )
     let parsed
     try {
       parsed = matter(raw)
@@ -88,11 +100,11 @@ for (const folder of fs.readdirSync(root).sort()) {
     const subjects = classification ? classification.subjects : proposal?.subjects || []
     if (
       hub &&
-      (!handoff.hubs.some(h => h.id === hub) ||
+      (!hubs.some(h => h.id === hub) ||
         !subjects.length ||
         subjects.length > 3 ||
         new Set(subjects).size !== subjects.length ||
-        subjects.some(id => !handoff.subjects.some(s => s.id === id && s.hub === hub)))
+        subjects.some(id => !subjectsByHub.some(s => s.id === id && s.hub === hub)))
     )
       throw new Error(`Invalid taxonomy: ${sourceFile}`)
     const originalDate = data.date instanceof Date ? data.date.toISOString() : data.date
@@ -177,8 +189,8 @@ const featured = previous
 const manifest = {
   schemaVersion: 1,
   sourceCommit: sha,
-  hubs: handoff.hubs,
-  subjects: handoff.subjects,
+  hubs,
+  subjects: subjectsByHub,
   featured,
   articles,
 }

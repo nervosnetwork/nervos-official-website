@@ -86,10 +86,23 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
   }
   const published = i18nConfig.i18n.locales.flatMap(locale => content.getKBCatalog(locale).articles)
   assert.equal(articles, published.length)
-  // 2026-11-03 upstream sync: 471 articles + 20 actual archive pages +
-  // 48 translated core pages + KB home/guide/six Hubs. No invented translations.
-  assert.equal(published.length, 471, 'Current source inventory; re-audit after a content update')
-  assert.equal(entries.length, 547, 'Current reviewed snapshot; re-audit after a content update')
+  assert(published.length > 0, 'The real-content integration must not pass with an empty source inventory')
+  const coreCount = Object.entries(siteIndexing.coreNamespaces)
+    .filter(([route]) => route !== '/home')
+    .reduce((count, [, namespace]) => count + siteIndexing.coreLanguages(namespace).length, 0)
+  let archiveCount = 0
+  for (const language of i18nConfig.i18n.locales) {
+    const count = published.filter(article => article.language === language).length
+    const pages = Math.max(language === 'en' ? 1 : 0, Math.ceil(count / 24))
+    archiveCount += pages
+    const prefix = language === 'en' ? '' : `/${language}`
+    for (let page = 1; page <= pages; page++) {
+      assert(paths.has(`${prefix}/knowledge-base/articles${page > 1 ? `?page=${page}` : ''}`))
+    }
+    assert(!paths.has(`${prefix}/knowledge-base/articles?page=${pages + 1}`), 'No out-of-range archive page')
+    if (pages === 0) assert(!paths.has(`${prefix}/knowledge-base/articles`), 'No fabricated empty-language archive')
+  }
+  assert.equal(entries.length, published.length + coreCount + archiveCount + 2 + hubs.KB_HUBS.length)
   for (const hub of hubs.KB_HUBS) assert(paths.has(hubs.kbHubPath(hub.id)))
   for (const excluded of [
     '/home',
@@ -98,24 +111,13 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
     '/knowledge-base?sort_by=latest',
     '/knowledge-base?page=2',
     '/knowledge-base/articles?page=1',
-    '/knowledge-base/articles?page=10',
-    '/zh/knowledge-base/articles?page=10',
     '/zh/knowledge-base/topic/nervos-ckb',
-    '/fr/knowledge-base/articles',
     '/ko',
     '/tr',
     '/zh/media-kit',
   ])
     assert(!paths.has(excluded), excluded)
-  for (const included of [
-    '/knowledge-base/articles?page=9',
-    '/zh/knowledge-base/articles?page=3',
-    '/zh/knowledge-base/articles?page=9',
-    '/es/knowledge-base/articles?page=2',
-    '/ko/journey',
-    '/tr/journey',
-  ])
-    assert(paths.has(included), included)
+  for (const included of ['/ko/journey', '/tr/journey']) assert(paths.has(included), included)
 })
 
 test('build snapshot omits drafts/future/unconfigured translations and never fabricates an English rendition', () => {
@@ -140,7 +142,7 @@ test('build snapshot omits drafts/future/unconfigured translations and never fab
 })
 
 test('pagination is derived from 24 real published articles per page without empty pages or duplicate page 1', () => {
-  for (const count of [0, 1, 24, 25, 48, 49]) {
+  for (const count of [0, 1, 24, 25, 48, 49, 216, 217, 240, 241]) {
     const articles = Array.from({ length: count }, (_, index) => fixture(`item-${index}`))
     const generated = createSitemapEntries({ articles, corePages: [] })
     const archive = generated.filter(item => /\/articles(?:\?|$)/.test(item.loc))
@@ -221,5 +223,8 @@ test('normal build and dev commands generate the snapshot before starting Next',
       name,
     )
   }
-  assert.equal(scripts['sitemap:generate'], 'node scripts/generate-sitemap.mjs')
+  const standalone = scripts['sitemap:generate']
+  assert(standalone.includes('node scripts/generate-sitemap.mjs'))
+  assert(standalone.indexOf('validate-kb-sources.mjs') < standalone.indexOf('prepare-kb-content.mjs'))
+  assert(standalone.indexOf('prepare-kb-content.mjs') < standalone.indexOf('generate-sitemap.mjs'))
 })

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
-import { test } from 'node:test'
+import { after, test } from 'node:test'
 import ts from 'typescript'
 import { readSlugMigrations, rewriteKBUrl, rewriteMarkdownLinks, migrateKBSlugs } from './migrate-kb-slugs.mjs'
 
@@ -26,12 +27,29 @@ const fromApprovedCommit = filename =>
 const originalCatalog = fromApprovedCommit('metadata/catalog.json')
 const originalReport = fromApprovedCommit('metadata/reconciliation.json')
 const historicalSources = new Set(originalCatalog.articles.map(article => article.sourceFile))
+// Keep the one-time D-08/D-18/November-sync audit against its immutable release
+// tree. Applying its frozen copy/body hashes to today's edited Markdown would
+// incorrectly forbid ordinary publishing. Live route/hash invariants are tested
+// separately below and by test-kb-content, not skipped when content grows.
+const auditedRelease = '96b9571537e8077c3ae4c79721bbfe871c734c75'
+const auditedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kb-approved-release-'))
+after(() => fs.rmSync(auditedRoot, { recursive: true, force: true }))
+const archive = path.join(auditedRoot, '.approved-release.tar')
+execFileSync('git', ['-C', root, 'archive', '--format=tar', '--output', archive, auditedRelease])
+execFileSync('tar', ['-xf', archive, '-C', auditedRoot])
+fs.unlinkSync(archive)
+// The three-way validator needs read-only history as well as the frozen files.
+const articleGitDir = execFileSync('git', ['-C', root, 'rev-parse', '--absolute-git-dir'], { encoding: 'utf8' }).trim()
+fs.writeFileSync(path.join(auditedRoot, '.git'), `gitdir: ${articleGitDir}\n`)
+const auditedCatalog = JSON.parse(fs.readFileSync(path.join(auditedRoot, 'metadata/catalog.json'), 'utf8'))
 const handoff = JSON.parse(fs.readFileSync(path.join(root, 'metadata/handoff.json'), 'utf8'))
 const renames = readSlugMigrations(root)
 const targets = new Set(renames.values())
 const d18Targets = new Set(approvedMigrations.approvedD18Renames.map(({ to }) => to))
 const originalIds = new Map([...renames].map(([from, to]) => [to, from]))
-const descriptionImport = JSON.parse(fs.readFileSync(path.join(root, 'metadata/description-import.json'), 'utf8'))
+const descriptionImport = JSON.parse(
+  fs.readFileSync(path.join(auditedRoot, 'metadata/description-import.json'), 'utf8'),
+)
 const require = createRequire(import.meta.url)
 const loaded = { exports: {} }
 const compiled = ts.transpileModule(fs.readFileSync('src/server/kb-content.ts', 'utf8'), {
@@ -153,27 +171,27 @@ function newlyMatchedCandidates(articles) {
 function reconciliationBeforeApprovedD08(report) {
   // The generator refreshes the source HEAD, not an editorial decision. Check
   // the two generated sidecars agree before restoring the old comparison value.
-  assert.equal(report.sourceCommit, catalog.sourceCommit)
+  assert.equal(report.sourceCommit, auditedCatalog.sourceCommit)
   assert.match(report.sourceCommit, /^[a-f0-9]{40}$/)
-  const historical = historicalArticles(catalog.articles)
+  const historical = historicalArticles(auditedCatalog.articles)
   const languages = articles =>
     articles.reduce((counts, article) => {
       counts[article.language] = (counts[article.language] ?? 0) + 1
       return counts
     }, {})
-  assert.equal(report.articles, new Set(catalog.articles.map(article => article.id)).size)
-  assert.equal(report.renditions, catalog.articles.length)
-  assert.deepEqual(report.languages, languages(catalog.articles))
-  assert.equal(report.classified, catalog.articles.filter(article => article.hub).length)
+  assert.equal(report.articles, new Set(auditedCatalog.articles.map(article => article.id)).size)
+  assert.equal(report.renditions, auditedCatalog.articles.length)
+  assert.deepEqual(report.languages, languages(auditedCatalog.articles))
+  assert.equal(report.classified, auditedCatalog.articles.filter(article => article.hub).length)
   assert.deepEqual(
     report.issues,
-    catalog.articles
+    auditedCatalog.articles
       .filter(article => article.warnings.length)
       .map(({ sourceFile, warnings }) => ({ sourceFile, warnings })),
   )
   assert.deepEqual(
     report.unmatchedCandidates,
-    newlyMatchedCandidates(catalog.articles),
+    newlyMatchedCandidates(auditedCatalog.articles),
     'Only candidates matched by newly added renditions may leave the historical unresolved inventory',
   )
   return {
@@ -221,7 +239,8 @@ test('the exact 50 approved D-18 migrations remain unchanged, with only the sepa
   }
 })
 
-test('D-18 preserves all 320 renditions and approved article metadata, hub taxonomy and editorial choices', () => {
+test('the immutable approved D-18 release preserved all 320 renditions, D-08 copy and editorial choices', () => {
+  const catalog = auditedCatalog
   const historical = historicalArticles(catalog.articles)
   assert.deepEqual(handoff, fromApprovedCommit('metadata/handoff.json'), 'Historical matching evidence must not change')
   assert.deepEqual(
@@ -257,7 +276,7 @@ test('D-18 preserves all 320 renditions and approved article metadata, hub taxon
   )
   assert.equal(hash({ hubs: catalog.hubs, subjects: catalog.subjects }), baseline.hubsAndSubjectsSHA256)
   assert.equal(hash(catalog.featured), baseline.featuredSHA256, 'Featured card identity/order/fallback changed')
-  const report = JSON.parse(fs.readFileSync(path.join(root, 'metadata/reconciliation.json'), 'utf8'))
+  const report = JSON.parse(fs.readFileSync(path.join(auditedRoot, 'metadata/reconciliation.json'), 'utf8'))
   assert.equal(
     hash(reconciliationBeforeApprovedD08(report)),
     baseline.reconciliationSHA256,
@@ -266,7 +285,8 @@ test('D-18 preserves all 320 renditions and approved article metadata, hub taxon
   assert.equal(JSON.stringify(catalog), before, 'Comparison normalization must never mutate actual catalog data')
 })
 
-test('new renditions and approved historical body/link updates pass the independent three-way upstream validator', () => {
+test('the immutable November release passes the independent three-way body/link/image sync audit', () => {
+  const catalog = auditedCatalog
   const added = catalog.articles.filter(article => !historicalSources.has(article.sourceFile))
   assert.deepEqual(
     added.reduce((counts, article) => {
@@ -288,7 +308,7 @@ test('new renditions and approved historical body/link updates pass the independ
     [
       'scripts/check-kb-upstream-sync.mjs',
       '--root',
-      root,
+      auditedRoot,
       '--old',
       approvedMigrations.sourceArticleCommit,
       '--upstream',
@@ -299,6 +319,7 @@ test('new renditions and approved historical body/link updates pass the independ
 })
 
 test('D-08 comparison allowance cannot hide unapproved copy, article fields, taxonomy or editorial reordering', () => {
+  const catalog = auditedCatalog
   const firstHistorical = historicalArticles(catalog.articles)[0]
   assert.throws(
     () => metadataBeforeApprovedD08(catalog.articles.filter(article => article !== firstHistorical)),
@@ -344,7 +365,7 @@ test('D-08 comparison allowance cannot hide unapproved copy, article fields, tax
   const subjects = structuredClone(catalog.subjects)
   subjects[0].name = 'Unapproved subject name'
   assert.notEqual(hash({ hubs: catalog.hubs, subjects }), baseline.hubsAndSubjectsSHA256)
-  const report = JSON.parse(fs.readFileSync(path.join(root, 'metadata/reconciliation.json'), 'utf8'))
+  const report = JSON.parse(fs.readFileSync(path.join(auditedRoot, 'metadata/reconciliation.json'), 'utf8'))
   const missingUnmatched = structuredClone(report)
   missingUnmatched.unmatchedCandidates.pop()
   assert.throws(() => reconciliationBeforeApprovedD08(missingUnmatched), /Only candidates matched by newly added/)
@@ -447,12 +468,29 @@ test('Markdown rewriting preserves visible titles, alt text, prose, code and unr
   assert.deepEqual(rewriteMarkdownLinks(result.markdown, renames), { markdown: result.markdown, replacements: 0 })
 })
 
-test('the completed migration has an empty read-only plan and does not need another directory/link rewrite', () => {
-  const plan = migrateKBSlugs(root, { check: true })
+test('the immutable completed migration has an empty read-only plan with no directory/link rewrite', () => {
+  const plan = migrateKBSlugs(auditedRoot, { check: true })
   assert.equal(plan.check, true)
   assert.equal(plan.renamedDirectories, 0)
   assert.equal(plan.changedMarkdown, 0)
   assert.equal(plan.linkReplacements, 0)
   assert.equal(plan.changedMetadata, 0)
-  assert.equal(plan.renditions, catalog.articles.length)
+  assert.equal(plan.renditions, auditedCatalog.articles.length)
+})
+
+test('daily content validates every current source identity and hash instead of freezing historical copy', () => {
+  assert.equal(new Set(catalog.articles.map(article => article.sourceFile)).size, catalog.articles.length)
+  assert.equal(new Set(catalog.articles.map(article => article.canonicalPath)).size, catalog.articles.length)
+  for (const article of catalog.articles) {
+    assert.equal(renames.has(article.id), false, 'A migrated legacy directory must not be republished')
+    assert.equal(article.sourceFile.split('/')[0], article.id)
+    assert.equal(
+      article.canonicalPath,
+      `${article.language === 'en' ? '' : `/${article.language}`}/knowledge-base/${article.id}`,
+    )
+    assert.equal(resolveKBArticleId(article.id), article.id, 'Current canonical IDs must not redirect')
+    assert.ok(article.relatedArticleIds.every(id => !renames.has(id)))
+    const bytes = fs.readFileSync(path.join(root, article.sourceFile))
+    assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), article.sourceSHA256)
+  }
 })

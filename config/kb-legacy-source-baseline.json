@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "96b9571537e8077c3ae4c79721bbfe871c734c75",
+  "note": "Reviewed existing field-level issues only. Do not regenerate this allowlist during builds or routine content publication; fix invalid new/changed fields instead.",
+  "issues": [
+    {
+      "sourceFile": "account_abstraction_where_we_are_going/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "bf68c0d471d94d367bb58c5ce79846e595e0451eb36badc49a6ed22f785922d3"
+    },
+    {
+      "sourceFile": "account_abstraction_where_we_are_going/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "3bc71c79bbd3d50a1d172af1f0b4c0a465f41abe385bbd3151f6c620133330bb"
+    },
+    {
+      "sourceFile": "asic_resistance_is_it_possible/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "77e086252747ffaecbb5d51104d39743022c74addf261806900bff948d046c5d"
+    },
+    {
+      "sourceFile": "becoming_money_stablecoins_on_lightning_the_next_step_in_bitcoins_journey/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "09ad807330952e2c032c7a9b65cebfcd0f49ba3ba91298f2b6c0ed09243f4f29"
+    },
+    {
+      "sourceFile": "becoming_money_stablecoins_on_lightning_the_next_step_in_bitcoins_journey/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "134e56f6d6a882582d009884ba7b81c102f6b19ea9b6ef186ca647369149461e"
+    },
+    {
+      "sourceFile": "bitcoin_and_ckb_security_models/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "2fe3fce50fa7872acc15dc6aae3d33b35739e07b29de1c1ce878c15db100f1d1"
+    },
+    {
+      "sourceFile": "bitcoin_and_ckb_security_models/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "41820af850b2a8b2387e6410bd47aafe8f313e1de6b0b1cd5707731e4de9066b"
+    },
+    {
+      "sourceFile": "blockchain_trilemma/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "11842f7296e0e211d39f72a6999450a385d2a5404e68c9ede1fcbbac8c93ae29"
+    },
+    {
+      "sourceFile": "blockchain_trilemma/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "c376a0f3aa5773dc678d4ec19ac9133dc72626f4e4e7821d1f09c027a5b3e298"
+    },
+    {
+      "sourceFile": "blockchain_trilemma/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "0386f2c327f9fa9832ea563fc3a999561da95c173cdd34d05f705923e610bf5c"
+    },
+    {
+      "sourceFile": "chain_abstraction_bringing_web2_user_experience_to_web3/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "da0699b0b9c38b290ef75908853fc29a185d43c81735a21edca415d951310915"
+    },
+    {
+      "sourceFile": "chain_abstraction_bringing_web2_user_experience_to_web3/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "6c569c86b66f337647ac9f580d0cba533ad34c37258e5446826d5568c6fd8605"
+    },
+    {
+      "sourceFile": "ckb_blockchain_developers_dream/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "a32dfe4c1fa7baf63df77c157f045542d4d132c14cc026cb1e5c56f7cfa0a10a"
+    },
+    {
+      "sourceFile": "ckb_blockchain_developers_dream/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9077a689358fc40080621f5d916035d6f89674b584c36ab158111d56c402d5b8"
+    },
+    {
+      "sourceFile": "ckb_understanding_our_ethos/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "1850011c11d237bcb2406917f81918f014e5587f6f8cc214ff57761068a08383"
+    },
+    {
+      "sourceFile": "ckb_understanding_our_ethos/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "3cf7c75a4493f7a94b9d856ebefce2f4bc00876a5b8fa353f72ee8c5f1555fa5"
+    },
+    {
+      "sourceFile": "ckb_understanding_our_ethos/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "b153bf537fcc15787dbb76b8d6ee83936263e4500dc1869e99f1429732bc8ebd"
+    },
+    {
+      "sourceFile": "comparing_blockchain_virtual_machines/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "098fc9efc43945bff98add04594509a27dcab37cf4923bc1b4ddd66d1d9908a3"
+    },
+    {
+      "sourceFile": "comparing_blockchain_virtual_machines/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "2c25960826060a65d658f60b915b2136eb7bc87cb43c88604dff873653ffbe0e"
+    },
+    {
+      "sourceFile": "guide_to_inscriptions/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "f29cd2bc7cb74ae42a923ade07697ff4c4c71164a7323f858e42ad23c9c6c9a4"
+    },
+    {
+      "sourceFile": "guide_to_inscriptions/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "44266bcb23d7437c9c4ed61f214a8eaa812c3d4c228990a88f15c9d81af1026a"
+    },
+    {
+      "sourceFile": "intents_an_old_idea_wrapped_in_new_clothing/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "6f1250539af820135f34d9c5aad1fdd89b02465165d322c5916c144ff1ae4dbf"
+    },
+    {
+      "sourceFile": "intents_an_old_idea_wrapped_in_new_clothing/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "3edae53d0d5353227623d5d03c7422c02862d5344138cf6c69a166f645012ab1"
+    },
+    {
+      "sourceFile": "layer_1_vs_layer_2/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "c435a3e48f4e855c8b429b812f4545cd6aa7647239b0848f512ac3aa0ad9050f"
+    },
+    {
+      "sourceFile": "layer_1_vs_layer_2/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "3062ebb9a14400f973d33383e71a3868d2123af53bb1c25daf8999553819b540"
+    },
+    {
+      "sourceFile": "layer_1_vs_layer_2/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "0c8519d5c63ad386d2abcfd8cb34ba1e4a300ed6268b6825dd44c5c8eb92686b"
+    },
+    {
+      "sourceFile": "nervos_overview_of_a_layered_blockchain/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "eecca9ca3ec60343319d30553752dac4d2a47ae95c070a8276364288de50ee4a"
+    },
+    {
+      "sourceFile": "nervos_overview_of_a_layered_blockchain/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "d4157108f5e283148baef0fa8af9d5e68fde88be866aa559a1b5e3a6e7c0629b"
+    },
+    {
+      "sourceFile": "nervos_overview_of_a_layered_blockchain/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "666f5a61ee1c7e64565b7b13fe04f3f86b988a23f29936db8fad7adcc0315b99"
+    },
+    {
+      "sourceFile": "optimizing_layer_1_for_modularity/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "53f7b4f4130147f6686969d60199a9b8fa16fced9ab2d438be55e167f805051d"
+    },
+    {
+      "sourceFile": "optimizing_layer_1_for_modularity/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "037524ec1a628997f4e3049bf6ce3235ffbd9ddedb3786dfce5629bb9ab03915"
+    },
+    {
+      "sourceFile": "optimizing_layer_1_for_modularity/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "65f123a68abc303b1c043ce22c00c916566a881767f29e037671db0e49a04e3d"
+    },
+    {
+      "sourceFile": "quantum_resistance/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "14b40e6d0f29a31abd5344929830c4b91da8daecba235cb7efd7330980d241e2"
+    },
+    {
+      "sourceFile": "quantum_resistance/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "2038d22e1d0ae9727ac6fcfc762cca3f271d5fcc3a158d401ed374018bce60c8"
+    },
+    {
+      "sourceFile": "quantum_resistance/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "8343cfff071cd46f63e1f3814e75c2aa4216e3e02d74f2fda38c4130d7416df4"
+    },
+    {
+      "sourceFile": "sidechains_unlocking_the_potential/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "36e50758c655ad4e096da45b6657cf4f7282e255457c39a63ec89c16028f0ba7"
+    },
+    {
+      "sourceFile": "sidechains_unlocking_the_potential/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "56e7044bc872991dae4b5f360475aa2453bd3f22d49746619968a939d284a619"
+    },
+    {
+      "sourceFile": "sidechains_unlocking_the_potential/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "cdf39163016c593eb2e64cdf1dce1424ee4b478fbfc3e54e0cd0830bf19b615a"
+    },
+    {
+      "sourceFile": "the_case_for_rgbpp/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "35d449e2398e2a473d7f1eb2e9085da5b3c286fd9a9435251b30ba89191513a0"
+    },
+    {
+      "sourceFile": "the_case_for_rgbpp/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "053ecaf36faf89bdc25d63b69360f0a5182983da89872987e96c503a221f2038"
+    },
+    {
+      "sourceFile": "the_difference_between_parallel_and_sequential_transaction_execution_in_crypto/index.md",
+      "field": "date",
+      "valueSHA256": "73f16d6c847a86495a50f6eecc2dad7cbe1dd6377b15efbea092afe76036abe1",
+      "sourceSHA256": "9fa9ce5750c02cf594c46d5b405d191df6050f76b91b6e78955b2c99ec9e730d"
+    },
+    {
+      "sourceFile": "the_difference_between_parallel_and_sequential_transaction_execution_in_crypto/index_zh.md",
+      "field": "date",
+      "valueSHA256": "73f16d6c847a86495a50f6eecc2dad7cbe1dd6377b15efbea092afe76036abe1",
+      "sourceSHA256": "a3031abcc8895a77fa2c26be2415263dcf430cd0e00af877d761fe76a6311b06"
+    },
+    {
+      "sourceFile": "tokenomics_of_nervos_network/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "548d508ae98957e626cbc9ed2a0d822cc4ec1e83a8dd322d867be5fb4c4a8322"
+    },
+    {
+      "sourceFile": "tokenomics_of_nervos_network/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "e569fbfa56717fd2c0995efc1c21db9ff9146e0782809b189718365a61c708a7"
+    },
+    {
+      "sourceFile": "ultimate_guide_bitcoin_layer_two_part_1/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "d4b74f41746d4d5513bb420b0f5550fec292a0838b4bf73a76ae8d63eee03723"
+    },
+    {
+      "sourceFile": "ultimate_guide_bitcoin_layer_two_part_1/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "10ddfdd6eead57ed235fede6f0176f72de57e8b227710f99a5d329c0a3de0e55"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_light_clients/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "4eee761e5940a10f1227b2a195da49f0a8d99dc22f5695c5bf7977b43c139166"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_light_clients/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "ac3eb983f1892078c50239d941758589ccd14e4494782286b4dc4f75c99065a6"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_payment_channels/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "45f39c5f8f339595499513ecf24f3cd9bd3c83407dbf0d140199eae377f40f43"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_payment_channels/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "10e09e359a848ee6b389ca8353d064959cc3e3bb4d28fd8b912951a55e9e285d"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_rgb_rgbpp_and_client_side_validation/index.md",
+      "field": "date",
+      "valueSHA256": "e7b1cd979bb381f024a4a0291898f6070997cac1d595d0c2a12980d714d39e4b",
+      "sourceSHA256": "304e59d9aa9a01d7e5c4ef65a0b686ef5a1822adc3121763d83e3bc2c12d572d"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_rgb_rgbpp_and_client_side_validation/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "304e59d9aa9a01d7e5c4ef65a0b686ef5a1822adc3121763d83e3bc2c12d572d"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_rgb_rgbpp_and_client_side_validation/index_zh.md",
+      "field": "date",
+      "valueSHA256": "e7b1cd979bb381f024a4a0291898f6070997cac1d595d0c2a12980d714d39e4b",
+      "sourceSHA256": "342d5d66c034ae8855ee25847b517cee9adab774e5c0d47514fb6343984a0a0c"
+    },
+    {
+      "sourceFile": "ultimate_guide_to_rgb_rgbpp_and_client_side_validation/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "342d5d66c034ae8855ee25847b517cee9adab774e5c0d47514fb6343984a0a0c"
+    },
+    {
+      "sourceFile": "understanding_token_standards_erc20/index.md",
+      "field": "date",
+      "valueSHA256": "8469565e4ffc7cf63ac694c45a13964dee120fb481bd9eab832e9b993eb8e3dc",
+      "sourceSHA256": "61dc21b1ccf2b27bd8603a3bafe5dff688fb41b1a582d42a1a5cad1e452e894a"
+    },
+    {
+      "sourceFile": "understanding_token_standards_erc20/index_zh.md",
+      "field": "date",
+      "valueSHA256": "8469565e4ffc7cf63ac694c45a13964dee120fb481bd9eab832e9b993eb8e3dc",
+      "sourceSHA256": "5aa38c8f488176b7761cb9151ec968775e6a109c482831d962b6759679c836ab"
+    },
+    {
+      "sourceFile": "utxo_model_explained/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "f6387280f1a496f13d9e9a9345694b5bd6ed5060b2da9be99467af56a1ab4247"
+    },
+    {
+      "sourceFile": "utxo_model_explained/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "b1da2e32d7e0f4b5adcfaed0c1a89fb6e4bdb4b8cdbfa82198620d52cc4c3149"
+    },
+    {
+      "sourceFile": "utxo_model_explained/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "0a4d11bedd3f54ca4fbbd89ce2b12dde42baa86b32e732c94ee182c5b3f071f3"
+    },
+    {
+      "sourceFile": "utxo_vs_account_based/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "39471aecae7ba5ac67b02defcc5c7225334f0fa1cce9eafdfddfffff3c5d9e48"
+    },
+    {
+      "sourceFile": "utxo_vs_account_based/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9b403f53499dc9232cb931f4ac19e5426da4bcb77a745963834a63bdd82edbcc"
+    },
+    {
+      "sourceFile": "utxo_vs_account_based/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "549195c8fecf2350acc4aaea3ed2f464b4d52dcb73f493ba7f99ff7ef5b253ba"
+    },
+    {
+      "sourceFile": "web5_extra_decentralized/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "918efd94ed1698df7fc362cdb09bf7fa6af685d70f0781b6995d8e5c21e3a50a"
+    },
+    {
+      "sourceFile": "web5_extra_decentralized/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "de372d664291692defa9677a31088576a24f760f670ab53899bc0c77e6ed6b5e"
+    },
+    {
+      "sourceFile": "what_are_bitcoin_drivechains/index.md",
+      "field": "date",
+      "valueSHA256": "f03a46ac5c6315416814f0937207cc2021c9392471f30611bf7f3cc64a10abe3",
+      "sourceSHA256": "5651f9dc2b8f132666b90dda4ab1fc5a917ce365609a87c51795ef6c9014325e"
+    },
+    {
+      "sourceFile": "what_are_bitcoin_drivechains/index_zh.md",
+      "field": "date",
+      "valueSHA256": "f03a46ac5c6315416814f0937207cc2021c9392471f30611bf7f3cc64a10abe3",
+      "sourceSHA256": "91b6baa70e7e05b8ea430fe8456d6a972fdf1cdc7a738b979ba41db05a6299d6"
+    },
+    {
+      "sourceFile": "what_are_blobs_in_ethereum/index.md",
+      "field": "date",
+      "valueSHA256": "714ce2b05f0756402d08bbfc75c7e3d1a6175e8ddac142fde3093b205d8ee1ab",
+      "sourceSHA256": "5eba83cd419c444b422d5541564209ba730d7f5ca0a86edbf4a79ba61a9c72f8"
+    },
+    {
+      "sourceFile": "what_are_blobs_in_ethereum/index_zh.md",
+      "field": "date",
+      "valueSHA256": "714ce2b05f0756402d08bbfc75c7e3d1a6175e8ddac142fde3093b205d8ee1ab",
+      "sourceSHA256": "b68e4b9d0639a2686a9a9b2230971b404938a771b592c6c778fe916b25a7f72c"
+    },
+    {
+      "sourceFile": "what_are_blockchain_intents/index.md",
+      "field": "date",
+      "valueSHA256": "693f4cb311e75a851e53deff52c8dab9d2edbbbe88e4ff1acf5adb0c6c83681f",
+      "sourceSHA256": "0e8161962ddcf244afbb76a67e5a790fdd3413882d0f588bf0bdf0f0cf79cec0"
+    },
+    {
+      "sourceFile": "what_are_blockchain_intents/index_zh.md",
+      "field": "date",
+      "valueSHA256": "693f4cb311e75a851e53deff52c8dab9d2edbbbe88e4ff1acf5adb0c6c83681f",
+      "sourceSHA256": "6fe3e7f83bd36990c4d873601281b37df8950a9dffc3503cc8d8149a2acfb0ea"
+    },
+    {
+      "sourceFile": "what_are_fraud_proofs_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "23b528514d523866aca4f9baf640781ab5ef9be3a106b84b2415ef82f7b30a0f",
+      "sourceSHA256": "96edcf08259a41cb9aff2507cbc5496e10861afee1080bfff3077da85b98fe46"
+    },
+    {
+      "sourceFile": "what_are_fraud_proofs_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "23b528514d523866aca4f9baf640781ab5ef9be3a106b84b2415ef82f7b30a0f",
+      "sourceSHA256": "a3db17ebaf925b4ca8f7f4e88b08d32a160387cc6a7f5680cbaba70e2633fc1c"
+    },
+    {
+      "sourceFile": "what_are_optimistic_rollups_and_how_do_they_work/index.md",
+      "field": "date",
+      "valueSHA256": "a5a20aef0e7d0e12d80063d5c7e64bd299772330dd4c33435513392ed25207cc",
+      "sourceSHA256": "7768796299f16c3c53ede1c9808d7e77a311e22240523cdf74a9c5b4308fe6bc"
+    },
+    {
+      "sourceFile": "what_are_optimistic_rollups_and_how_do_they_work/index_zh.md",
+      "field": "date",
+      "valueSHA256": "a5a20aef0e7d0e12d80063d5c7e64bd299772330dd4c33435513392ed25207cc",
+      "sourceSHA256": "21896197f0ce7718d5cb95c2d9576cbbb57e19f7a902f12a1370e1642f2cca38"
+    },
+    {
+      "sourceFile": "what_are_optimistic_rollups_everything_you_need_to_know/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "d36ca20562fb889d0b19dc9491321fb045a9bda9840847a2a7e504741d07b432"
+    },
+    {
+      "sourceFile": "what_are_optimistic_rollups_everything_you_need_to_know/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "827454ebbf26095c9cc0c8f291e6d7b1f7112192ab07a136916b698df39e5165"
+    },
+    {
+      "sourceFile": "what_are_optimistic_rollups_everything_you_need_to_know/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "cc856fd8e45d9d730d147bd1d4fb2bf31d122a935188ae7bf8aaf6879700e68e"
+    },
+    {
+      "sourceFile": "what_are_payment_channels/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "e600ad2a12d8cb2eb0c949adc930155ed9ea0beaf7b26904ca10481e39609a3e"
+    },
+    {
+      "sourceFile": "what_are_payment_channels/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "f14b19bdc7250814e212d937ed6b87c17b8ec9c8c830c183e459f2e6f8e79566"
+    },
+    {
+      "sourceFile": "what_are_payment_channels/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "f536995b12401e04778d7720930339fa5111639ce0d963785f6c55438075beb6"
+    },
+    {
+      "sourceFile": "what_are_sovereign_rollups/index.md",
+      "field": "date",
+      "valueSHA256": "45828124e4b2bd4ac233021f700e9f0e6b495e2d327e8665f462b9d2b5f9ad08",
+      "sourceSHA256": "0f5847be7f82bf7f9bc66dd304fc4957d2572d72d9d963bd301022b160dd98f0"
+    },
+    {
+      "sourceFile": "what_are_sovereign_rollups/index_zh.md",
+      "field": "date",
+      "valueSHA256": "45828124e4b2bd4ac233021f700e9f0e6b495e2d327e8665f462b9d2b5f9ad08",
+      "sourceSHA256": "31e2b3826a55ff86108ccca25a1e0b1e561da8e0283449370f769d3c976a071e"
+    },
+    {
+      "sourceFile": "what_are_validity_proofs_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "4b292fbd7d960630b8be45cce4e9d207eb4063fc86afb092f6de94a63d70e5a4",
+      "sourceSHA256": "dfda055ead2c3c57a7047182badac8fd6a3f6a6c63e676d79a811dcb64bceb4a"
+    },
+    {
+      "sourceFile": "what_are_validity_proofs_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "4b292fbd7d960630b8be45cce4e9d207eb4063fc86afb092f6de94a63d70e5a4",
+      "sourceSHA256": "7a9872496cda8d78663cb19ea52e9d35b0edd6cd9fc40508eb865d64976c6bfb"
+    },
+    {
+      "sourceFile": "what_does_determinism_mean_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "1e8bdc2f8436be7bd5dc113ee318c7bb3448433556d4cab6f0b0d543fc0cd258",
+      "sourceSHA256": "30478b9f69a82f2069430d8f668ee5f69f21d10583ea382207ba289ac8297987"
+    },
+    {
+      "sourceFile": "what_does_determinism_mean_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "1e8bdc2f8436be7bd5dc113ee318c7bb3448433556d4cab6f0b0d543fc0cd258",
+      "sourceSHA256": "dcad80f8ec85fa8eae81da650371e9d58b568994ebe45b9590f42bd281bcc5fb"
+    },
+    {
+      "sourceFile": "what_is_51_attack/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "5715e92d2f5baae653b687f912a53421d8e1a860592d06235b12638bb49739fa"
+    },
+    {
+      "sourceFile": "what_is_51_attack/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "b595620b9ebe3ecf19d169af1fe00c44d10a6c903d9bfad8c32844a7320335e7"
+    },
+    {
+      "sourceFile": "what_is_51_attack/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "3e39949722d259ba65e2b87f2ef2cad1d238b62ee5346da2a786c4bad7ed8c8c"
+    },
+    {
+      "sourceFile": "what_is_a_block_builder_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "b643829ccd4f14777200715587f2e3b07e33bbce70eba8dd20691a719b7f61c4",
+      "sourceSHA256": "ac675f381897ee881d57932afb8f8f5b3d211e846fbb49b6fb36f84f1cb6de01"
+    },
+    {
+      "sourceFile": "what_is_a_block_builder_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "b643829ccd4f14777200715587f2e3b07e33bbce70eba8dd20691a719b7f61c4",
+      "sourceSHA256": "9fe3e1178dc1af29713924b6ee01f9c1d948051742396685c127638d3eed592a"
+    },
+    {
+      "sourceFile": "what_is_a_hash_function/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9e8a4aa03e20cca30f5cdf972847fe725e9a51406ccb79bd3ef5cd43f4da854f"
+    },
+    {
+      "sourceFile": "what_is_a_hash_function/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "6069bb4819e7e1776cf1b3ecacff832826fc11d45e5f8735c88a740ab3a7dd22"
+    },
+    {
+      "sourceFile": "what_is_a_hash_function/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9c4a935e099de9eb8ee89d7f52f1a5b0844bd17392e0dc01a3348f70189fd819"
+    },
+    {
+      "sourceFile": "what_is_a_partially_signed_bitcoin_transacion/index.md",
+      "field": "date",
+      "valueSHA256": "10a3e1ea1f781911828412f311ce0471c8d6d99b6a11faa8bea6b8951f8da9b4",
+      "sourceSHA256": "ec956823838c544d7d7680211b51b7791d4f963e394af22fd7403612cdfac04e"
+    },
+    {
+      "sourceFile": "what_is_a_partially_signed_bitcoin_transacion/index_zh.md",
+      "field": "date",
+      "valueSHA256": "10a3e1ea1f781911828412f311ce0471c8d6d99b6a11faa8bea6b8951f8da9b4",
+      "sourceSHA256": "bd79ae79b16fa5ce192b6e11239affcbcc23be97aa1f468aff7a2597296543cd"
+    },
+    {
+      "sourceFile": "what_is_a_slippage_in_trading/index.md",
+      "field": "date",
+      "valueSHA256": "a84943d33d9c23a49df3d5ba2e7517b2fde467697d199a96d8cdcfadc87e31ca",
+      "sourceSHA256": "38c13835574196025e7273524e3540e82ba75d3c289e5b92cd20d20a1d4cb8bd"
+    },
+    {
+      "sourceFile": "what_is_a_slippage_in_trading/index_zh.md",
+      "field": "date",
+      "valueSHA256": "a84943d33d9c23a49df3d5ba2e7517b2fde467697d199a96d8cdcfadc87e31ca",
+      "sourceSHA256": "b5e0a635c412e39722ddf7e7060fd1b6ec1395b5c2bcd7d9ea581c949b5f18d0"
+    },
+    {
+      "sourceFile": "what_is_a_vm_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "2ca63bcdcc48ba6c0707857a51f0f3aec9be2ec31ac7fff3153460d34b8d460e",
+      "sourceSHA256": "035d6173ae7814826dd424b0dbfb86db50471ab9a655990da703284da7664f02"
+    },
+    {
+      "sourceFile": "what_is_a_vm_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "2ca63bcdcc48ba6c0707857a51f0f3aec9be2ec31ac7fff3153460d34b8d460e",
+      "sourceSHA256": "f2891293817f100a5f2a253b6fc47266b0ec4863a37eed13c6a246b268648d5e"
+    },
+    {
+      "sourceFile": "what_is_abstraction/index.md",
+      "field": "date",
+      "valueSHA256": "bd0e1e327826750262988115d34d6c2e6a67737ea111f2e9d9776d14d34addb6",
+      "sourceSHA256": "660d97bf4399378d00fb93204fdeacd7da2ce151ed791280b824f79247cf0310"
+    },
+    {
+      "sourceFile": "what_is_abstraction/index_zh.md",
+      "field": "date",
+      "valueSHA256": "bd0e1e327826750262988115d34d6c2e6a67737ea111f2e9d9776d14d34addb6",
+      "sourceSHA256": "29e60c33ada544e23dbc6b150dff372162189b4dbace267aa2d8ea298f009b6e"
+    },
+    {
+      "sourceFile": "what_is_client_side_validation/index.md",
+      "field": "date",
+      "valueSHA256": "9ba8744ba2deddd0c3360966ee78384d37302bbfc09fbd66b75dcc6d2b2bdf71",
+      "sourceSHA256": "e1d37364aeb7f711e13b296b01774492ea481b8b6bc9adf79a42c591d7c10480"
+    },
+    {
+      "sourceFile": "what_is_client_side_validation/index_zh.md",
+      "field": "date",
+      "valueSHA256": "9ba8744ba2deddd0c3360966ee78384d37302bbfc09fbd66b75dcc6d2b2bdf71",
+      "sourceSHA256": "14a9fdd5f5410327eee92c637a6959dcbd2b9c6d396b7ba203fde5a6cd2c0a19"
+    },
+    {
+      "sourceFile": "what_is_finality_crypto/index.md",
+      "field": "date",
+      "valueSHA256": "aaeab7576836bcfcecc683736ae1137b0984fcd1b6a5837966d0f48a5a94b05f",
+      "sourceSHA256": "b241f30c330f430ee74092b4f80483274cd89bb83fae0a5c5de3d5aea145e318"
+    },
+    {
+      "sourceFile": "what_is_finality_crypto/index_zh.md",
+      "field": "date",
+      "valueSHA256": "aaeab7576836bcfcecc683736ae1137b0984fcd1b6a5837966d0f48a5a94b05f",
+      "sourceSHA256": "8ea4338f86c07eaccb3f15b114cfc08ec15530eafa47f6dd5db8d4f9b04fe0d2"
+    },
+    {
+      "sourceFile": "what_is_merge_mining/index.md",
+      "field": "date",
+      "valueSHA256": "d9bbae6ae5f8a3ed8fa1e7a61cde45b69763979b23eaf804d7232fe10fd87635",
+      "sourceSHA256": "f3953de153017be15d0eb21e5919dd0fd2bc5630478a39eef4ee9afdc9611e2e"
+    },
+    {
+      "sourceFile": "what_is_merge_mining/index_zh.md",
+      "field": "date",
+      "valueSHA256": "d9bbae6ae5f8a3ed8fa1e7a61cde45b69763979b23eaf804d7232fe10fd87635",
+      "sourceSHA256": "513278b4f3b0cdfb6069ebbbeb3a282d15481f6362ab15da5f2d074dc6e1051f"
+    },
+    {
+      "sourceFile": "what_is_nakamoto_consensus/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "49e334a31067a1da228477651282c1910c8ca5b2a0d6ab1bc55528e5e67981bd"
+    },
+    {
+      "sourceFile": "what_is_nakamoto_consensus/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9287d2fc80d439230881638f0e65daf75e7bd8d37c2f380c6dd77aaec18ac23d"
+    },
+    {
+      "sourceFile": "what_is_nakamoto_consensus/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "50d4bc411445da15a3aaca9adb06f0a13bf75b69acac45b8d0c28458bcc55205"
+    },
+    {
+      "sourceFile": "what_is_sharding_in_blockchain/index.md",
+      "field": "date",
+      "valueSHA256": "1eba51ba688c4eca70591f9a5c90e4ab4075acfa8b9bd82d290e1d7a1ddaa8cf",
+      "sourceSHA256": "fa489433582ecc3821abdbc00bf1fcfe43e98da65dbb94d5ccd0d3c4c78cfda3"
+    },
+    {
+      "sourceFile": "what_is_sharding_in_blockchain/index_zh.md",
+      "field": "date",
+      "valueSHA256": "1eba51ba688c4eca70591f9a5c90e4ab4075acfa8b9bd82d290e1d7a1ddaa8cf",
+      "sourceSHA256": "d308bbf5b63b02fbb710999d085e2215d6559906a2875c5a5086eda188369100"
+    },
+    {
+      "sourceFile": "what_is_the_utxo_alliance/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "2bd6b09644c899e1c84beccd72b30f73a712bca7ae16992bf42bbd26c1f48037"
+    },
+    {
+      "sourceFile": "what_is_the_utxo_alliance/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "2b6febf96ef5d15fe33a743ef29b6568990262009b2724ddb4098352f18d5ae7"
+    },
+    {
+      "sourceFile": "what_is_the_utxo_alliance/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "ff06e6d32e8842db4a9afd9e5991ce1ba1e7f6a47ad2a7a4c4ae6a32bc85c778"
+    },
+    {
+      "sourceFile": "why_is_proof_of_work_required/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "d6e013901f9b2a2ee45ff7b364996e3e234af76a9542519d83081932f06fc847"
+    },
+    {
+      "sourceFile": "why_is_proof_of_work_required/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "c285e2d21fb75003cfa1bc30c301ea9f00e3d644b6b649cd153ed42e697c2ffb"
+    },
+    {
+      "sourceFile": "why_is_proof_of_work_required/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "07a837d0248aac10ab2c4d06cc2d4bef960631fb516ca22c966859aa824836fb"
+    },
+    {
+      "sourceFile": "zk_rollup_vs_optimistic_rollup/index.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "7636f274a86e1834fcdacdfdb5672207caf240a9a487486892b43dc2cf8143f9"
+    },
+    {
+      "sourceFile": "zk_rollup_vs_optimistic_rollup/index_es.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "9a6ffefd5e0e08fc9c1ea0ec7effc2d966a30b3c64514e50da6632288526f3ab"
+    },
+    {
+      "sourceFile": "zk_rollup_vs_optimistic_rollup/index_zh.md",
+      "field": "author",
+      "valueSHA256": "398b676e47d03a29016ee92fe378b8b4f1b3e965390c4c64ce78d27f79df74d1",
+      "sourceSHA256": "dc4b510931754f36b41355632eaa05db075242137e39c2c26ac6ec1fbcbf23a1"
+    }
+  ]
+}

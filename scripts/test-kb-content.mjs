@@ -153,12 +153,13 @@ assert.deepEqual(
   'Preview routes must include only actual translations',
 )
 const originalEnglish = englishArticles.find(article => article.id === 'bft_consensus_mechanisms')
-assert(originalEnglish, 'Expected the stable BFT fixture with real Chinese and Spanish translations')
+assert(originalEnglish, 'The approved BFT migration target must remain available')
 const englishContext = { params: { slug: originalEnglish.id }, locale: 'en' }
 const englishPage = await articleStaticProps('canonical')(englishContext)
 assert('props' in englishPage && !('redirect' in englishPage), 'Existing English URLs must continue serving directly')
 assert.equal(englishPage.props.article.canonicalPath, originalEnglish.canonicalPath)
 for (const language of ['fr', 'ko', 'tr', 'pt']) {
+  if (source.getKBArticleStatus(originalEnglish.id, language) !== 'missing') continue
   const context = { params: { slug: originalEnglish.id }, locale: language }
   const requestsBefore = translationRequests.length
   assert.deepEqual(await articleStaticProps('canonical')(context), {
@@ -171,9 +172,9 @@ for (const language of ['fr', 'ko', 'tr', 'pt']) {
   )
   assert.deepEqual(await articleStaticProps('preview')(context), { notFound: true })
 }
-for (const language of ['zh', 'es']) {
+for (const language of locales.filter(language => language !== 'en')) {
   const originalTranslation = source.getKBCatalog(language).articles.find(article => article.id === originalEnglish.id)
-  assert(originalTranslation, `Expected a real ${language} translation for the route fixture`)
+  if (!originalTranslation) continue
   const context = { params: { slug: originalTranslation.id }, locale: language }
   const page = await articleStaticProps('canonical')(context)
   assert('props' in page && !('redirect' in page))
@@ -184,16 +185,21 @@ for (const language of ['zh', 'es']) {
   assert.equal(translationRequests.at(-1), language)
   assert.equal((await articleStaticProps('preview')(context)).props.preview, true)
 }
-// The November upstream sync supplies Chinese files for every English article.
-// Keep a real-source missing-translation check in Spanish, and exercise missing
-// Chinese explicitly with the controlled fixture below instead of requiring a
-// genuine Chinese upload to remain absent forever.
-assert(englishArticles.every(article => source.getKBArticleStatus(article.id, 'zh') === 'published'))
-const untranslatedSpanish = englishArticles.find(article => source.getKBArticleStatus(article.id, 'es') === 'missing')
-assert(untranslatedSpanish, 'Expected an untranslated English article in Spanish')
-assert.deepEqual(await articleStaticProps('canonical')({ params: { slug: untranslatedSpanish.id }, locale: 'es' }), {
-  redirect: { destination: encodeURI(untranslatedSpanish.canonicalPath), permanent: true },
-})
+// Daily English uploads do not have to include a Chinese translation. Exercise
+// every genuinely missing published translation without requiring a particular
+// translation to remain absent (or present) forever. Controlled fixtures below
+// also cover EN-only articles even if the live inventory becomes fully translated.
+for (const article of englishArticles) {
+  for (const language of locales.filter(language => language !== 'en')) {
+    if (source.getKBArticleStatus(article.id, language) !== 'missing') continue
+    assert.deepEqual(await articleStaticProps('canonical')({ params: { slug: article.id }, locale: language }), {
+      redirect: { destination: encodeURI(article.canonicalPath), permanent: true },
+    })
+    assert.deepEqual(await articleStaticProps('preview')({ params: { slug: article.id }, locale: language }), {
+      notFound: true,
+    })
+  }
+}
 for (const route of ['canonical', 'preview']) {
   for (const language of ['en', 'zh', 'fr']) {
     for (const slug of [
@@ -280,7 +286,7 @@ for (const route of ['canonical', 'preview']) {
     })
   }
 }
-for (const language of ['zh', 'fr']) {
+for (const language of ['zh', 'es', 'fr']) {
   assert.deepEqual(
     await fixtureRoutes.articleStaticProps('canonical')({ params: { slug: 'published' }, locale: language }),
     { redirect: { destination: '/knowledge-base/published', permanent: true } },

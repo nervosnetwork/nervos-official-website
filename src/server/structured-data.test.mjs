@@ -152,12 +152,12 @@ test('home uses only handoff organization details; contact, language guesses and
   }
 })
 
-test('all 471 published renditions render current canonical Article and genuine Hub breadcrumbs without changing main markup', () => {
+test('every current published rendition renders canonical Article and genuine Hub breadcrumbs without changing main markup', () => {
   const catalog = JSON.parse(read('public/education_hub_articles/metadata/catalog.json'))
   const published = catalog.articles.filter(
     article => !article.draft && (!article.date || Date.parse(article.date) <= Date.now()),
   )
-  assert.equal(published.length, 471)
+  assert.ok(published.length > 0, 'The real-content integration must exercise published articles')
   let withHub = 0
   let withoutHub = 0
   for (const article of published) {
@@ -224,8 +224,9 @@ test('all 471 published renditions render current canonical Article and genuine 
     assert.equal(JSON.stringify(article), before, 'Metadata must not modify source data')
     assert.equal(crypto.createHash('sha256').update(raw).digest('hex'), article.sourceSHA256)
   }
-  assert.equal(withHub, 342)
-  assert.equal(withoutHub, 129)
+  assert.equal(withHub, published.filter(article => article.hub).length)
+  assert.equal(withoutHub, published.filter(article => !article.hub).length)
+  assert.equal(withHub + withoutHub, published.length)
 })
 
 test('optional article fields omit unavailable data and retain the D08 description contract', () => {
