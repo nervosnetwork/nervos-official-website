@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
+import { trackKBEvent } from '../KnowledgeHub/analytics'
 
 const TRACKED_LINK_PROTOCOLS = new Set(['http:', 'https:'])
-
-type Umami = (eventName: string, eventParams: Record<string, string>) => void
 
 function getDestinationCategory(url: URL) {
   const hostname = url.hostname.replace(/^www\./, '')
@@ -41,21 +40,21 @@ export function LinkClickTracker() {
         return
       }
 
-      const linkUrl = new URL(link.href, window.location.href)
+      let linkUrl: URL
+      try {
+        linkUrl = new URL(link.href, window.location.href)
+      } catch {
+        return
+      }
 
       if (!TRACKED_LINK_PROTOCOLS.has(linkUrl.protocol)) {
         return
       }
 
-      const umami = (window as typeof window & { umami?: { track?: Umami } }).umami
-      const track = umami?.track
-
-      if (!track) {
-        return
-      }
-
-      track('link_click', {
+      trackKBEvent('link_click', {
         destination_category: getDestinationCategory(linkUrl),
+        link_url: linkUrl.href,
+        outbound: linkUrl.origin !== window.location.origin,
       })
     }
 

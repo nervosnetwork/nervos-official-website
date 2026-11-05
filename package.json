@@ -3,8 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "node ./scripts/generate-articles.mjs && next build",
-    "dev": "next dev",
+    "kb:check-slugs": "node public/education_hub_articles/scripts/check-slugs.mjs",
+    "kb:validate": "node public/education_hub_articles/scripts/check-slugs.mjs && node scripts/test-kb-content.mjs",
+    "kb:sync": "git submodule update --init public/education_hub_articles",
+    "kb:prepare": "node scripts/prepare-kb-content.mjs",
+    "sitemap:generate": "node scripts/generate-sitemap.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
+    "indexnow:manifest": "node scripts/indexnow-manifest.mjs",
+    "indexnow:plan": "node scripts/indexnow-plan.mjs",
+    "indexnow:deploy": "node scripts/indexnow-deploy.mjs",
+    "build": "node public/education_hub_articles/scripts/check-slugs.mjs && node ./scripts/generate-articles.mjs && node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next build",
+    "dev": "node scripts/generate-sitemap.mjs && node scripts/indexnow-manifest.mjs && next dev",
     "lint": "next lint",
     "start": "next start",
     "afterInstall": "husky install"
@@ -44,6 +53,7 @@
     "remark-html": "15.0.2",
     "rxjs": "^7.8.0",
     "sass": "^1.58.3",
+    "sharp": "0.33.5",
     "superjson": "1.13.3",
     "swiper": "^9.1.0",
     "zod": "^3.22.3"

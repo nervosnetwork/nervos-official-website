@@ -2,10 +2,11 @@ import interact from 'interactjs'
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import { KeyboardEventHandler, RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { GameController } from './utils'
+import { DISABLE_CGOL_MOUSE_CONTROLLER } from './constants'
 
 // When useGameMouseHandler is enabled on a page, you need to add this class
 // if you want an element to operate normally and not be hijacked by the game controller.
-export const DISABLE_CGOL_MOUSE_CONTROLLER = 'disable_cgol_mouse_controller'
+export { DISABLE_CGOL_MOUSE_CONTROLLER } from './constants'
 
 export function useGameKeyboardHandler(
   controllerRef: RefObject<GameController>,

@@ -1,0 +1,255 @@
+import clsx from 'clsx'
+import { ReactNode, RefObject, useEffect, useState } from 'react'
+import Head from 'next/head'
+import Link from 'next/link'
+import { Page } from '../Page'
+import { Icon, Newsletter } from './Home'
+import base from './index.module.scss'
+import styles from './pages.module.scss'
+import revisedBase from './home-v2.module.scss'
+import revisedStyles from './pages-v2.module.scss'
+import { KnowledgeFooter } from './KnowledgeFooter'
+import articleStyles from './article-v2.module.scss'
+import { ArrowButton } from './Components'
+import { GuideLife } from './GuideLife'
+import type { OGProperties } from '../OpenGraph'
+import { trackKBEvent } from './analytics'
+import { KB_HUBS, kbHubPath } from '../../utils/kb-hubs'
+import type { KBArticle } from './content'
+
+export const articleHref = (title?: string) =>
+  title ? `/knowledge-base/search?q=${encodeURIComponent(title)}` : '/knowledge-base/articles'
+
+export function PreviewPage({
+  title,
+  children,
+  newsletter = true,
+  revision = false,
+  headerClassName,
+  preview = false,
+  noindex = false,
+  openGraph,
+  description,
+  canonicalPath,
+  readingProgress,
+  articleNavigation = false,
+  articleLanguage,
+  headerRef,
+}: {
+  title: string
+  children: ReactNode
+  newsletter?: boolean
+  revision?: boolean
+  headerClassName?: string
+  preview?: boolean
+  noindex?: boolean
+  canonicalPath?: string
+  description?: string
+  openGraph?: OGProperties
+  readingProgress?: number
+  articleNavigation?: boolean
+  articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
+}) {
+  return (
+    <>
+      <Head>
+        <title>{preview ? `${title} — Knowledge Base preview` : title}</title>
+        {(preview || noindex) && <meta name="robots" content={preview ? 'noindex, nofollow' : 'noindex, follow'} />}
+      </Head>
+      <Page
+        className={revision ? clsx(revisedBase.page, revisedStyles.page) : clsx(base.page, styles.page)}
+        openGraph={
+          openGraph ??
+          (description || canonicalPath
+            ? defaults => ({
+                ...defaults,
+                title,
+                description: description ?? defaults.description,
+                url: canonicalPath ?? defaults.url,
+              })
+            : undefined)
+        }
+      >
+        {({ renderHeader, renderFooter }) => (
+          <>
+            {renderHeader({
+              variant: articleNavigation ? 'knowledgeArticle' : 'knowledgeHub',
+              className: headerClassName,
+              readingProgress,
+              articleLanguage,
+              headerRef,
+            })}
+            {children}
+            {newsletter && <Newsletter />}
+            {revision ? <KnowledgeFooter /> : renderFooter()}
+          </>
+        )}
+      </Page>
+    </>
+  )
+}
+
+export function Breadcrumb({
+  current,
+  revision = false,
+  parents = [],
+}: {
+  current: string
+  revision?: boolean
+  parents?: { label: string; href: string; ctaId: string }[]
+}) {
+  return (
+    <nav className={revision ? revisedStyles.breadcrumb : styles.breadcrumb} aria-label="Breadcrumb">
+      <Link
+        href="/knowledge-base"
+        locale="en"
+        onClick={() => trackKBEvent('kb_cta_click', { cta_id: 'kb_home', placement: 'breadcrumb' })}
+      >
+        Knowledge Base
+      </Link>
+      {parents.map(parent => (
+        <span key={parent.href}>
+          <span aria-hidden="true"> / </span>
+          <Link
+            href={parent.href}
+            locale="en"
+            onClick={() => trackKBEvent('kb_cta_click', { cta_id: parent.ctaId, placement: 'breadcrumb' })}
+          >
+            {parent.label}
+          </Link>
+        </span>
+      ))}
+      <span aria-hidden="true"> / </span>
+      <span aria-current="page">{current}</span>
+    </nav>
+  )
+}
+
+export function ArticleMeta({ large = false }: { large?: boolean }) {
+  return (
+    <div className={clsx(styles.meta, large && styles.largeMeta)}>
+      <Icon name="articleBody-imgGroup58" size={large ? 35 : 18} />
+      <span>Nervos</span>
+      <span>·</span>
+      <span>{large ? 'March 9, 2023' : 'February 28, 2023'}</span>
+      <span>·</span>
+      <Icon name="articleBody-imgLayer15" size={12} />
+      <span>5 min read</span>
+    </div>
+  )
+}
+
+export function RelatedHubs({ revision = false, currentHubId }: { revision?: boolean; currentHubId?: string }) {
+  const design = revision ? revisedStyles : styles
+  const preferredIds = ['blockchain-architecture', 'blockchain-vms-risc-v', 'nervos-ckb']
+  const related = [
+    ...KB_HUBS.filter(hub => preferredIds.includes(hub.id)),
+    ...KB_HUBS.filter(hub => !preferredIds.includes(hub.id)),
+  ]
+    .filter(hub => hub.id !== currentHubId)
+    .slice(0, 3)
+  return (
+    <section className={design.relatedHubs} aria-label="Related hubs">
+      <div className={design.label}>
+        <Icon name="topicBody-imgInterfaceMainComponent" />
+        Related hubs
+      </div>
+      <div className={design.pills}>
+        {related.map(({ name, id }) => (
+          <ArrowButton
+            className={design.pill}
+            key={name}
+            href={kbHubPath(id) ?? '/knowledge-base'}
+            locale="en"
+            onClick={() => trackKBEvent('kb_hub_click', { hub_id: id, placement: 'related_hubs' })}
+          >
+            {name}
+          </ArrowButton>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+export function DiscoverBanner({
+  compact = false,
+  revision = false,
+  onDiscoverClick,
+}: {
+  compact?: boolean
+  revision?: boolean
+  onDiscoverClick?: () => void
+}) {
+  const design = revision ? articleStyles : styles
+  return (
+    <aside className={compact ? design.discoverCompact : design.discoverBanner}>
+      {!revision && (
+        <GuideLife
+          className={design.discoverLife}
+          density={compact ? 0.18 : 0.16}
+          exclusionPadding={compact ? 12 : 18}
+          exclusionSelector="[data-life-exclusion]"
+        />
+      )}
+      <div data-life-exclusion>
+        <h2>New to Nervos? Start here.</h2>
+        <p>Everything you need to understand Nervos, how it works, and what makes it different.</p>
+      </div>
+      <span className={design.discoverAction} data-life-exclusion>
+        <ArrowButton
+          className={design.discoverButton}
+          href="/knowledge-base/start-here"
+          locale="en"
+          onClick={() => {
+            if (onDiscoverClick) onDiscoverClick()
+            else
+              trackKBEvent('kb_cta_click', {
+                cta_id: 'discover_ckb',
+                placement: compact ? 'article_sidebar_banner' : 'article_bottom_banner',
+              })
+          }}
+        >
+          Explore the guide
+        </ArrowButton>
+      </span>
+    </aside>
+  )
+}
+
+export function useActiveSection(ids: string[], useScrollMargin = false, waitForFirstSection = false) {
+  const [active, setActive] = useState(waitForFirstSection ? '' : (ids[0] ?? ''))
+  const key = ids.join('|')
+  useEffect(() => {
+    const sectionIds = key.split('|')
+    let frame = 0
+    const update = () => {
+      const firstId = sectionIds[0] ?? ''
+      let current = waitForFirstSection ? '' : firstId
+      sectionIds.forEach(id => {
+        const node = document.getElementById(id)
+        if (!node) return
+        const threshold = useScrollMargin ? (parseFloat(getComputedStyle(node).scrollMarginTop) || 150) + 2 : 150
+        if (node.getBoundingClientRect().top <= threshold) current = id
+      })
+      if (!current && waitForFirstSection) {
+        const first = document.getElementById(firstId)
+        if (first && first.getBoundingClientRect().top < window.innerHeight) current = firstId
+      }
+      setActive(current)
+    }
+    const onScroll = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      cancelAnimationFrame(frame)
+    }
+  }, [key, useScrollMargin, waitForFirstSection])
+  return active
+}

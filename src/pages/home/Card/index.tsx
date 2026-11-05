@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { FC, PropsWithChildren, ReactNode } from 'react'
-import { DISABLE_CGOL_MOUSE_CONTROLLER } from 'src/components/ConwayGameOfLife'
+import { DISABLE_CGOL_MOUSE_CONTROLLER } from 'src/components/ConwayGameOfLife/constants'
 import styles from './index.module.scss'
 
 export const Card: FC<

@@ -1,9 +1,10 @@
-import { ComponentProps, FC, Fragment, useMemo } from 'react'
+import { ComponentProps, FC, Fragment, RefObject, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import clsx from 'clsx'
 import { Popover, Portal, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { DESKTOP_QUERY } from '../../utils/breakpoints'
 import { StyledLink } from '../StyledLink'
 import styles from './index.module.scss'
 import CodeIcon from './code.svg'
@@ -15,20 +16,59 @@ import LogoIcon from './logo.svg'
 import LanguageIcon from './language.svg'
 import { useIsMobile } from '../../hooks'
 import { isClient } from '../../utils'
-import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife'
+import { DISABLE_CGOL_MOUSE_CONTROLLER } from '../ConwayGameOfLife/constants'
+import { KnowledgeHeader, NavigationMenu } from './KnowledgeHeader'
+import type { KBArticle } from '../KnowledgeHub/content'
 
 const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '')
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
-export type HeaderProps = ComponentProps<'div'>
+export type HeaderProps = ComponentProps<'div'> & {
+  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
+  readingProgress?: number
+  articleLanguage?: KBArticle
+  headerRef?: RefObject<HTMLDivElement>
+}
 
 export const Header: FC<HeaderProps> = props => {
-  const { className, ...divProps } = props
+  const { className, variant = 'default', readingProgress, articleLanguage, headerRef, ...divProps } = props
+
+  const [singleColumn, setSingleColumn] = useState(false)
+  useEffect(() => {
+    const desktop = window.matchMedia(DESKTOP_QUERY)
+    const update = () => setSingleColumn(!desktop.matches)
+    update()
+    desktop.addEventListener('change', update)
+    return () => desktop.removeEventListener('change', update)
+  }, [])
+
+  if (variant === 'knowledgeArticle') {
+    return (
+      <KnowledgeHeader
+        className={className}
+        readingProgress={readingProgress}
+        articleLanguage={articleLanguage}
+        headerRef={headerRef}
+        {...divProps}
+      >
+        <div className={clsx(styles.knowledgeDesktopMenu, styles.articleDesktopMenu)}>
+          {!singleColumn && <MenuPopover alignRight uiLanguage="en" />}
+        </div>
+      </KnowledgeHeader>
+    )
+  }
 
   return (
-    <div className={clsx(styles.header, className)} {...divProps}>
-      <MenuPopover />
-      <Link className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)} href="/">
+    <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
+      <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
+      <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
+        {!singleColumn && <MenuPopover alignRight uiLanguage={variant === 'knowledgeHub' ? 'en' : undefined} />}
+      </div>
+      <Link
+        className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)}
+        href="/"
+        locale={variant === 'knowledgeHub' ? 'en' : undefined}
+      >
         <LogoIcon />
       </Link>
       <LanguagePopover
@@ -55,13 +95,17 @@ export function useHeaderHeight(): number {
   }, [isMobile])
 }
 
-const MenuPopover: FC = () => {
-  const [t] = useTranslation('common', { keyPrefix: 'navigation' })
+const MenuPopover: FC<{ alignRight?: boolean; uiLanguage?: 'en' }> = ({ alignRight, uiLanguage }) => {
+  const [t] = useTranslation('common', { keyPrefix: 'navigation', lng: uiLanguage })
+  const isMobile = useIsMobile()
   return (
     <Popover className={styles.menuPopover}>
       {({ close }) => (
         <>
-          <Popover.Button className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}>
+          <Popover.Button
+            aria-label="Menu"
+            className={clsx(styles.trigger, styles.noFocusOutline, DISABLE_CGOL_MOUSE_CONTROLLER)}
+          >
             <MenuIcon />
             <span className={styles.text}>MENU</span>
           </Popover.Button>
@@ -77,9 +121,19 @@ const MenuPopover: FC = () => {
               leaveFrom={styles.leaveFrom}
               leaveTo={styles.leaveTo}
             >
-              <Popover.Panel className={styles.menuPopoverContent}>
+              <Popover.Panel
+                className={clsx(styles.menuPopoverContent, alignRight && styles.rightMenu)}
+                onClick={event => {
+                  if (!alignRight || !isMobile || !(event.target instanceof Element)) return
+                  const link = event.target.closest('a[href]')
+                  const href = link?.getAttribute('href')
+                  if (href?.startsWith('/') && !href.startsWith('//') && link?.getAttribute('target') !== '_blank') {
+                    close()
+                  }
+                }}
+              >
                 <div className={styles.menu}>
-                  <StyledLink href="/developers" className={styles.title}>
+                  <StyledLink href="/developers" locale={alignRight ? 'en' : undefined} className={styles.title}>
                     <CodeIcon />
                     {t('developers')}
                   </StyledLink>
@@ -97,7 +151,7 @@ const MenuPopover: FC = () => {
                 </div>
 
                 <div className={styles.menu}>
-                  <StyledLink href="/community" className={styles.title}>
+                  <StyledLink href="/community" locale={alignRight ? 'en' : undefined} className={styles.title}>
                     <CommunityIcon />
                     {t('community')}
                   </StyledLink>
@@ -124,18 +178,18 @@ const MenuPopover: FC = () => {
                 </div>
 
                 <div className={styles.menu}>
-                  <StyledLink href="/ckbpage" className={styles.title}>
+                  <StyledLink href="/ckbpage" locale={alignRight ? 'en' : undefined} className={styles.title}>
                     <CircleIcon />
                     CKB
                   </StyledLink>
                   <div className={styles.links}>
-                    <StyledLink href="/mining" className={styles.link}>
+                    <StyledLink href="/mining" locale={alignRight ? 'en' : undefined} className={styles.link}>
                       {t('mining')}
                     </StyledLink>
-                    <StyledLink href="/wallets" className={styles.link}>
+                    <StyledLink href="/wallets" locale={alignRight ? 'en' : undefined} className={styles.link}>
                       {t('wallets')}
                     </StyledLink>
-                    <StyledLink href="/journey" className={styles.link}>
+                    <StyledLink href="/journey" locale={alignRight ? 'en' : undefined} className={styles.link}>
                       {t('journey')}
                     </StyledLink>
                     <StyledLink href="https://ckbdapps.com/ecosystem" className={styles.link}>
@@ -145,12 +199,12 @@ const MenuPopover: FC = () => {
                 </div>
 
                 <div className={styles.menu}>
-                  <StyledLink className={styles.title} href="/learn">
+                  <StyledLink className={styles.title} href="/learn" locale={alignRight ? 'en' : undefined}>
                     <LearnIcon />
                     {t('learn')}
                   </StyledLink>
                   <div className={styles.links}>
-                    <StyledLink href="/knowledge-base" className={styles.link}>
+                    <StyledLink href="/knowledge-base" locale={alignRight ? 'en' : undefined} className={styles.link}>
                       {t('knowledge_base')}
                     </StyledLink>
                     <StyledLink href="https://medium.com/nervosnetwork" className={styles.link}>

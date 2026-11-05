@@ -13,9 +13,53 @@
   align-items: center;
 }
 
+.embellishedLeft {
+  top: 117px;
+  right: 855px;
+
+  > img {
+    width: 744px;
+    height: 459px;
+  }
+}
+
+.embellishedRight {
+  top: 425px;
+  left: 114px;
+
+  > img {
+    width: 595px;
+    height: 310px;
+    transform: scaleX(-1);
+    transform-origin: 50% 50%;
+  }
+}
+
 @media (max-width: $mobileBreakPoint) {
   .icons {
     top: calc(100% + 54px);
     left: 0;
+  }
+
+  .embellishedLeft {
+    top: 264px;
+    right: 273px;
+
+    > img {
+      width: 430px;
+      height: 265px;
+    }
+  }
+
+  .embellishedRight {
+    top: 70px;
+    left: 38px;
+
+    > img {
+      width: 374px;
+      height: 196px;
+      transform: scaleX(-1) rotate(90deg);
+      transform-origin: left top;
+    }
   }
 }

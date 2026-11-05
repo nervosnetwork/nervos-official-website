@@ -38,6 +38,7 @@ export type BaseSeparatePageType = HeaderType &
     extensionTitleFunctionsClassName?: string
     embellishedElements?: {
       content: ReactNode
+      className?: string
       top?: number
       right?: number
       left?: number
@@ -100,7 +101,7 @@ export const BaseSeparatePage: FC<BaseSeparatePageType> = props => {
             {embellishedElements?.map((embellishedElement, idx) => (
               <div
                 key={idx}
-                className={clsx(styles.embellishedElement)}
+                className={clsx(styles.embellishedElement, embellishedElement.className)}
                 style={{
                   top: embellishedElement.top,
                   right: embellishedElement.right,

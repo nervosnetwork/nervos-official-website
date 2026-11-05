@@ -15,6 +15,7 @@ export type StyledLinkProps = {
   openNewTab?: boolean
   className?: string
   download?: string
+  locale?: string
 }
 
 export const StyledLink: FC<PropsWithChildren<StyledLinkProps>> = ({
@@ -27,6 +28,7 @@ export const StyledLink: FC<PropsWithChildren<StyledLinkProps>> = ({
   openNewTab,
   className,
   download,
+  locale,
 }) => {
   const isExternalLink = /^(https?:)?\/\//.test(href)
   if (openNewTab == null) openNewTab = isExternalLink
@@ -43,6 +45,7 @@ export const StyledLink: FC<PropsWithChildren<StyledLinkProps>> = ({
       target={openNewTab ? '_blank' : '_self'}
       rel="noopener noreferrer"
       download={download}
+      {...(!isExternalLink ? { locale } : {})}
     >
       {children ?? href}
       {isExternalLink && icon ? <ArrowIcon className={clsx(styles.arrowIcon)} /> : null}

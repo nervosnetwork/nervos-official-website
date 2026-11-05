@@ -12,10 +12,50 @@
   margin: 1em 0;
 }
 
+.embellishedLeft {
+  top: 450px;
+  right: 518px;
+
+  > svg {
+    width: 940px;
+    height: 503px;
+  }
+}
+
+.embellishedRight {
+  top: 382px;
+  left: 142px;
+
+  > svg {
+    width: 940px;
+    height: 503px;
+  }
+}
+
 @media (max-width: $mobileBreakPoint) {
   .icons {
     top: calc(100% + 50px);
     left: 0;
     transform: unset;
+  }
+
+  .embellishedLeft {
+    top: 453px;
+    right: -8px;
+
+    > svg {
+      width: 548px;
+      height: 292px;
+    }
+  }
+
+  .embellishedRight {
+    top: 79px;
+    left: -55px;
+
+    > svg {
+      width: 548px;
+      height: 292px;
+    }
   }
 }

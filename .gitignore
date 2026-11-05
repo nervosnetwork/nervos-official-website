@@ -7,14 +7,24 @@
 
 # testing
 /coverage
+/.playwright-cli/
 
 # database
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
 
+# generated article data
+/src/database/articles/*/index.ts
+
 # next.js
 /.next/
+/.next-*/
+/.next-kb-validation/
 /out/
+/public/sitemap.xml
+/public/indexnow-manifest.json
+/public/indexnow-release.json
+/indexnow-output/
 next-env.d.ts
 
 # production

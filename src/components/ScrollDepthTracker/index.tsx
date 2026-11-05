@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
+import { trackKBEvent } from '../KnowledgeHub/analytics'
 
 const SCROLL_MILESTONES = [25, 50, 75, 90, 100]
-
-type Umami = (eventName: string, eventParams: Record<string, string | number>) => void
 
 function getScrollDepth() {
   const element = document.documentElement
@@ -30,6 +29,7 @@ export function ScrollDepthTracker() {
   const router = useRouter()
   const trackedMilestones = useRef(new Set<number>())
   const animationFrame = useRef<number | null>(null)
+  const routeKey = router.asPath.split('#')[0]
 
   useEffect(() => {
     trackedMilestones.current = new Set()
@@ -38,20 +38,11 @@ export function ScrollDepthTracker() {
       animationFrame.current = null
 
       const scrollDepth = getScrollDepth()
-      const umami = (window as typeof window & { umami?: { track?: Umami } }).umami
-      const track = umami?.track
-
-      if (!track) {
-        return
-      }
-
       SCROLL_MILESTONES.forEach(milestone => {
         if (scrollDepth >= milestone && !trackedMilestones.current.has(milestone)) {
           trackedMilestones.current.add(milestone)
-          track('scroll_depth', {
+          trackKBEvent('scroll_depth', {
             percent_scrolled: milestone,
-            page_path: `${window.location.pathname}${window.location.hash}`,
-            page_title: document.title,
           })
         }
       })
@@ -72,12 +63,13 @@ export function ScrollDepthTracker() {
     return () => {
       if (animationFrame.current !== null) {
         window.cancelAnimationFrame(animationFrame.current)
+        animationFrame.current = null
       }
 
       window.removeEventListener('scroll', scheduleScrollDepthCheck)
       window.removeEventListener('resize', scheduleScrollDepthCheck)
     }
-  }, [router.asPath])
+  }, [routeKey])
 
   return null
 }

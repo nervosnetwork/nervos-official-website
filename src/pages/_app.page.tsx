@@ -1,11 +1,16 @@
 import { type AppType } from 'next/app'
 import { useEffect } from 'react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { appWithTranslation } from 'next-i18next'
 import localFont from 'next/font/local'
 import { IS_PROD, api } from '../utils'
 import { LinkClickTracker } from '../components/LinkClickTracker'
 import { ScrollDepthTracker } from '../components/ScrollDepthTracker'
+import { PageSEO } from '../components/PageSEO'
+import { GoogleAnalytics } from '../components/GoogleAnalytics'
+import { GA_ENABLED } from '../utils/ga'
+import type { PageSEO as PageSEOData } from '../utils/page-seo'
 import 'swiper/css'
 import '../styles/globals.scss'
 
@@ -20,7 +25,8 @@ const fontArticulatCF = localFont({
   preload: true,
 })
 
-const App: AppType = ({ Component, pageProps }) => {
+const App: AppType<{ pageSEO?: PageSEOData }> = ({ Component, pageProps }) => {
+  const router = useRouter()
   useEffect(() => {
     document.body.classList.add(fontArticulatCF.className)
     return () => document.body.classList.remove(fontArticulatCF.className)
@@ -33,9 +39,11 @@ const App: AppType = ({ Component, pageProps }) => {
         <link rel="icon" type="image/svg" href="/favicon.svg" />
         {IS_PROD ? (
           <>
-            <script async src="https://www.googletagmanager.com/gtag/js?id=G-WVH440CNZ3" />
-            <script async src="/scripts/google-analytics.js" />
-            <script defer src="https://umami.retric.uk/script.js" data-website-id="1703a5f5-1391-4989-ba79-f6c06f08fb01" />
+            <script
+              defer
+              src="https://umami.retric.uk/script.js"
+              data-website-id="1703a5f5-1391-4989-ba79-f6c06f08fb01"
+            />
             <script async src="/scripts/twitter.js" />
           </>
         ) : null}
@@ -52,6 +60,16 @@ const App: AppType = ({ Component, pageProps }) => {
         ) : null}
         <Component {...pageProps} />
       </main>
+      <>
+        <PageSEO seo={pageProps.pageSEO} fallbackLanguage={router.locale} navigationKey={router.asPath} />
+        <GoogleAnalytics />
+        {!IS_PROD && GA_ENABLED ? (
+          <>
+            <LinkClickTracker />
+            <ScrollDepthTracker />
+          </>
+        ) : null}
+      </>
     </>
   )
 }

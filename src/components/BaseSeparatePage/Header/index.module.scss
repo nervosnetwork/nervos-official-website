@@ -18,6 +18,12 @@
     letter-spacing: -0.025em;
   }
 
+  /* Preserve the former title div's inherited typography and zero margins. */
+  .title > h1 {
+    margin: 0;
+    font: inherit;
+  }
+
   @media (max-width: $mobileBreakPoint) {
     height: 549px;
 

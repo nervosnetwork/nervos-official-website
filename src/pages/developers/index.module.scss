@@ -15,9 +15,49 @@
   }
 }
 
+.embellishedLeft {
+  top: 474px;
+  right: 488px;
+
+  > svg {
+    width: 744px;
+    height: 459px;
+  }
+}
+
+.embellishedRight {
+  top: 102px;
+  left: 596px;
+
+  > svg {
+    width: 744px;
+    height: 420px;
+  }
+}
+
 @media (max-width: $mobileBreakPoint) {
   .icons {
     top: calc(100% + 26px);
     left: 0;
+  }
+
+  .embellishedLeft {
+    top: 462px;
+    right: 51px;
+
+    > svg {
+      width: 430px;
+      height: 267px;
+    }
+  }
+
+  .embellishedRight {
+    top: 64px;
+    left: -166px;
+
+    > svg {
+      width: 430px;
+      height: 245px;
+    }
   }
 }

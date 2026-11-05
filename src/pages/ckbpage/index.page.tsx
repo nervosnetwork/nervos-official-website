@@ -6,8 +6,8 @@ import { BaseSeparatePage } from 'src/components/BaseSeparatePage'
 import { StyledLink } from 'src/components/StyledLink'
 import { REPO, fetchContributors, lastContributor, Author, LastAuthor, BASE_URL } from 'src/utils'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { withStaticPageSEO } from '../../server/page-seo'
 import Embellished from './embellished.svg'
-import { useIsMobile } from '../../hooks'
 
 import styles from './index.module.scss'
 
@@ -24,7 +24,6 @@ interface PageProps {
 const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
   const [t, { language }] = useTranslation(['ckbpage', 'common'])
   const { pathname } = useRouter()
-  const isMobile = useIsMobile()
 
   const floatIcons = (
     <div className={styles.icons}>
@@ -32,7 +31,7 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
     </div>
   )
 
-  const title = <div>{t('title')}</div>
+  const title = <h1>{t('title')}</h1>
   const description = t('slogan')
   const info = t('contribution_welcome', { ns: 'common' })
   const functions = [
@@ -44,9 +43,9 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
           <p>
             <Trans t={t} i18nKey="tokenomics.description.text1">
               The CKB token launched with an initial supply of 33.6 billion coins, 8.4 billion of which were burned soon
-              thereafter. The base issuance totals 33.6 billion coins and halves every four years until it hits
-              zero, whereas the fixed secondary issuance is 1.344 billion per year. Check out the detailed CKB supply structure
-              and issuance schedule&nbsp;
+              thereafter. The base issuance totals 33.6 billion coins and halves every four years until it hits zero,
+              whereas the fixed secondary issuance is 1.344 billion per year. Check out the detailed CKB supply
+              structure and issuance schedule&nbsp;
               <StyledLink
                 href="https://medium.com/@m.quinn/a-detailed-description-of-nervos-ckb-supply-and-issuance-1d55c4b101f9"
                 colored
@@ -62,12 +61,12 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
 
           <p>
             <Trans t={t} i18nKey="tokenomics.description.text3">
-              CKB holders receive rewards from the secondary issuance by locking their coins in
-              the&nbsp;
+              CKB holders receive rewards from the secondary issuance by locking their coins in the&nbsp;
               <StyledLink href="https://medium.com/nervosnetwork/nervos-dao-explained-95e33898b1c" colored underline>
                 Nervos DAO
               </StyledLink>
-              &nbsp; smart contract, which is a mechanism that incentivizes the removal of unnecessary data, ensuring long-term manageability of the blockchain.
+              &nbsp; smart contract, which is a mechanism that incentivizes the removal of unnecessary data, ensuring
+              long-term manageability of the blockchain.
             </Trans>
           </p>
         </>
@@ -102,25 +101,16 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
         <title>{pageTitle}</title>
       </Head>
       <BaseSeparatePage
-        embellishedElements={
-          isMobile
-            ? [
-                {
-                  content: <Embellished width={548} height={292} style={{ transform: 'rotateX(180deg)' }} />,
-                  top: 453,
-                  right: -8,
-                },
-                { content: <Embellished width={548} height={292} />, top: 79, left: -55 },
-              ]
-            : [
-                {
-                  content: <Embellished width={940} height={503} style={{ transform: 'rotateX(180deg)' }} />,
-                  top: 450,
-                  right: 518,
-                },
-                { content: <Embellished width={940} height={503} />, top: 382, left: 142 },
-              ]
-        }
+        embellishedElements={[
+          {
+            content: <Embellished width={940} height={503} style={{ transform: 'rotateX(180deg)' }} />,
+            className: styles.embellishedLeft,
+          },
+          {
+            content: <Embellished width={940} height={503} />,
+            className: styles.embellishedRight,
+          },
+        ]}
         editLink={pageLink}
         title={title}
         floatIcons={floatIcons}
@@ -146,7 +136,7 @@ const CkbPage: NextPage<PageProps> = ({ contributors, author }) => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/ckbpage', async ({ locale = 'en' }) => {
   const contributors = await fetchContributors()
   const author = await lastContributor(pagePath)
   const lng = await serverSideTranslations(locale, ['common', 'ckbpage'])
@@ -157,6 +147,6 @@ export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
       contributors,
     },
   }
-}
+})
 
 export default CkbPage

@@ -1,6 +1,6 @@
-// https://github.com/vercel/vercel/discussions/5230
-// VERCEL_URL doesn't work on custom domains, so we need NEXT_BASE_URL
+import { PRODUCTION_SITE_ORIGIN } from './sharing-urls'
 
-const DOMAIN = process.env.NEXT_BASE_URL || process.env.VERCEL_URL
 export const IS_PROD = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production'
-export const BASE_URL = DOMAIN ? `https://${DOMAIN}` : '/'
+// Used by the existing sharing metadata and legacy article cover metadata.
+// Do not derive public sharing links from a preview hostname or a relative '/'.
+export const BASE_URL = PRODUCTION_SITE_ORIGIN

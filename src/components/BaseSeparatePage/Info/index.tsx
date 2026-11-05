@@ -29,7 +29,13 @@ export const Info: FC<InfoType> = ({ info, author, className, onContributorsButt
       <p className={styles.content}>{info}</p>
       <div className={styles.editorWrap}>
         <div className={styles.avatarAndEditorInfo}>
-          <Image className={styles.avatar} src={author?.avatar ?? ''} width={45} height={45} alt="avatar" />
+          <Image
+            className={styles.avatar}
+            src={author?.avatar ?? ''}
+            width={45}
+            height={45}
+            alt={author?.username ?? ''}
+          />
           <div className={clsx(styles.nameAndTime)}>
             {author ? (
               <div>

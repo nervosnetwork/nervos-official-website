@@ -7,6 +7,9 @@ import { isSafari, isIOS } from 'react-device-detect'
 import { Trans, useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { LanguagePopover } from 'src/components/Header'
+import { withStaticPageSEO } from '../../server/page-seo'
+import { OpenGraph } from '../../components/OpenGraph'
+import { sharingPageUrl } from '../../utils/sharing-urls'
 import { Footer } from './FoundationFooter'
 import {
   NervosLogoIcon,
@@ -52,7 +55,11 @@ const TEAMS: {
   { icon: <OmigaIcon />, key: 'Omiga', link: 'https://omiga.io/' },
   { icon: <KhalaniIcon />, key: 'Khalani', link: 'https://khalani.network/' },
   { icon: <SporeIcon />, key: 'Spore', link: 'https://spore.pro/' },
-  { icon: <App5LabsIcon style={{ width: "100%", height: "auto", filter: "brightness(0)" }} />, key: 'App5Labs', link: 'https://www.app5.org/' },
+  {
+    icon: <App5LabsIcon style={{ width: '100%', height: 'auto', filter: 'brightness(0)' }} />,
+    key: 'App5Labs',
+    link: 'https://www.app5.org/',
+  },
 ]
 
 const Emphasis: FC<PropsWithChildren> = ({ children }) => <strong className={styles.emphasis}>{children}</strong>
@@ -113,6 +120,15 @@ const Foundation: NextPage = () => {
       <Head>
         <title>{pageTitle}</title>
       </Head>
+      <OpenGraph
+        properties={{
+          type: 'website',
+          title: pageTitle,
+          description: t('slogan').replace(/<\/?tag[12]>/g, ''),
+          url: sharingPageUrl('/foundation', language, 'en'),
+          site_name: 'Nervos Network',
+        }}
+      />
       <div className={styles.foundationPageHeader}>
         <div style={{ padding: 12, height: '100%' }}>
           <FoundationLogo style={{ height: '100%' }} />
@@ -143,7 +159,7 @@ const Foundation: NextPage = () => {
       <div className={styles.container}>
         <div className={styles.banner} style={{ marginBottom: 80, marginTop: 32 }}>
           <NervosLogoIcon className={styles.foundationLogo} />
-          <div className={styles.foundationTitle}>{t('foundation')}</div>
+          <h1 className={styles.foundationTitle}>{t('foundation')}</h1>
           <div className={styles.foundationDescription}>
             <Trans
               t={t}
@@ -171,7 +187,7 @@ const Foundation: NextPage = () => {
         <div className={styles.positioning} style={{ marginBottom: 80 }}>
           <div className={styles.positioningCard}>
             <div className={styles.positioningCardCover}>
-              <img src={ImgInfrastructure.src} className={styles.illustration} />
+              <img src={ImgInfrastructure.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.positioningCardContent}>
               <div className={styles.positioningCardTitle}>{t('positioning.infrastructure.title')}</div>
@@ -180,7 +196,7 @@ const Foundation: NextPage = () => {
           </div>
           <div className={clsx(styles.positioningCard, styles.reverse)}>
             <div className={styles.positioningCardCover}>
-              <img src={ImgGuidance.src} className={styles.illustration} />
+              <img src={ImgGuidance.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.positioningCardContent}>
               <div className={styles.positioningCardTitle}>{t('positioning.guidance.title')}</div>
@@ -189,7 +205,7 @@ const Foundation: NextPage = () => {
           </div>
           <div className={styles.positioningCard}>
             <div className={styles.positioningCardCover}>
-              <img src={ImgCommunity.src} className={styles.illustration} />
+              <img src={ImgCommunity.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.positioningCardContent}>
               <div className={styles.positioningCardTitle}>{t('positioning.community.title')}</div>
@@ -205,7 +221,7 @@ const Foundation: NextPage = () => {
         <div id="vision" className={styles.vision} style={{ marginBottom: 80 }}>
           <div className={styles.visionCard}>
             <div className={styles.visionCardCover}>
-              <img src={ImgAnOpenBazaar.src} className={styles.illustration} />
+              <img src={ImgAnOpenBazaar.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.visionCardContent}>
               <div className={styles.visionCardTitle}>{t('vision_for_future.an_open_bazaar.title')}</div>
@@ -221,7 +237,7 @@ const Foundation: NextPage = () => {
 
           <div className={styles.visionCard}>
             <div className={styles.visionCardCover}>
-              <img src={ImgExplorationAndInnovation.src} className={styles.illustration} />
+              <img src={ImgExplorationAndInnovation.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.visionCardContent}>
               <div className={styles.visionCardTitle}>{t('vision_for_future.exploration_and_innovation.title')}</div>
@@ -237,7 +253,7 @@ const Foundation: NextPage = () => {
 
           <div className={styles.visionCard}>
             <div className={styles.visionCardCover}>
-              <img src={ImgNurtureAndSupport.src} className={styles.illustration} />
+              <img src={ImgNurtureAndSupport.src} alt="" className={styles.illustration} />
             </div>
             <div className={styles.visionCardContent}>
               <div className={styles.visionCardTitle}>{t('vision_for_future.nurture_and_support.title')}</div>
@@ -303,13 +319,13 @@ const Foundation: NextPage = () => {
   )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale = 'en' }) => {
+export const getStaticProps: GetStaticProps = withStaticPageSEO('/foundation', async ({ locale = 'en' }) => {
   const lng = await serverSideTranslations(locale, ['common', 'foundation'])
   return {
     props: {
       ...lng,
     },
   }
-}
+})
 
 export default Foundation
