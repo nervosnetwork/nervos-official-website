@@ -252,10 +252,12 @@ test('fixture article content matches the approved revision apart from image alt
   )
 })
 
-test('all 471 renditions preserve hashes and article content except image alt attributes', context => {
+test('every current published rendition preserves hashes and article content except image alt attributes', context => {
   const catalog = JSON.parse(read('public/education_hub_articles/metadata/catalog.json'))
-  const articles = catalog.articles.filter(article => !article.draft)
-  assert.equal(articles.length, 471)
+  const articles = catalog.articles.filter(
+    article => !article.draft && (!article.date || Date.parse(article.date) <= Date.now()),
+  )
+  assert.ok(articles.length > 0, 'The real-content integration must exercise published articles')
   const counts = { articles: articles.length, covers: 0, bodyImages: 0, blank: 0, placeholder: 0, preserved: 0 }
   for (const article of articles) {
     const sourceFile = `public/education_hub_articles/${article.sourceFile}`

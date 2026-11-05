@@ -8,6 +8,8 @@ import path from 'node:path'
 const DOMAIN = process.env.NEXT_BASE_URL || process.env.VERCEL_URL
 const BASE_URL = DOMAIN ? `https://${DOMAIN}` : '/'
 export async function parseBlog(fileContent, slug, fileBirthTime) {
+  if (!/^\uFEFF?---[^\S\r\n]*\r?\n/.test(fileContent))
+    throw new Error(`${slug}: only standard YAML frontmatter is allowed; executable/custom engines are forbidden`)
   const { data, content } = matter(fileContent)
 
   let coverImage = undefined
@@ -86,7 +88,7 @@ export async function parseBlog(fileContent, slug, fileBirthTime) {
     pageView,
   })
 
-  return blog;
+  return blog
 }
 
 function getStringValue(data) {
@@ -111,21 +113,26 @@ async function markdownToHtml(markdown) {
 
 const mapToCorrectDate = {
   // What_Does_Determinism_Mean_in_Blockchain_(explainCKBot) with date 2024-22-12T15:00:00.000Z
-  "2024-22-12T15:00:00.000Z": "2024-12-22T15:00:00.000Z",
+  '2024-22-12T15:00:00.000Z': '2024-12-22T15:00:00.000Z',
   // What_is_a_Block_Builder_in_Blockchain_(explainCKBot) with date 2025-27-01T15:00:00.000Z
-  "2025-27-01T15:00:00.000Z": "2025-01-27T15:00:00.000Z",
+  '2025-27-01T15:00:00.000Z': '2025-01-27T15:00:00.000Z',
   // ultimate_guide_to_rgb_rgbpp_and_client_side_validation with date 2024-09-2616:00:00.000Z
-  "2024-09-2616:00:00.000Z": "2024-09-26T16:00:00.000Z",
+  '2024-09-2616:00:00.000Z': '2024-09-26T16:00:00.000Z',
 }
 
 function getDate(slugName, data, defaultDateStr) {
-  const originDate = typeof data.date === 'string' ? data.date : defaultDateStr
-  let fixedDateStr = originDate.replace(" T", "T");
+  const originDate =
+    data.date instanceof Date && Number.isFinite(data.date.getTime())
+      ? data.date.toISOString()
+      : typeof data.date === 'string'
+        ? data.date
+        : defaultDateStr
+  let fixedDateStr = originDate.replace(' T', 'T')
   if (mapToCorrectDate[fixedDateStr]) {
     fixedDateStr = mapToCorrectDate[fixedDateStr]
   }
   checkDate(slugName, fixedDateStr)
-  return fixedDateStr;
+  return fixedDateStr
 }
 
 function checkDate(slugName, dateStr) {
@@ -134,5 +141,4 @@ function checkDate(slugName, dateStr) {
   if (isNaN(date.getTime())) {
     console.warn(`[Invalid date] for blog ${slugName} with date ${dateStr}`)
   }
-
 }
