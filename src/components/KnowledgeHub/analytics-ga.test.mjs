@@ -20,7 +20,7 @@ const plain = value => JSON.parse(JSON.stringify(value))
 
 function load(relativePath, imports, globals) {
   const { outputText } = ts.transpileModule(fs.readFileSync(new URL(relativePath, import.meta.url), 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
   })
   const exports = {}
   vm.runInNewContext(outputText, {
@@ -259,6 +259,61 @@ test('footer documentation, GitHub and explorer resources map to the agreed GA r
     ])
     assert.deepEqual(analytics.umamiEvents[0].data, { resource_id: resourceId, placement: 'footer' })
   }
+})
+
+test('Start Here resource clicks send each actual destination to GA4 without changing Umami fields', () => {
+  const analytics = bridge({ title: 'Start Here' })
+  analytics.window.location = new URL('https://www.nervos.org/knowledge-base/start-here')
+  const { guideSteps } = load('./guide-data.ts', {})
+  const { StepSection } = load('./Components.tsx', {
+    clsx: { default: (...values) => values.filter(Boolean).join(' ') },
+    'next/link': { default: 'Link' },
+    'next/image': { default: 'Image' },
+    'react/jsx-runtime': require('react/jsx-runtime'),
+    './Icon': { Icon: 'Icon' },
+    './components.module.scss': { default: {} },
+    './content': {},
+    './analytics': analytics,
+    '../../utils/kb-hubs': {},
+    './ArticleLanguageLink': { ArticleLanguageLink: 'ArticleLanguageLink' },
+  })
+  const nodes = node => {
+    if (!node || typeof node !== 'object') return []
+    if (Array.isArray(node)) return node.flatMap(nodes)
+    return [node, ...nodes(node.props?.children)]
+  }
+  const links = nodes(StepSection({ step: guideSteps[4], index: 4, articles: [] })).filter(node => node.type === 'Link')
+  const resources = [
+    ['ecosystem', 'ecosystem', 'https://ckbdapps.com/ecosystem'],
+    ['community', 'community', 'https://talk.nervos.org/'],
+    ['developer_docs', 'docs', 'https://docs.nervos.org/'],
+  ]
+  assert.deepEqual(
+    links.map(link => link.props.href),
+    resources.map(([, , url]) => url),
+  )
+  assert.deepEqual(analytics.events(), [], 'Rendering must not emit resource clicks')
+  assert.deepEqual(analytics.umamiEvents, [])
+  links.forEach(link => link.props.onClick())
+  assert.deepEqual(
+    analytics.events(),
+    resources.map(([, resource, link_url]) => [
+      'event',
+      'kb_resource_click',
+      {
+        ...commonPayload,
+        content_group: 'start_here',
+        page_location: 'https://www.nervos.org/knowledge-base/start-here',
+        page_title: 'Start Here',
+        resource,
+        link_url,
+      },
+    ]),
+  )
+  assert.deepEqual(
+    analytics.umamiEvents.map(event => event.data),
+    resources.map(([resource_id]) => ({ resource_id, placement: 'start_here_actions' })),
+  )
 })
 
 test('article experiment exposures and Discover clicks carry the same variant in GA4 and Umami', () => {

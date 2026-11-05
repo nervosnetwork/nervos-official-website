@@ -176,9 +176,9 @@ test('the first four steps retain their copy and step five restores the resource
   actions.forEach(action => action.props.onClick())
   assert.deepEqual(
     resourceEvents,
-    ['ecosystem', 'community', 'developer_docs'].map(resource_id => ({
+    ['ecosystem', 'community', 'developer_docs'].map((resource_id, index) => ({
       name: 'kb_resource_click',
-      data: { resource_id, placement: 'start_here_actions' },
+      data: { resource_id, placement: 'start_here_actions', link_url: actions[index].props.href },
     })),
   )
 })

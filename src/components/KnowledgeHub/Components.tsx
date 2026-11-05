@@ -305,6 +305,7 @@ export function StepSection({
                   trackKBEvent('kb_resource_click', {
                     resource_id: action.resourceId,
                     placement: 'start_here_actions',
+                    link_url: action.href,
                   })
                 }
               >
