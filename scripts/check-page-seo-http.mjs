@@ -171,10 +171,24 @@ await check(`/knowledge-base/topic?hub=${encodeURIComponent(firstHub.name)}&utm_
   alternates: alternatesFor(hubRoute, ['en']),
 })
 
-const englishOnly = articles.find(a => a.language === 'en' && !articles.some(b => b.id === a.id && b.language === 'zh'))
-const missing = await response(origin, `/zh/knowledge-base/${englishOnly.id}`)
+// Chinese is now complete; select a genuinely missing translation rather than
+// assuming an English-only article exists.
+const missingTranslation = articles
+  .filter(a => a.language === 'en')
+  .map(article => ({
+    article,
+    language: i18n.locales.find(
+      language => language !== 'en' && !articles.some(a => a.id === article.id && a.language === language),
+    ),
+  }))
+  .find(({ language }) => language)
+assert.ok(missingTranslation, 'Catalog contains a missing translation to exercise the fallback')
+const missing = await response(
+  origin,
+  `/${missingTranslation.language}/knowledge-base/${missingTranslation.article.id}`,
+)
 assert.equal(missing.status, 308, 'Missing translation still redirects to English')
-assert.equal(new URL(missing.headers.get('location'), origin).pathname, englishOnly.canonicalPath)
+assert.equal(new URL(missing.headers.get('location'), origin).pathname, missingTranslation.article.canonicalPath)
 await missing.arrayBuffer()
 const unknown = await response(origin, '/knowledge-base/d10-nonexistent-article')
 assert.equal(unknown.status, 404, 'Unknown article remains 404')
