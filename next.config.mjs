@@ -155,8 +155,8 @@ const config = {
       headers: [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' }],
     },
   ],
-  experimental: {
-    outputFileTracingIgnores: [
+  outputFileTracingExcludes: {
+    '/*': [
       'public/education_hub_articles/.git',
       'public/education_hub_articles/.github',
       'public/education_hub_articles/README.md',
