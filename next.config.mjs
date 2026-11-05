@@ -130,6 +130,12 @@ const config = {
       headers: [{ key: 'Content-Type', value: 'text/plain; charset=utf-8' }],
     },
     {
+      source: '/llms.txt',
+      // Next internally prefixes the root request with the default locale.
+      // Keep its normal header matching so this public file gets the header.
+      headers: [{ key: 'Content-Type', value: 'text/plain; charset=utf-8' }],
+    },
+    {
       source: '/sitemap.xml',
       locale: false,
       headers: [{ key: 'Content-Type', value: 'application/xml; charset=utf-8' }],
