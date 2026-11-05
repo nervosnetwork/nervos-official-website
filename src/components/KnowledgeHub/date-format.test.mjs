@@ -98,7 +98,7 @@ function renderDates() {
   function nodes(node) {
     if (!node || typeof node !== 'object') return []
     if (Array.isArray(node)) return node.flatMap(nodes)
-    // ArticleCard delegates its date to the real shared CardMeta component.
+    // Render the shared card metadata to check the visible text.
     if (node.type === components.CardMeta) return nodes(components.CardMeta(node.props))
     return [node, ...nodes(node.props?.children)]
   }
@@ -127,7 +127,7 @@ function renderDates() {
     const homeMeta = nodes(page.props.children({ renderHeader: () => null })).find(
       node => node.props?.className === 'articleMeta',
     )
-    assert.ok(homeMeta, 'The actual home recommendation date must render')
+    assert.ok(homeMeta, 'The home recommendation must show its read time')
     const renderedArticle = ContentArticle({
       article,
       markdown: '',
@@ -138,18 +138,17 @@ function renderDates() {
     })
     const articleMeta = nodes(renderedArticle).find(node => node.props?.className === 'meta largeMeta')
     assert.ok(articleMeta, 'The actual article header date must render')
-    const cardDates = [false, true].map(horizontal => {
+    const cardMetadata = [false, true].map(horizontal => {
       const card = components.ArticleCard({ title: article.title, article, horizontal })
       const meta = nodes(card).find(node => node.props?.className === 'meta')
-      assert.ok(meta, 'Grid and horizontal article cards must render date metadata')
-      const spans = nodes(meta).filter(node => node.type === 'span')
-      return text(spans[horizontal ? 2 : 0])
+      assert.ok(meta, 'Grid and horizontal article cards must show read time')
+      return text(meta)
     })
     return {
       helper: content.formatArticleDate(date),
-      home: text(nodes(homeMeta).find(node => node.type === 'span')).replace(/ ·$/, ''),
+      home: text(homeMeta),
       article: text(nodes(articleMeta).filter(node => node.type === 'span')[2]),
-      cards: cardDates,
+      cards: cardMetadata,
     }
   })
 }
@@ -174,30 +173,26 @@ if (process.argv.includes('--date-format-probe')) {
     ),
   )
 
-  test('D-19 active KB date displays remain identical in actual UTC, American and Asian host time zones', () => {
+  test('Article detail dates remain consistent across time zones', () => {
     assert.equal(new Set(results.map(result => result.offset)).size, zones.length, 'Child processes use distinct TZs')
     for (const result of results) {
       assert.deepEqual(result.dates, results[0].dates, `${result.timezone}: server/client date mismatch`)
       cases.forEach(([date, expected], index) => {
-        if (date === 'not-a-date') return
         assert.deepEqual(
-          result.dates[index],
-          { helper: expected, home: expected, article: expected, cards: [expected, expected] },
+          { helper: result.dates[index].helper, article: result.dates[index].article },
+          { helper: expected, article: expected },
           `${result.timezone}: ${date}`,
         )
       })
     }
   })
 
-  test('D-19 keeps existing invalid/missing-date behavior without changing visual date formatting', () => {
+  test('Popular, grid and horizontal cards show only read time regardless of publication date', () => {
     for (const result of results) {
-      const invalid = result.dates.at(-1)
-      assert.equal(invalid.helper, 'Date not supplied')
-      assert.equal(invalid.article, 'Date not supplied')
-      assert.deepEqual(invalid.cards, ['Date not supplied', 'Date not supplied'])
-      // Home already uses UTC but has a separate inline invalid-date fallback.
-      // Preserve that pre-existing behavior; this task only guards the TZ fix.
-      assert.equal(invalid.home, 'Invalid Date')
+      for (const { home, cards } of result.dates) {
+        assert.equal(home, '5 min read')
+        assert.deepEqual(cards, ['5 min read', '5 min read'])
+      }
     }
   })
 }

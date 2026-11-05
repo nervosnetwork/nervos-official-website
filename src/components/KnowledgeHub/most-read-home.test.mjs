@@ -80,7 +80,7 @@ test('home uses ranked articles even when they are absent from the pruned Hub ca
     mostRead.articles,
   )
   const heading = tree.find(node => node.props?.id === 'popular-title')
-  assert.equal(heading.props.children, 'Most read this year')
+  assert.equal(heading.props.children, "What everyone's reading")
   assert.equal(heading.props.title, 'GA4 views: 2025-09-28 – 2026-09-27')
   assert.equal(tree.find(node => node.props?.className === 'allArticles').props.href, '/knowledge-base/articles')
 })

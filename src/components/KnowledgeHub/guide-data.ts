@@ -6,7 +6,7 @@ type GuideStep = {
   body: string
   points: string[]
   reading: string[]
-  actions?: { title: string; description: string; label: string; href: string; resourceId: string }[]
+  actions?: { title: string; description: string; label: string; href: string; resourceId: string; icon: string }[]
 }
 
 export const guideSteps: GuideStep[] = [
@@ -41,7 +41,7 @@ export const guideSteps: GuideStep[] = [
   {
     id: 'step-3',
     title: 'What it makes possible',
-    navTitle: 'CKB & Bitcoin',
+    navTitle: 'What it makes possible',
     summary:
       'CKB’s flexibility translates into new ways to secure assets, build payment networks, and connect blockchains. Developers can put these ideas into practice on the same underlying foundation.',
     body: 'From the keys that protect your assets to the networks that move them, here’s what that freedom enables:',
@@ -64,5 +64,41 @@ export const guideSteps: GuideStep[] = [
       'Ready For What Comes Next: As better post-quantum schemes emerge, developers can add them through the same process, without seeking permission.',
     ],
     reading: [],
+  },
+  {
+    id: 'step-5',
+    title: 'Make your next move',
+    navTitle: 'Try it & build',
+    summary:
+      'You’ve seen what makes CKB different. Now explore what people are building, meet the community, or start building something of your own.',
+    body: 'You don’t have to read everything. The fastest way to make CKB click is to try it out.',
+    points: [],
+    reading: [],
+    actions: [
+      {
+        title: 'Explore the ecosystem',
+        description: 'Find wallets, apps, and tools that put CKB’s capabilities into practice.',
+        label: 'Explore CKB',
+        href: 'https://ckbdapps.com/ecosystem',
+        resourceId: 'ecosystem',
+        icon: 'subject-ckb-architecture',
+      },
+      {
+        title: 'Join the conversation',
+        description: 'Ask questions, exchange ideas, and meet the people shaping Nervos.',
+        label: 'Visit NervosTalk',
+        href: 'https://talk.nervos.org/',
+        resourceId: 'community',
+        icon: 'action-community',
+      },
+      {
+        title: 'Build on CKB',
+        description: 'Go from understanding the architecture to writing your first application.',
+        label: 'Developer Docs & Quick Start',
+        href: 'https://docs.nervos.org/',
+        resourceId: 'developer_docs',
+        icon: 'subject-opcodes',
+      },
+    ],
   },
 ]

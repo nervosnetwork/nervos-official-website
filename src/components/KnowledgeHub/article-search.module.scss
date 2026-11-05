@@ -1,0 +1,155 @@
+@use '../../styles/breakpoints' as screens;
+@use './tokens' as tokens;
+
+.searchWrap {
+  position: relative;
+  width: 373px;
+  max-width: 100%;
+}
+
+.searchWrap form {
+  --kbFieldBackground: var(--kbInput);
+
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 18px;
+  background: var(--kbInput);
+  border-radius: 73px;
+  transition: background-color 180ms ease;
+}
+
+.searchWrap form:is(:hover, :focus-within) {
+  --kbFieldBackground: var(--kbDivider);
+
+  background: var(--kbDivider);
+}
+
+.searchWrap input {
+  width: 100%;
+  min-width: 0;
+  color: var(--kbText);
+  background: transparent;
+  border: 0;
+  outline: none;
+  @include tokens.type(body);
+}
+
+.searchWrap input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.searchWrap form input:is(:focus, :focus-visible) {
+  outline: none;
+}
+
+.searchWrap button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  color: var(--kbMuted);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.clearSearch:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: 2px;
+}
+
+.searchResults {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 10;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: min(360px, 60vh);
+  padding: 8px;
+  overflow-y: auto;
+  color: var(--kbText);
+  background: var(--kbSurface);
+  border: 1px solid var(--kbBorder);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(17 17 17 / 8%);
+}
+
+.searchCaption {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 8px;
+  color: var(--kbMuted);
+  @include tokens.type(body2);
+}
+
+.searchResults > a,
+.searchResults > p {
+  display: block;
+  margin: 0;
+  padding: 12px;
+  @include tokens.type(subheader);
+}
+
+.searchResults > p {
+  color: var(--kbMuted);
+}
+
+.searchResults > a {
+  color: var(--kbText);
+  border-radius: 6px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.searchResults a:is(:hover, :focus-visible),
+.searchCaption button:is(:hover, :focus-visible) {
+  color: var(--kbBrand);
+  background: var(--kbInput);
+}
+
+.searchResults a:focus-visible {
+  outline: 2px solid var(--kbAccent);
+  outline-offset: -2px;
+}
+
+@media (width <= #{screens.$tabletMax}) {
+  .searchWrap {
+    width: 260px;
+  }
+}
+
+@media (width <= #{screens.$mobileMax}) {
+  .searchWrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .searchWrap form {
+    padding-right: 4px;
+    padding-left: 16px;
+  }
+
+  .searchWrap button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .searchResults {
+    max-height: min(360px, 50dvh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .searchWrap form,
+  .searchResults > a {
+    transition: none;
+  }
+}

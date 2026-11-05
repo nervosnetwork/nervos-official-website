@@ -214,10 +214,14 @@ test('the real Home render adds one typed high-priority preload only; the visibl
     ],
   )
   assert.equal(directChildren[0].getAttribute('aria-hidden'), 'true')
-  assert.match(guide.textContent, /Start hereWhat is Nervos\?A complete guide for beginners\./)
+  assert.match(guide.textContent, /Start hereNew to Nervos\? Start here\./)
+  assert.equal(
+    guide.getElementsByTagName('p')[0].textContent,
+    'Everything you need to understand Nervos, how it works, and what makes it different.',
+  )
   const button = guide.getElementsByTagName('button')[0]
   assert.equal(button.getAttribute('class'), 'guideButton')
-  assert.equal(button.textContent, 'Take the guide →')
+  assert.equal(button.textContent, 'Explore the guide →')
   assert.ok(current.main.indexOf('guideBanner') < current.main.indexOf('topics-title'))
 })
 
@@ -237,7 +241,6 @@ test('CSS retains the JPEG fallback, center/cover, geometry and isolation below 
     rule.nodes.filter(node => node.type === 'decl').map(node => [node.prop, node.value]),
   )
   assert.equal(declarations.background, `#111 url("${jpeg}") center/cover no-repeat`)
-  assert.equal(declarations['min-height'], '340px')
   assert.equal(declarations['margin-top'], '64px')
   assert.equal(declarations.padding, '32px 48px')
   assert.equal(declarations.isolation, 'isolate')
@@ -248,6 +251,7 @@ test('CSS retains the JPEG fallback, center/cover, geometry and isolation below 
         inherited[declaration.prop] = declaration.value
       })
   })
+  assert.equal(inherited['min-height'], undefined, 'The guide banner height follows its content')
   assert.equal(inherited.position, 'relative')
   assert.equal(inherited.overflow, 'hidden')
   assert.equal(inherited.color, '#fff')

@@ -90,7 +90,15 @@ export function PreviewPage({
   )
 }
 
-export function Breadcrumb({ current, revision = false }: { current: string; revision?: boolean }) {
+export function Breadcrumb({
+  current,
+  revision = false,
+  parents = [],
+}: {
+  current: string
+  revision?: boolean
+  parents?: { label: string; href: string; ctaId: string }[]
+}) {
   return (
     <nav className={revision ? revisedStyles.breadcrumb : styles.breadcrumb} aria-label="Breadcrumb">
       <Link
@@ -100,6 +108,18 @@ export function Breadcrumb({ current, revision = false }: { current: string; rev
       >
         Knowledge Base
       </Link>
+      {parents.map(parent => (
+        <span key={parent.href}>
+          <span aria-hidden="true"> / </span>
+          <Link
+            href={parent.href}
+            locale="en"
+            onClick={() => trackKBEvent('kb_cta_click', { cta_id: parent.ctaId, placement: 'breadcrumb' })}
+          >
+            {parent.label}
+          </Link>
+        </span>
+      ))}
       <span aria-hidden="true"> / </span>
       <span aria-current="page">{current}</span>
     </nav>
@@ -173,12 +193,8 @@ export function DiscoverBanner({
         />
       )}
       <div data-life-exclusion>
-        <h2>
-          {revision
-            ? 'Meet Nervos CKB, a blockchain built for flexibility.'
-            : 'Meet the blockchain built for what comes next.'}
-        </h2>
-        <p>Explore the ideas, architecture, and ecosystem behind CKB.</p>
+        <h2>New to Nervos? Start here.</h2>
+        <p>Everything you need to understand Nervos, how it works, and what makes it different.</p>
       </div>
       <span className={design.discoverAction} data-life-exclusion>
         <ArrowButton
@@ -194,7 +210,7 @@ export function DiscoverBanner({
               })
           }}
         >
-          {revision ? 'Discover CKB in 4 Steps' : 'Discover CKB'}
+          Explore the guide
         </ArrowButton>
       </span>
     </aside>

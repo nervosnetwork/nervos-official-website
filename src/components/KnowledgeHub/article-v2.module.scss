@@ -1067,8 +1067,7 @@
 
 @media (width <= #{screens.$mobileMax}) {
   .articleBody .discoverBanner {
-    min-height: 0;
-    padding: 24px;
+    padding: 28px 24px;
   }
 
   .sidebar {

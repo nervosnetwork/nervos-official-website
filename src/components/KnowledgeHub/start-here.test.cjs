@@ -12,17 +12,14 @@ const shared = fs.readFileSync(path.join(__dirname, 'Shared.tsx'), 'utf8')
 const home = fs.readFileSync(path.join(__dirname, 'Home.tsx'), 'utf8')
 const guideData = fs.readFileSync(path.join(__dirname, 'guide-data.ts'), 'utf8')
 
-test('Start Here retains exactly the four approved steps without Try it & build', () => {
+test('Start Here presents five ordered steps ending with Try it & build', () => {
   assert.match(page, /Understand Nervos CKB in/)
-  assert.match(page, /four steps\b/)
-  assert.doesNotMatch(page, /five steps/)
+  assert.match(page, /five steps\b/)
   assert.deepEqual(
     [...guideData.matchAll(/id: 'step-(\d+)'/g)].map(match => Number(match[1])),
-    [1, 2, 3, 4],
+    [1, 2, 3, 4, 5],
   )
-  assert.doesNotMatch(guideData, /id: 'step-5'/)
-  assert.doesNotMatch(guideData, /title: 'Make your next move'/)
-  assert.doesNotMatch(guideData, /navTitle: 'Try it & build'/)
+  assert.match(guideData, /id: 'step-5',\s+title: 'Make your next move',\s+navTitle: 'Try it & build'/)
 })
 
 test('hero fade progress is clamped across the scroll range', () => {
