@@ -11,7 +11,7 @@ import Category from '../../components/Category'
 import { Page } from '../../components/Page'
 import { BASE_URL, getTimeFormatter } from '../../utils'
 import { Blog, getCategoriesFromBlogs } from '../../utils/blogs'
-import { getAllBlogs, SLUG_COUNT } from '../../database/articles';
+import { getAllBlogs, SLUG_COUNT } from '../../database/articles'
 import { getPageViewCount } from '../../utils/gadata'
 import styles from './index.module.scss'
 import EmbellishedLeft from './embellished_left.svg'
@@ -51,7 +51,9 @@ const handleCoverNotFound = (e: React.SyntheticEvent<HTMLImageElement>) => {
    * This is a patch to point thumbnail to raw image on github
    * https://github.com/Magickbase/nervos-official-website/issues/297#issuecomment-1682495769
    */
-  const RAW_GITHUB_URL = 'https://raw.githubusercontent.com/NervosEducationHub/EducationHubArticles/main'
+  // Match the deployed article checkout; a later main-branch rename must not break this fallback.
+  const RAW_GITHUB_URL =
+    'https://raw.githubusercontent.com/NervosEducationHub/EducationHubArticles/94e5127b6b918e932acdd8fed9dc46eaa72e0c27'
   if (img.src.startsWith(RAW_GITHUB_URL)) {
     return
   }
@@ -315,7 +317,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, locale, quer
     pageCount: 0,
   }
 
-  if (req.method === "OPTIONS" || pageNo < 1 || pageNo > SLUG_COUNT ) {
+  if (req.method === 'OPTIONS' || pageNo < 1 || pageNo > SLUG_COUNT) {
     return { props }
   }
 
@@ -324,7 +326,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, locale, quer
     post.map(({ content, ...p }) => ({
       ...p,
       // omit article content to reduce props size
-      content: "",
+      content: '',
       pageView: pageViewCount[p.slug] ?? 0,
     })),
   )
