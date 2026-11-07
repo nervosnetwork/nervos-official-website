@@ -27,11 +27,6 @@
   },
   "get_started": {
     "title": "Empiza Aquí",
-    "axon": {
-      "name": "AXON",
-      "title": "Lanza tu propia sidechain Nervos con Axon.",
-      "description": "¿Necesita un alto rendimiento? Cree su propia sidechain personalizada compatible con EVM e impleméntala en Nervos con facilidad."
-    },
     "developers": {
       "name": "DESARROLLADORES",
       "title": "Construye en Hardware, no en Software",
