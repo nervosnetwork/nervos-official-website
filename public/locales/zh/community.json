@@ -15,6 +15,10 @@
       "title": "Nervos Talk",
       "description": "参与并讨论 Nervos 的技术发展。"
     },
+    "ckb_pulse": {
+      "title": "CKB Pulse",
+      "description": "实时展示当前有哪些人正在 CKB 上构建，由 LusoCryptoLabs 提供。"
+    },
     "X": {
       "title": "X",
       "description": "了解我们生态系统中最新的新闻和更新。"

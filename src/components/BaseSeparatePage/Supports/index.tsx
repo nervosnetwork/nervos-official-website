@@ -60,11 +60,6 @@ export const Supports: FC<ResourcesType> = ({ className }) => {
       url: 'https://www.buildclub.xyz/',
       content: t('resource_for_participants.build_club.description'),
     },
-    {
-      title: t('resource_for_participants.start_with_godwoken.title'),
-      url: 'https://docs.godwoken.io/',
-      content: t('resource_for_participants.start_with_godwoken.description'),
-    },
   ]
   return (
     <div className={clsx(styles.supports, className)}>

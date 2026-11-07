@@ -11,54 +11,10 @@
     "rfcs": "RFCs",
     "nervos_talk_forum": "네르보스 톡 포럼"
   },
-  "in_progress": {
-    "title": "진행 중",
-    "subtitle": "CKB 하드포크 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "자세히 알아보기",
-    "kuai": "Kuai",
-    "force_relay": "ForceRelay",
-    "open_transactions": "오픈 거래",
-    "ckb_light_client": "CKB 라이트 클라이언트",
-    "ckb_auth": "CKB 인증",
-    "perun_channel": "Perun 결제 채널",
-    "ckb_fiber_network": "CKB 파이버 (라이트닝 네트워크 + CKB)"
-  },
-  "upcoming": {
-    "title": "예정",
-    "subtitle": "CKB 하드포크 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "utxo_stack_launch": "UTXO 스택 출시",
-    "ckb_fiber_testnet": "CKB 파이버 테스트넷"
-  },
-  "achievements": {
-    "title": "성취",
-    "subtitle": "SUDT",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "자세히 알아보기",
-    "cota": "Token.city (CoTA)",
-    "light_client_soft_fork": "라이트 클라이언트 소프트 포크",
-    "light_client_implementation": "라이트 클라이언트 구현",
-    "neuron": "Neuron",
-    "axon_beta_release": "Axon 베타 출시",
-    "godwoken_launches": "Godwoken 출시",
-    "godwoken_v1_ethereum_equivalence": "Godwoken v1 이더리움 동등성",
-    "joyid_testnet": "JoyID 테스트넷",
-    "bit_launches": ".bit 출시",
-    "force_bridge_launch": "Force 브릿지 출시",
-    "opera_integration": "Opera 통합",
-    "light_client_testnet_activation": "라이트 클라이언트 테스트넷 활성화",
-    "quantum_resistant_sphincs": "양자 저항 SPHINCS+ 락 스크립트",
-    "mirana_hardfork": "Mirana 하드포크",
-    "taproot_on_ckb": "CKB의 Taproot",
-    "lua_on_ckb": "CKB의 Lua",
-    "xudt": "확장 가능한 사용자 정의 토큰",
-    "sudt": "간단한 사용자 정의 토큰 (sUDT)",
-    "spore_nft": "Spore NFT 프로토콜",
-    "light_client": "라이트 클라이언트 소프트 포크",
-    "bitcoin_spv": "비트코인 SPV 검증",
-    "rgbpp_launch": "RGB++ 출시",
-    "cobuild": "Cobuild"
+  "roadmap": {
+    "title": "로드맵 및 진행 상황",
+    "description": "네르보스는 공개적으로 만들어집니다. 제안, 개발 업데이트, 주요 성과, 그리고 핵심 팀과 커뮤니티가 다음에 진행할 작업은 커뮤니티 포럼인 네르보스 톡에서 공개적으로 논의됩니다. 네트워크의 현재 상황을 확인하고 여러분의 아이디어를 공유하기에 가장 좋은 곳입니다.",
+    "link_text": "네르보스 톡 방문하기"
   },
   "journey": {
     "title": "여정에 참여하세요",
