@@ -404,7 +404,7 @@
   border: 0;
 }
 
-@media (width <= 480px) {
+@media (width <= #{screens.$mobileMax}) {
   .page .numberedPagination {
     flex-wrap: wrap;
     gap: 4px;
