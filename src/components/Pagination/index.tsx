@@ -5,9 +5,6 @@ import Image from 'next/image'
 import clsx from 'clsx'
 import styles from './index.module.scss'
 
-const INDICATOR_COUNT = 5
-const SIBLING_COUNT = Math.ceil((INDICATOR_COUNT - 1) / 2)
-
 const Pagination: FC<{
   pageCount: number
   currentPage?: number
@@ -23,13 +20,23 @@ const Pagination: FC<{
   const getHref = (p: number) =>
     hrefForPage ? hrefForPage(p) : `${pathname}?${new URLSearchParams({ ...query, page: String(p) }).toString()}`
 
-  const indicators = Array.from({ length: INDICATOR_COUNT })
-    .map((_, idx) => {
-      if (page <= SIBLING_COUNT) return idx + 1
-      if (page >= pageCount - SIBLING_COUNT) return pageCount - INDICATOR_COUNT + idx + 1
-      return page - SIBLING_COUNT + idx
-    })
-    .filter(i => i > 0 && i <= pageCount)
+  const visiblePages = Array.from({ length: pageCount }, (_, index) => index + 1).filter(
+    number =>
+      number === 1 ||
+      number === pageCount ||
+      Math.abs(number - page) <= 1 ||
+      (page === 1 && number <= 3) ||
+      (page === pageCount && number > pageCount - 3),
+  )
+  const indicators: Array<number | string> = []
+  for (const number of visiblePages) {
+    const previous = indicators[indicators.length - 1]
+    if (typeof previous === 'number' && number - previous > 1) {
+      if (number - previous === 2) indicators.push(previous + 1)
+      else indicators.push(`ellipsis-${previous}`)
+    }
+    indicators.push(number)
+  }
 
   if (pageCount < 1) return null
 
@@ -44,13 +51,13 @@ const Pagination: FC<{
         >
           <Image src="/images/left.svg" alt="" width={10} height={16} unoptimized />
         </Link>
-      ) : (
-        <span className={styles.prev} aria-label="Previous page" aria-disabled="true" data-disabled="true">
-          <Image src="/images/left.svg" alt="" width={10} height={16} unoptimized />
-        </span>
-      )}
+      ) : null}
       {indicators.map(i =>
-        page === i ? (
+        typeof i === 'string' ? (
+          <span key={i} aria-hidden="true" data-ellipsis="true">
+            …
+          </span>
+        ) : page === i ? (
           <span key={i} className={styles.indicator} aria-label={`Page ${i}`} aria-current="page" data-active="true">
             {i}
           </span>
@@ -75,11 +82,7 @@ const Pagination: FC<{
         >
           <Image src="/images/left.svg" alt="" width={10} height={16} unoptimized />
         </Link>
-      ) : (
-        <span className={styles.next} aria-label="Next page" aria-disabled="true" data-disabled="true">
-          <Image src="/images/left.svg" alt="" width={10} height={16} unoptimized />
-        </span>
-      )}
+      ) : null}
     </nav>
   )
 }

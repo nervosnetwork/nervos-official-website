@@ -1,7 +1,7 @@
 import clsx from 'clsx'
-import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowButton, ArticleCard } from './Components'
+import Pagination from '../Pagination'
+import { ArticleCard } from './Components'
 import { ArticleGridControls } from './ArticleGridControls'
 import { ArticleSearch } from './ArticleSearch'
 import { Breadcrumb, PreviewPage } from './Shared'
@@ -30,7 +30,7 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
           <Breadcrumb current="All articles" revision />
         </div>
         <header className={styles.topicHero}>
-          <h1 id="all-articles-title">{`All articles (${total})`}</h1>
+          <h1 id="all-articles-title">All Articles</h1>
           <p>Explore articles from across the Knowledge Base.</p>
         </header>
         <div className={styles.archiveRail}>
@@ -67,42 +67,20 @@ export function ArticleArchive({ catalog, page, total }: Pick<LibraryProps, 'cat
             Showing {catalog.articles.length} of {total} articles, latest to oldest
           </p>
         </section>
-        <nav aria-label="Pagination" className={styles.pager}>
-          {page > 1 && (
-            <Link
-              href={`/knowledge-base/articles?page=${page - 1}`}
-              onClick={() =>
-                trackKBEvent('kb_pagination_click', {
-                  placement: 'archive',
-                  page: page - 1,
-                  page_type: 'all_articles',
-                  direction: 'previous',
-                })
-              }
-            >
-              ← Previous
-            </Link>
-          )}
-          <span className={styles.pageCount}>
-            Page {page} of {Math.max(1, Math.ceil(total / 24))}
-          </span>
-          {page * 24 < total && (
-            <ArrowButton
-              className={clsx(styles.pill, styles.keepReading)}
-              href={`/knowledge-base/articles?page=${page + 1}`}
-              onClick={() =>
-                trackKBEvent('kb_pagination_click', {
-                  placement: 'archive',
-                  page: page + 1,
-                  page_type: 'all_articles',
-                  direction: 'next',
-                })
-              }
-            >
-              Keep reading
-            </ArrowButton>
-          )}
-        </nav>
+        <Pagination
+          pageCount={Math.ceil(total / 24)}
+          currentPage={page}
+          className={styles.numberedPagination}
+          hrefForPage={destination => `/knowledge-base/articles?page=${destination}`}
+          onPageChange={destination =>
+            trackKBEvent('kb_pagination_click', {
+              placement: 'archive',
+              page: destination,
+              page_type: 'all_articles',
+              direction: destination < page ? 'previous' : 'next',
+            })
+          }
+        />
       </div>
     </PreviewPage>
   )

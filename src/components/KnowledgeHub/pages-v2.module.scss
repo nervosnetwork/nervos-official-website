@@ -398,12 +398,30 @@
   border-radius: 6px;
 }
 
+.page .numberedPagination > [data-ellipsis='true'] {
+  min-width: 16px;
+  padding: 0;
+  border: 0;
+}
+
+@media (width <= 480px) {
+  .page .numberedPagination {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .page .numberedPagination > :is(a, span) {
+    min-width: 32px;
+    padding: 4px;
+  }
+}
+
 .numberedPagination img {
   width: 8px;
   height: 12px;
 }
 
-.page .numberedPagination > [aria-current='page'] {
+.page .numberedPagination > [aria-current='page'][data-active='true'] {
   color: var(--kbInverseText);
   background: var(--kbDark);
   border-color: var(--kbDark);
@@ -421,12 +439,6 @@
 .numberedPagination a:focus-visible {
   outline: 2px solid var(--kbAccent);
   outline-offset: 2px;
-}
-
-.archivePage .pageCount {
-  color: var(--kbSecondary);
-  font-size: 12px;
-  line-height: 1.4;
 }
 
 .page .topicHero > p {

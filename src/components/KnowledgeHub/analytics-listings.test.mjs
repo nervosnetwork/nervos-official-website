@@ -232,13 +232,14 @@ test('Related hubs offers three distinct valid destinations and excludes every c
 test('archive pagination records destination page without changing existing URLs', () => {
   const { exports, events } = loadComponent('ArticleArchive.tsx')
   const tree = exports.ArticleArchive({ catalog, page: 2, total: 80 })
-  const links = nodes(tree).filter(node => node.type === 'a' || node.type === 'ArrowButton')
+  const pagination = nodes(tree).find(node => node.type === 'Pagination')
+  assert.equal(pagination.props.pageCount, 4)
+  assert.equal(pagination.props.currentPage, 2)
   assert.equal(events.length, 0)
-  assert.deepEqual(
-    links.map(node => node.props.href),
-    ['/knowledge-base/articles?page=1', '/knowledge-base/articles?page=3'],
-  )
-  for (const link of links) link.props.onClick()
+  for (const destination of [1, 3]) {
+    assert.equal(pagination.props.hrefForPage(destination), `/knowledge-base/articles?page=${destination}`)
+    pagination.props.onPageChange(destination)
+  }
   assert.deepEqual(events, [
     {
       name: 'kb_pagination_click',
