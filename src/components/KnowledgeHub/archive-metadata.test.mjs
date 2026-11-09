@@ -40,6 +40,7 @@ function loadArchive(source) {
     'react/jsx-runtime': require('react/jsx-runtime'),
     clsx: (...values) => values.filter(Boolean).join(' '),
     'next/link': 'a',
+    '../Pagination': 'Pagination',
     './Shared': { PreviewPage: 'PreviewPage', Breadcrumb: 'Breadcrumb' },
     './Components': { ArticleCard: 'ArticleCard', ArrowButton: 'a' },
     './ArticleGridControls': { ArticleGridControls: 'ArticleGridControls' },
@@ -131,7 +132,7 @@ test('archive copy, H1, article order and pagination are unchanged by layout upd
       assert.equal(nodes(tree).filter(node => node.type === 'ArticleSearch').length, 1)
       const headings = nodes(tree).filter(node => node.type === 'h1')
       assert.equal(headings.length, 1)
-      assert.equal(headings[0].props.children, `All articles (${props.total})`)
+      assert.equal(headings[0].props.children, 'All Articles')
       assert.equal(headings[0].props.id, 'all-articles-title')
       assert.deepEqual(
         nodes(tree)
@@ -139,16 +140,10 @@ test('archive copy, H1, article order and pagination are unchanged by layout upd
           .map(node => node.props.article.id),
         props.catalog.articles.map(article => article.id),
       )
-      const expectedLinks = [
-        ...(page > 1 ? [`/knowledge-base/articles?page=${page - 1}`] : []),
-        ...(page * 24 < total ? [`/knowledge-base/articles?page=${page + 1}`] : []),
-      ]
-      assert.deepEqual(
-        nodes(tree)
-          .filter(node => node.type === 'a')
-          .map(node => node.props.href),
-        expectedLinks,
-      )
+      const pagination = nodes(tree).find(node => node.type === 'Pagination')
+      assert.equal(pagination.props.currentPage, page)
+      assert.equal(pagination.props.pageCount, Math.ceil(total / 24))
+      assert.equal(pagination.props.hrefForPage(2), '/knowledge-base/articles?page=2')
     }
   }
   assert.deepEqual(current.events, [], 'Rendering metadata must not trigger analytics')
