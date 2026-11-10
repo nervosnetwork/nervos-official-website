@@ -143,7 +143,7 @@ test('article Discover clicks attach the variant and responsive layout outside p
     assert.ok(tree.some(node => node.type === 'p' && node.props.children === 'New to Nervos? Start here.'))
     assert.ok(
       tree.some(
-        node => node.props.href === '/knowledge-base/start-here' && node.props.children === 'Discover CKB in 5 steps',
+        node => node.props.href === '/knowledge-base/start-here' && node.props.children === 'Discover CKB in 5 mins',
       ),
     )
     tree.filter(node => node.type === DiscoverBanner).forEach(node => node.props.onDiscoverClick())
