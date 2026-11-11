@@ -10,7 +10,7 @@ import matter from 'gray-matter'
 const repository = fileURLToPath(new URL('../', import.meta.url))
 const release = '96b9571537e8077c3ae4c79721bbfe871c734c75'
 
-test('daily English-only additions, edited SEO copy and new image references pass the real inventory suites', t => {
+test('daily English-only additions, an explicit Hub tag, edited SEO copy and new image references pass the real inventory suites', t => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'kb-daily-inventory-'))
   t.after(() => fs.rmSync(fixture, { recursive: true, force: true }))
   // Isolate all mutations. Neither the actual article checkout nor its metadata
@@ -68,9 +68,14 @@ test('daily English-only additions, edited SEO copy and new image references pas
         coverImage: 'images/cover.png',
         date: '2020-01-01T00:00:00.000Z',
         author: ['github:fixture_author'],
+        ...(index === 1 ? { hub: 'quantum-computing-blockchain-security' } : {}),
       }),
     )
   }
+  execFileSync(process.execPath, ['scripts/validate-kb-sources.mjs', contentRoot], {
+    cwd: fixture,
+    encoding: 'utf8',
+  })
   execFileSync(process.execPath, ['scripts/prepare-kb-content.mjs', contentRoot], {
     cwd: fixture,
     encoding: 'utf8',
@@ -88,8 +93,19 @@ test('daily English-only additions, edited SEO copy and new image references pas
       ['en'],
       'Do not fabricate a translation',
     )
-    assert.equal(versions[0].hub, null, 'Do not invent classification for a new article')
+    assert.equal(
+      versions[0].hub,
+      index === 1 ? 'quantum-computing-blockchain-security' : null,
+      'Only the explicit source tag assigns a Hub; untagged articles remain unclassified',
+    )
+    assert.deepEqual(versions[0].subjects, [], 'Do not guess a narrower Subject from the Hub tag')
   }
+  assert.equal(
+    generated.articles.filter(article => article.hub === 'quantum-computing-blockchain-security').length,
+    before.articles.filter(article => article.hub === 'quantum-computing-blockchain-security').length + 1,
+    'The tagged publication contributes to its Hub list and count',
+  )
+  assert.deepEqual(generated.featured, before.featured, 'A Hub tag does not change the home-page editorial selection')
   const suites = [
     'scripts/test-kb-content.mjs',
     'scripts/kb-slug-migration.test.mjs',
@@ -118,5 +134,7 @@ test('daily English-only additions, edited SEO copy and new image references pas
   assert.equal(checked.status, 0, `${failures.join('\n') || checked.stdout}\n${checked.stderr}`)
   const executed = checked.stdout.match(/^# tests (\d+)$/m)
   assert.ok(executed && Number(executed[1]) >= 40, `The actual inventory suites must run:\n${checked.stdout}`)
-  t.diagnostic('Real inventory suites accept new EN-only articles, page 10, updated D-08 copy/body and another GIF.')
+  t.diagnostic(
+    'Real inventory suites accept EN-only articles, a Hub tag without guessed Subjects, page 10, updated copy/body and another GIF.',
+  )
 })

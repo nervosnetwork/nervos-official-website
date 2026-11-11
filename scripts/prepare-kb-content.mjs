@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import matter from 'gray-matter'
 import { readSlugMigrations, rewriteKBUrl } from './migrate-kb-slugs.mjs'
+import { readHubTag, renditionHubTag, withoutSourceHubOverride } from './kb-hub-tag.mjs'
 
 // Sidecar migration: never rename folders or rewrite article bodies/frontmatter.
 const root = path.resolve(process.argv[2] || 'public/education_hub_articles')
@@ -18,7 +19,10 @@ const previous = fs.existsSync(catalogPath) ? JSON.parse(fs.readFileSync(catalog
 const hubs = previous?.hubs ?? handoff.hubs
 const subjectsByHub = previous?.subjects ?? handoff.subjects
 const previousArticles = new Map(
-  (previous?.articles ?? []).map(article => [`${renames.get(article.id) ?? article.id}:${article.language}`, article]),
+  (previous?.articles ?? []).map(article => [
+    `${renames.get(article.id) ?? article.id}:${article.language}`,
+    withoutSourceHubOverride(article),
+  ]),
 )
 const sha = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 if (!/^[a-f0-9]{40}$/.test(sha)) throw new Error('Content provenance must be an exact Git commit')
@@ -45,9 +49,29 @@ const fixes = {
   '2025-27-01T15:00:00.000Z': '2025-01-27T15:00:00.000Z',
   '2024-09-2616:00:00.000Z': '2024-09-26T16:00:00.000Z',
 }
+
+function parseSource(raw, sourceFile) {
+  // Check before gray-matter's first parse: custom engines must never execute.
+  if (!/^\uFEFF?---[^\S\r\n]*\r?\n/.test(raw))
+    throw new Error(`${sourceFile}: only standard YAML frontmatter is allowed; executable/custom engines are forbidden`)
+  try {
+    return matter(raw)
+  } catch (error) {
+    throw new Error(`${sourceFile}: ${error.message}`)
+  }
+}
+
 for (const folder of fs.readdirSync(root).sort()) {
   const directory = path.join(root, folder)
   if (!fs.statSync(directory).isDirectory() || !fs.existsSync(path.join(directory, 'index.md'))) continue
+  // Read English first even when a legacy index-es.md sorts before index.md.
+  const englishData = parseSource(fs.readFileSync(path.join(directory, 'index.md'), 'utf8'), `${folder}/index.md`).data
+  let englishHub
+  try {
+    englishHub = readHubTag(englishData)
+  } catch (error) {
+    throw new Error(`${folder}/index.md: ${error.message}`)
+  }
   for (const file of fs.readdirSync(directory).sort()) {
     const match = /^index(?:[_-]([a-z]{2}))?\.md$/.exec(file)
     if (!match) continue
@@ -60,19 +84,13 @@ for (const folder of fs.readdirSync(root).sort()) {
     const classification = existing ?? inheritedEnglish
     const sourceFile = `${folder}/${file}`
     const raw = fs.readFileSync(path.join(root, sourceFile), 'utf8')
-    // Never let a content file select gray-matter's executable JS engine, even
-    // when this low-level preparation command is called outside the build gate.
-    if (!/^\uFEFF?---[^\S\r\n]*\r?\n/.test(raw))
-      throw new Error(
-        `${sourceFile}: only standard YAML frontmatter is allowed; executable/custom engines are forbidden`,
-      )
-    let parsed
+    const { data, content } = parseSource(raw, sourceFile)
+    let sourceHub
     try {
-      parsed = matter(raw)
+      sourceHub = renditionHubTag(data, englishHub, language)
     } catch (error) {
       throw new Error(`${sourceFile}: ${error.message}`)
     }
-    const { data, content } = parsed
     // Existing website route: /knowledge-base/[slug], with Next locale prefix.
     const canonicalPath = `${language === 'en' ? '' : `/${language}`}/knowledge-base/${folder}`
     // D-18 changes only the approved filesystem identities. Match the original
@@ -93,15 +111,23 @@ for (const folder of fs.readdirSync(root).sort()) {
     const proposal = distinct.size === 1 ? matches[0] : null
     matches.forEach(c => used.add(candidates.indexOf(c)))
     const warnings = []
-    if (!proposal && !inheritedEnglish) warnings.push(matches.length ? 'conflicting-candidates' : 'no-exact-candidate')
+    if (!proposal && !inheritedEnglish && sourceHub === undefined)
+      warnings.push(matches.length ? 'conflicting-candidates' : 'no-exact-candidate')
     // Regeneration refreshes source metadata, not already reviewed editorial
     // choices. In particular, an explicit null classification is intentional.
-    const hub = classification ? classification.hub : proposal?.hub || null
-    const subjects = classification ? classification.subjects : proposal?.subjects || []
+    const originalHub = classification ? classification.hub : proposal?.hub || null
+    const originalSubjects = classification ? classification.subjects : proposal?.subjects || []
+    const originalSection = classification?.librarySection ?? (originalHub ? 'hub' : 'general')
+    const originalMatch =
+      existing?.matchMethod ?? (inheritedEnglish ? 'current-english-translation' : proposal ? matchMethod : 'unmatched')
+    const hub = sourceHub ?? originalHub
+    // A Hub tag need not guess a narrower Subject. Preserve existing Subjects
+    // when they still belong to the selected Hub; clear them when moving Hubs.
+    const subjects = sourceHub !== undefined && sourceHub !== originalHub ? [] : originalSubjects
     if (
       hub &&
       (!hubs.some(h => h.id === hub) ||
-        !subjects.length ||
+        (!subjects.length && sourceHub === undefined) ||
         subjects.length > 3 ||
         new Set(subjects).size !== subjects.length ||
         subjects.some(id => !subjectsByHub.some(s => s.id === id && s.hub === hub)))
@@ -153,11 +179,22 @@ for (const folder of fs.readdirSync(root).sort()) {
       subjects,
       internalTags: classification?.internalTags ?? [...new Set(proposal?.internalTags || [])],
       legacyTags: data.category ?? null,
-      librarySection: classification?.librarySection ?? (hub ? 'hub' : 'general'),
+      librarySection: sourceHub === undefined ? originalSection : 'hub',
       reviewStatus: existing?.reviewStatus ?? 'pending-editorial',
-      matchMethod:
-        existing?.matchMethod ??
-        (inheritedEnglish ? 'current-english-translation' : proposal ? matchMethod : 'unmatched'),
+      matchMethod: sourceHub === undefined ? originalMatch : 'source-hub-tag',
+      ...(sourceHub === undefined
+        ? {}
+        : {
+            sourceHubOverride: {
+              hub: sourceHub,
+              fallback: {
+                hub: originalHub,
+                subjects: originalSubjects,
+                librarySection: originalSection,
+                matchMethod: originalMatch,
+              },
+            },
+          }),
       candidateKeys: existing?.candidateKeys ?? (inheritedEnglish ? [] : matches.map(c => c.key)),
       relatedArticleIds: (classification?.relatedArticleIds ?? []).map(id => renames.get(id) ?? id),
       excludedFromRecommendations: classification?.excludedFromRecommendations ?? false,
