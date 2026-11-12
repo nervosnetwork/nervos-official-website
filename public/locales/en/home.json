@@ -27,11 +27,6 @@
   },
   "get_started": {
     "title": "Get Started",
-    "axon": {
-      "name": "AXON",
-      "title": "Launch your own Nervos sidechain with Axon.",
-      "description": "Need high throughput? Build your own custom EVM-compatible sidechain and deploy it on Nervos with ease."
-    },
     "developers": {
       "name": "DEVELOPERS",
       "title": "Build on hardware, not software.",

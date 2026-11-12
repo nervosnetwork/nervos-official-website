@@ -16,6 +16,10 @@
       "title": "Documentación de CKB",
       "description": "Información técnica fundamental sobre Common Knowledge Base."
     },
+    "ccc": {
+      "title": "CKB CCC",
+      "description": "CCC (Common Chains Connector) es la biblioteca para desarrolladores de CKB mantenida por CKB DevRel, con documentación y un playground interactivo para crear y probar transacciones."
+    },
     "forum": {
       "title": "Foro Nervos Talk",
       "description": "Para que la comunidad participe y discuta los desarrollos en Nervos."

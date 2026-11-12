@@ -11,51 +11,10 @@
     "rfcs": "RFCs",
     "nervos_talk_forum": "Nervos 论坛"
   },
-  "in_progress": {
-    "title": "进行中",
-    "subtitle": "CKB 硬分叉 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "了解更多",
-    "kuai": "Kuai",
-    "force_relay": "ForceRelay",
-    "open_transactions": "开放式交易",
-    "ckb_fiber_network": "CKB Fiber (Lightning Network + CKB)"
-  },
-  "upcoming": {
-    "title": "即将到来",
-    "subtitle": "CKB 硬分叉 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "utxo_stack_launch": "UTXO Stack Launch",
-    "ckb_fiber_testnet": "CKB Fiber Testnet"
-  },
-  "achievements": {
-    "title": "成就",
-    "subtitle": "SUDT",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "了解更多",
-    "cota": "Token.city（CoTA）",
-    "light_client_soft_fork": "轻客户端软分叉",
-    "light_client_implementation": "轻客户端实现",
-    "neuron": "Neuron",
-    "axon_beta_release": "Axon Beta Release",
-    "godwoken_launches": "Godwoken 发布",
-    "godwoken_v1_ethereum_equivalence": "Godwoken v1 以太坊等效性",
-    "joyid_testnet": "JoyID 测试网",
-    "bit_launches": ".bit 发布",
-    "force_bridge_launch": "Force Bridge 发布",
-    "opera_integration": "Opera 集成",
-    "light_client_testnet_activation": "轻客户端测试网激活",
-    "quantum_resistant_sphincs": "Quantum Resistant SPHINCS+ lock-script",
-    "mirana_hardfork": "Mirana 硬分叉",
-    "taproot_on_ckb": "Taproot on CKB",
-    "lua_on_ckb": "Lua on CKB",
-    "xudt": "eXtensible User Defined Tokens",
-    "sudt": "Simple User Defined Tokens (sUDT)",
-    "spore_nft": "Spore NFT 协议",
-    "light_client": "轻客户端软分叉",
-    "bitcoin_spv": "Bitcoin SPV Verification",
-    "rgbpp_launch": "RGB++ 上线",
-    "cobuild": "Cobuild"
+  "roadmap": {
+    "title": "路线图与进展",
+    "description": "Nervos 以开放的方式构建。提案、开发进展、里程碑以及核心团队和社区接下来的工作，都会在社区论坛 Nervos Talk 上公开讨论。这里是了解网络最新状态、分享你自己想法的最佳去处。",
+    "link_text": "访问 Nervos Talk"
   },
   "journey": {
     "title": "加入旅途",

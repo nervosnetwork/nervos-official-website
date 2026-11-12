@@ -11,54 +11,10 @@
     "rfcs": "RFCs",
     "nervos_talk_forum": "Nervos Talk Forum"
   },
-  "in_progress": {
-    "title": "In progress",
-    "subtitle": "CKB Hardfork 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "Find out more",
-    "kuai": "Kuai",
-    "force_relay": "ForceRelay",
-    "open_transactions": "Open Transactions",
-    "ckb_light_client": "CKB Light Client",
-    "ckb_auth": "CKB Auth",
-    "perun_channel": "Perun Payment Channels",
-    "ckb_fiber_network": "CKB Fiber (Lightning Network + CKB)"
-  },
-  "upcoming": {
-    "title": "Upcoming",
-    "subtitle": "CKB Hardfork 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "utxo_stack_launch": "UTXO Stack Launch",
-    "ckb_fiber_testnet": "CKB Fiber Testnet"
-  },
-  "achievements": {
-    "title": "Achievements",
-    "subtitle": "SUDT",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "Find out more",
-    "cota": "Token.city (CoTA)",
-    "light_client_soft_fork": "Light Client Soft Fork",
-    "light_client_implementation": "Light Client Implementation",
-    "neuron": "Neuron",
-    "axon_beta_release": "Axon Beta Release",
-    "godwoken_launches": "Godwoken Launches",
-    "godwoken_v1_ethereum_equivalence": "Godwoken v1 Ethereum Equivalence",
-    "joyid_testnet": "JoyID Testnet",
-    "bit_launches": ".bit Launches",
-    "force_bridge_launch": "Force Bridge Launch",
-    "opera_integration": "Opera Integration",
-    "light_client_testnet_activation": "Light Client Testnet Activation",
-    "quantum_resistant_sphincs": "Quantum Resistant SPHINCS+ lock-script",
-    "mirana_hardfork": "Mirana Hardfork",
-    "taproot_on_ckb": "Taproot on CKB",
-    "lua_on_ckb": "Lua on CKB",
-    "xudt": "eXtensible User Defined Tokens",
-    "sudt": "Simple User Defined Tokens (sUDT)",
-    "spore_nft": "Spore NFT Protocol",
-    "light_client": "Light Client Soft Fork",
-    "bitcoin_spv": "Bitcoin SPV Verification",
-    "rgbpp_launch": "RGB++ Launch",
-    "cobuild": "Cobuild"
+  "roadmap": {
+    "title": "Roadmap & progress",
+    "description": "Nervos is built in the open. Proposals, development updates, milestones and what the core teams and community are working on next are discussed publicly on Nervos Talk, the community forum. It is the best place to follow the current state of the network and to share your own ideas.",
+    "link_text": "visit Nervos Talk"
   },
   "journey": {
     "title": "Join the journey",

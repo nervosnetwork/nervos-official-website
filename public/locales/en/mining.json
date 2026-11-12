@@ -1,6 +1,6 @@
 {
   "title": "CKB <1></1> PoW",
-  "slogan": "Nervos launched in Nov 2019 and the first CKB halving is expected at Epoch 8760 (around Nov 2023).",
+  "slogan": "Nervos launched in Nov 2019. The first CKB halving took place in Nov 2023 (epoch 8760); halvings happen every 8,760 epochs, about every four years.",
   "why-pow": {
     "title": "Why Proof-of-Work",
     "description": "CKB leverages the battle-tested Proof-of-Work consensus algorithm to ensure exceptional security and decentralization under all conditions. It is truly decentralized, permissionless, and uniquely resistant to capture by adversarial actors."

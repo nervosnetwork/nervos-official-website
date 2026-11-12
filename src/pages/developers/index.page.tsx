@@ -81,6 +81,11 @@ const Developers: NextPage<PageProps> = ({ contributors, author }) => {
         link: 'https://docs.nervos.org/',
       },
       {
+        title: t('developer_resources.ccc.title'),
+        content: t('developer_resources.ccc.description'),
+        link: 'https://ckbccc.com/',
+      },
+      {
         title: t('developer_resources.forum.title'),
         content: t('developer_resources.forum.description'),
         link: 'https://talk.nervos.org/',

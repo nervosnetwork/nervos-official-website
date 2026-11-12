@@ -1,6 +1,6 @@
 {
   "title": "CKB <1></1> PoW",
-  "slogan": "O Nervos foi lançado em novembro de 2019 e o primeiro halving do CKB é esperado na época 8760 (por volta de novembro de 2023).",
+  "slogan": "O Nervos foi lançado em novembro de 2019. O primeiro halving do CKB ocorreu em novembro de 2023 (época 8760); os halvings acontecem a cada 8.760 épocas, aproximadamente a cada quatro anos.",
   "why-pow": {
     "title": "Por que Prova de Trabalho",
     "description": "O CKB utiliza o algoritmo de consenso Proof-of-Work testado em batalha para garantir segurança e descentralização excepcionais sob todas as condições. É verdadeiramente descentralizado, sem permissão e especialmente resistente à captura por agentes adversários."

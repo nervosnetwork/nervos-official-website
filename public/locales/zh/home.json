@@ -27,11 +27,6 @@
   },
   "get_started": {
     "title": "开始",
-    "axon": {
-      "name": "AXON",
-      "title": "使用 Axon 启动您自己的 Nervos 侧链",
-      "description": "需要高吞吐量吗？使用 Axon 构建自己的自定义 EVM 兼容侧链，并轻松部署在 Nervos 上。"
-    },
     "developers": {
       "name": "开发者",
       "title": "在硬件上而不是在软件上做开发",

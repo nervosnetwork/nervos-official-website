@@ -87,10 +87,6 @@
     "build_club": {
       "title": "Build Club",
       "description": "Build Club 为希望在 Nervos 上推出新项目的团队和个人提供支持。"
-    },
-    "start_with_godwoken": {
-      "title": "从 Godwoken 开始",
-      "description": "这些文档主要介绍完全兼容 EVM 的 Godwoken 网络，这是在 Nervos 上推出 dApp 的最简单方式！"
     }
   },
   "team": {
