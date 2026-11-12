@@ -16,8 +16,10 @@ function fixture(t, slug) {
   fs.mkdirSync(path.join(root, 'public/education_hub_articles/scripts'), { recursive: true })
   fs.mkdirSync(path.join(root, 'scripts'))
   fs.copyFileSync(new URL(checkerPath, website), path.join(root, checkerPath))
+  fs.copyFileSync(new URL('scripts/kb-hub-tag.mjs', website), path.join(root, 'scripts/kb-hub-tag.mjs'))
   fs.copyFileSync(new URL('next-i18next.config.js', website), path.join(root, 'next-i18next.config.js'))
   fs.mkdirSync(path.join(root, 'config'))
+  fs.copyFileSync(new URL('config/kb-hubs.mjs', website), path.join(root, 'config/kb-hubs.mjs'))
   fs.copyFileSync(
     new URL('config/kb-legacy-source-baseline.json', website),
     path.join(root, 'config/kb-legacy-source-baseline.json'),

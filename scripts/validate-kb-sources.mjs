@@ -12,6 +12,7 @@ import remarkRehype from 'remark-rehype'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 import i18nConfig from '../next-i18next.config.js'
+import { readHubTag } from './kb-hub-tag.mjs'
 
 const repository = fileURLToPath(new URL('../', import.meta.url))
 const baselinePath = path.join(repository, 'config/kb-legacy-source-baseline.json')
@@ -188,6 +189,11 @@ function imageProblem(reference, directory, contentRoot) {
 
 export function sourceFieldProblems(data, raw, directory, contentRoot = path.dirname(directory)) {
   const problems = []
+  try {
+    readHubTag(data)
+  } catch (error) {
+    problems.push(['hub', error.message])
+  }
   if (typeof data.title !== 'string' || !data.title.trim()) problems.push(['title', 'a nonempty title is required'])
   for (const field of ['subtitle', 'description'])
     if (Object.hasOwn(data, field) && typeof data[field] !== 'string')
@@ -252,6 +258,7 @@ export function validateKBSources(root, { baseline = JSON.parse(fs.readFileSync(
     if (!indexes.some(file => file.name === 'index.md' && file.isFile()))
       errors.push(`${entry.name}: an English index.md is required; translation-only folders cannot be silently skipped`)
     const languages = new Set()
+    const hubTags = []
     for (const file of indexes) {
       const sourceFile = `${entry.name}/${file.name}`
       const match = indexName.exec(file.name)
@@ -290,8 +297,20 @@ export function validateKBSources(root, { baseline = JSON.parse(fs.readFileSync(
         if (exception?.valueSHA256 === sourceFieldHash(data, field, raw)) legacyIssues.push({ sourceFile, field })
         else errors.push(`${sourceFile}: ${reason}`)
       }
+      try {
+        const hub = readHubTag(data)
+        if (hub !== undefined) hubTags.push({ sourceFile, language, hub })
+      } catch {
+        // The field-level check above already reports an invalid tag.
+      }
       sources.push({ sourceFile, language, sourceSHA256: hash(raw) })
     }
+    const englishHub = hubTags.find(tag => tag.language === 'en')?.hub
+    for (const tag of hubTags)
+      if (tag.language !== 'en' && tag.hub !== englishHub)
+        errors.push(
+          `${tag.sourceFile}: set hub in the English index.md; translations must omit it or repeat the same value`,
+        )
   }
   if (!sources.length) errors.push('No article sources found; verify the content checkout')
   assert.equal(errors.length, 0, `KB source validation failed:\n${errors.map(error => `  ${error}`).join('\n')}`)

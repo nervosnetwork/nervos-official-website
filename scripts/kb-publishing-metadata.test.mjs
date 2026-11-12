@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import matter from 'gray-matter'
 import { sourceFieldHash, validateKBSources } from './validate-kb-sources.mjs'
+import { KB_HUBS } from '../config/kb-hubs.mjs'
+import { backfillHubTags } from './backfill-kb-hub-tags.mjs'
 
 const repository = fileURLToPath(new URL('../', import.meta.url))
 const preparation = path.join(repository, 'scripts/prepare-kb-content.mjs')
@@ -29,7 +31,7 @@ const editorial = {
   candidateKeys: ['preserved-evidence'],
 }
 
-function fixture(t) {
+function fixture(t, { useRealHubs = false } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kb-publishing-metadata-'))
   t.after(() => fs.rmSync(root, { recursive: true, force: true }))
   fs.mkdirSync(path.join(root, 'metadata'))
@@ -56,9 +58,9 @@ function fixture(t) {
   writeJSON('catalog.json', {
     schemaVersion: 1,
     sourceCommit: 'a'.repeat(40),
-    articles: [{ id: 'alpha', language: 'en', ...editorial }],
-    hubs: [{ id: 'curated', name: 'Current reviewed hub' }],
-    subjects: [{ id: 'curated_subject', hub: 'curated' }],
+    articles: [{ id: 'alpha', language: 'en', ...editorial, ...(useRealHubs ? { hub: KB_HUBS[1].id } : {}) }],
+    hubs: useRealHubs ? KB_HUBS : [{ id: 'curated', name: 'Current reviewed hub' }],
+    subjects: [{ id: 'curated_subject', hub: useRealHubs ? KB_HUBS[1].id : 'curated' }],
     featured,
   })
   function article({ id = 'alpha', language = 'en', fields = {}, body = 'Existing article body.\n', omit = [] } = {}) {
@@ -193,6 +195,244 @@ test('editing a description/body refreshes derived metadata without a hand-edite
   assert.equal(second.sourceSHA256, hash(changed.raw))
   assert.equal(fs.readFileSync(path.join(f.root, changed.sourceFile), 'utf8'), changed.raw)
   assert.equal(second.hub, editorial.hub)
+})
+
+test('one source Hub tag assigns a new article to each real Hub without guessing Subjects or changing curated pins', t => {
+  const f = fixture(t, { useRealHubs: true })
+  for (const hub of KB_HUBS) {
+    const written = f.article({
+      id: 'new_article',
+      fields: { hub: hub.id },
+      body: 'An ordinary article, with no keyword-based classification.\n',
+    })
+    validateKBSources(f.root)
+    const catalog = f.prepare()
+    const added = catalog.articles.find(article => article.id === 'new_article')
+    assert.equal(added.hub, hub.id)
+    assert.deepEqual(added.subjects, [])
+    assert.equal(added.librarySection, 'hub')
+    assert.equal(added.matchMethod, 'source-hub-tag')
+    assert.equal(added.sourceSHA256, hash(written.raw))
+    assert.equal(added.canonicalPath, '/knowledge-base/new_article')
+    assert.equal(added.reviewStatus, 'pending-editorial')
+    assert.ok(!added.warnings.includes('no-exact-candidate'))
+    assert.deepEqual(catalog.featured, f.featured)
+    const first = fs.readFileSync(path.join(f.root, 'metadata/catalog.json'), 'utf8')
+    f.prepare()
+    assert.equal(fs.readFileSync(path.join(f.root, 'metadata/catalog.json'), 'utf8'), first)
+  }
+})
+
+test('new translations inherit the current English source tag on their first build, including hyphen aliases sorted before English', t => {
+  const f = fixture(t, { useRealHubs: true })
+  const hub = KB_HUBS[1].id
+  f.article({ id: 'new_article', fields: { hub } })
+  f.article({ id: 'new_article', language: 'zh' })
+  f.article({ id: 'new_article', language: 'es' })
+  fs.renameSync(path.join(f.root, 'new_article/index_es.md'), path.join(f.root, 'new_article/index-es.md'))
+  validateKBSources(f.root)
+  const protectedFiles = snapshotSources(f.root)
+  const catalog = f.prepare()
+  const records = catalog.articles.filter(article => article.id === 'new_article')
+  assert.equal(records.length, 3)
+  for (const article of records) {
+    assert.equal(article.hub, hub)
+    assert.deepEqual(article.subjects, [])
+    assert.equal(article.title, `${article.language} title`)
+    assert.equal(article.matchMethod, 'source-hub-tag')
+  }
+  assert.deepEqual(snapshotSources(f.root), protectedFiles)
+})
+
+test('moving a tagged article updates all existing translations and removing its tag restores the original curated classification', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ language: 'zh' })
+  const before = f.prepare()
+  const original = before.articles.map(article => ({
+    language: article.language,
+    hub: article.hub,
+    subjects: article.subjects,
+    librarySection: article.librarySection,
+    matchMethod: article.matchMethod,
+  }))
+  for (const hub of [KB_HUBS[2].id, KB_HUBS[4].id]) {
+    f.article({ fields: { hub } })
+    validateKBSources(f.root)
+    const catalog = f.prepare()
+    for (const article of catalog.articles) {
+      assert.equal(article.hub, hub)
+      assert.deepEqual(article.subjects, [])
+      assert.deepEqual(article.internalTags, editorial.internalTags)
+      assert.deepEqual(article.relatedArticleIds, editorial.relatedArticleIds)
+    }
+    assert.deepEqual(catalog.featured, before.featured)
+  }
+  f.article()
+  const restored = f.prepare()
+  assert.deepEqual(
+    restored.articles.map(article => ({
+      language: article.language,
+      hub: article.hub,
+      subjects: article.subjects,
+      librarySection: article.librarySection,
+      matchMethod: article.matchMethod,
+    })),
+    original,
+  )
+  assert.ok(restored.articles.every(article => !Object.hasOwn(article, 'sourceHubOverride')))
+})
+
+test('removing a new article tag returns it to All Articles without leaving an incremental-build classification behind', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ id: 'new_article', fields: { hub: KB_HUBS[1].id } })
+  f.article({ id: 'new_article', language: 'zh' })
+  f.prepare()
+  f.article({ id: 'new_article' })
+  const catalog = f.prepare()
+  for (const article of catalog.articles.filter(article => article.id === 'new_article')) {
+    assert.equal(article.hub, null)
+    assert.deepEqual(article.subjects, [])
+    assert.equal(article.librarySection, 'general')
+    assert.ok(!Object.hasOwn(article, 'sourceHubOverride'))
+  }
+})
+
+test('a source tag matching an existing Hub preserves its curated Subjects and independent editorial settings', t => {
+  const f = fixture(t, { useRealHubs: true })
+  const before = f.readCatalog().articles[0]
+  f.article({ fields: { hub: before.hub } })
+  const tagged = f.prepare().articles[0]
+  for (const field of [
+    'hub',
+    'subjects',
+    'internalTags',
+    'relatedArticleIds',
+    'excludedFromRecommendations',
+    'reviewStatus',
+  ])
+    assert.deepEqual(tagged[field], before[field], field)
+})
+
+test('invalid Hub tags fail source validation and standalone preparation instead of silently leaving articles unclassified', t => {
+  const f = fixture(t, { useRealHubs: true })
+  for (const hub of [
+    '',
+    null,
+    false,
+    12,
+    ['nervos-ckb'],
+    { id: 'nervos-ckb' },
+    'quantum',
+    'NERVOS-CKB',
+    'nervos_ckb',
+  ]) {
+    f.article({ fields: { hub } })
+    assert.throws(() => validateKBSources(f.root), /hub must be one of/, JSON.stringify(hub))
+    const result = spawnSync(process.execPath, [preparation, f.root], { cwd: repository, encoding: 'utf8' })
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /hub must be one of/)
+  }
+})
+
+test('translations may repeat the English Hub tag but cannot independently introduce or override it', t => {
+  const f = fixture(t, { useRealHubs: true })
+  const englishHub = KB_HUBS[1].id
+  f.article({ fields: { hub: englishHub } })
+  f.article({ language: 'zh', fields: { hub: englishHub } })
+  validateKBSources(f.root)
+  assert.ok(f.prepare().articles.every(article => article.hub === englishHub))
+  for (const englishFields of [{ hub: englishHub }, {}]) {
+    f.article({ fields: englishFields })
+    f.article({ language: 'zh', fields: { hub: KB_HUBS[4].id } })
+    assert.throws(() => validateKBSources(f.root), /translations must omit it or repeat/)
+    const result = spawnSync(process.execPath, [preparation, f.root], { cwd: repository, encoding: 'utf8' })
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /translations must omit it or repeat/)
+  }
+})
+
+test('backfill is dry-run by default, changes only English hub fields and is idempotent', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ language: 'zh' })
+  f.article({ id: 'unclassified' })
+  f.prepare()
+  const before = snapshotSources(f.root)
+  const dryRun = backfillHubTags(f.root)
+  assert.equal(dryRun.changes.length, 1)
+  assert.equal(dryRun.unclassified.length, 1)
+  assert.equal(dryRun.written, 0)
+  assert.deepEqual(snapshotSources(f.root), before)
+  const applied = backfillHubTags(f.root, { write: true })
+  assert.equal(applied.written, 1)
+  const after = snapshotSources(f.root)
+  assert.deepEqual([...after.keys()], [...before.keys()])
+  for (const [file, bytes] of before) assert.equal(after.get(file) === bytes, file !== 'alpha/index.md', file)
+  validateKBSources(f.root)
+  const repeated = backfillHubTags(f.root, { write: true })
+  assert.equal(repeated.written, 0)
+  assert.equal(repeated.alreadyTagged.length, 1)
+  assert.deepEqual(snapshotSources(f.root), after)
+  const generated = f.prepare()
+  assert.ok(
+    generated.articles.filter(article => article.id === 'alpha').every(article => article.hub === KB_HUBS[1].id),
+  )
+})
+
+test('backfill reports language coverage gaps, and only explicitly approved unification fills an existing shared classification', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ language: 'zh' })
+  const catalog = f.prepare()
+  const english = catalog.articles.find(article => article.language === 'en')
+  english.hub = null
+  english.subjects = []
+  english.librarySection = 'general'
+  fs.writeFileSync(path.join(f.root, 'metadata/catalog.json'), JSON.stringify(catalog))
+  const before = snapshotSources(f.root)
+  const pending = backfillHubTags(f.root, { write: true })
+  assert.equal(pending.written, 0)
+  assert.equal(pending.pending.length, 1)
+  assert.deepEqual(snapshotSources(f.root), before)
+  assert.equal(backfillHubTags(f.root, { write: true, unifyTranslations: true }).written, 1)
+  assert.ok(f.prepare().articles.every(article => article.hub === KB_HUBS[1].id))
+})
+
+test('different nonempty Hub assignments are never resolved by guessing, even with coverage unification enabled', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ language: 'zh' })
+  const catalog = f.prepare()
+  catalog.articles.find(article => article.language === 'zh').hub = KB_HUBS[4].id
+  fs.writeFileSync(path.join(f.root, 'metadata/catalog.json'), JSON.stringify(catalog))
+  const before = snapshotSources(f.root)
+  const result = backfillHubTags(f.root, { write: true, unifyTranslations: true })
+  assert.equal(result.pending.length, 1)
+  assert.equal(result.written, 0)
+  assert.deepEqual(snapshotSources(f.root), before)
+})
+
+test('stale evidence blocks the entire write plan before any source file changes', t => {
+  const f = fixture(t, { useRealHubs: true })
+  f.article({ id: 'beta' })
+  const catalog = f.prepare()
+  const beta = catalog.articles.find(article => article.id === 'beta')
+  beta.hub = KB_HUBS[1].id
+  beta.sourceSHA256 = '0'.repeat(64)
+  fs.writeFileSync(path.join(f.root, 'metadata/catalog.json'), JSON.stringify(catalog))
+  const before = snapshotSources(f.root)
+  assert.throws(() => backfillHubTags(f.root, { write: true }), /Catalog is stale/)
+  assert.deepEqual(snapshotSources(f.root), before)
+})
+
+test('backfill preserves BOM, CRLF, YAML fields and the entire Markdown body byte-for-byte', t => {
+  const f = fixture(t, { useRealHubs: true })
+  const filename = path.join(f.root, 'alpha/index.md')
+  const raw = '\uFEFF' + fs.readFileSync(filename, 'utf8').replaceAll('\n', '\r\n')
+  fs.writeFileSync(filename, raw)
+  const catalog = f.readCatalog()
+  catalog.articles[0].sourceSHA256 = hash(raw)
+  fs.writeFileSync(path.join(f.root, 'metadata/catalog.json'), JSON.stringify(catalog))
+  backfillHubTags(f.root, { write: true })
+  const updated = fs.readFileSync(filename, 'utf8')
+  assert.equal(updated, raw.replace('---\r\n', `---\r\nhub: ${KB_HUBS[1].id}\r\n`))
 })
 
 test('invalid, timezone-less and rollover dates are rejected, while a real future timestamp stays scheduled', t => {

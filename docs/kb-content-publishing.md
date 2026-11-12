@@ -2,7 +2,8 @@
 
 本流程沿用文章仓库现有的 Vercel deploy hook。日常更新不需要创建网站同步 PR、
 安装 GitHub App、配置跨仓写入令牌，或要求运营手动维护生成的 JSON。
-本次自动化不修改页面 UI，也不自动生成译文、分类或 SEO 文案。
+本次自动化不修改页面 UI，也不自动生成译文或 SEO 文案。文章分类可按内容团队填写的
+`hub` 标签自动归类，不根据标题或正文猜测主题。
 
 ## 运营同学：正常发文只做这些
 
@@ -39,6 +40,63 @@ author:
 现有人工分类、精选顺序和推荐设置会保留；未分类的新文章仍可进入全部文章列表，
 不会自动猜测其分类。
 
+## 新文章如何归入主题 Hub
+
+在英文原文 `index.md` 的头部添加一行 `hub`，例如：
+
+```yaml
+---
+title: 'Will Quantum Computing Destroy Crypto?'
+hub: quantum-computing-blockchain-security
+# 其他现有文章字段照常填写。
+---
+```
+
+只填写一个值，直接从下表复制。使用专用的 `hub` 字段，普通 `category` 或任意关键词
+不会触发归类。
+
+| Hub                                     | `hub` 值                                |
+| --------------------------------------- | --------------------------------------- |
+| Blockchain Cryptography                 | `blockchain-cryptography`               |
+| Quantum Computing & Blockchain Security | `quantum-computing-blockchain-security` |
+| Blockchain Architecture                 | `blockchain-architecture`               |
+| Blockchain VMs & RISC-V                 | `blockchain-vms-risc-v`                 |
+| Blockchain Scalability                  | `blockchain-scalability`                |
+| Nervos CKB                              | `nervos-ckb`                            |
+
+- 英文原文写一次即可，中文等真实译文自动继承。译文可不填；如重复填写，必须与英文
+  相同。错误拼写、多个 Hub 或译文冲突会在校验时指出文件和原因，不会静默丢失归类。
+- 发文流程不变：审核合并文章 PR，等待自动部署成功。运营不需要维护生成的 JSON。
+- 新文章会加入对应 Hub 的 **View all** 和文章数量统计。这个标签不猜测更细的 Subject；
+  同一 Hub 下已有的人工 Subject 分类会保留，移至其他 Hub 时不沿用旧 Subject。
+- 首页每个 Hub 卡片里的三篇精选独立维护，添加 `hub` 不会自动替换精选文章。
+- 不填 `hub` 的旧文章保留原分类；新文章不填时只进入 All Articles。更换标签可改归属，
+  删除标签恢复原先人工分类；没有原分类的新文章恢复为未分类。文章 URL 保持不变。
+
+上线顺序：先发布网站和校验器对 `hub` 字段的支持，再通知运营使用。旧版生成器不会
+读取该字段，不能只合入带标签的文章就认定自动归类已经上线。
+
+### 维护人：回填历史文章标签
+
+使用与当前文章文件哈希一致的分类表，在独立内容检出中执行。不要用旧分类快照直接
+覆盖更新后的正文，也不要在运营正在编辑的工作区里批量回填。
+
+```sh
+# 默认只检查，不写入。报告必须放在文章检出目录之外。
+node scripts/backfill-kb-hub-tags.mjs <content-root> --report <outside-root>/hub-report.json
+# 检查报告后，才写入已有明确归属的英文文章。
+node scripts/backfill-kb-hub-tags.mjs <content-root> --write --report <outside-root>/hub-report.json
+```
+
+工具只添加一行 `hub`，保留正文、原有头部字段、图片、URL、换行格式和 BOM；再次执行
+不会重复添加。所有计划文件和哈希检查通过后才开始写入。未分类文章和语言版本归属
+不一致的文章会单独列出，不凭空猜测，也不会为了补齐字段而分到任意 Hub。
+
+只有在内容负责人明确确认后，才可增加 `--unify-translations`，将同篇文章唯一已有的
+Hub 归属补到缺少归属的英文版本；若存在两个不同的非空 Hub，即使使用该选项也不合并。
+回填后重新校验、生成元数据并核对分类、精选和正文差异；提交文章 PR 时只提交经审核
+的 Markdown 标签变更，运营仍无需提交生成的 JSON。
+
 当前文章语言入口仅展示实际存在的英文／中文版本；其他已存语言不会因此自动出现在
 切换入口中。文章之外的 KB 导航与主页仍为英文，自动化不调整这些 UI 规则。
 
@@ -69,11 +127,11 @@ author:
 
 ## 网站维护人：构建模式和版本记录
 
-| 配置 | 行为 | 适用场景 |
-| --- | --- | --- |
-| 未设置 `KB_CONTENT_SOURCE` | 使用网站提交中锁定的文章 gitlink（`pin`） | 默认本地开发、CI、Preview |
-| `KB_CONTENT_SOURCE=main` | 构建开始时获取官方文章 `main`，锁定其精确 SHA | 正式项目日常自动发布 |
-| `KB_ARTICLE_SHA=<完整 SHA>` | 使用已审核官方 `main` 历史中的指定兼容版本（`sha`） | 复现、故障恢复 |
+| 配置                        | 行为                                                | 适用场景                  |
+| --------------------------- | --------------------------------------------------- | ------------------------- |
+| 未设置 `KB_CONTENT_SOURCE`  | 使用网站提交中锁定的文章 gitlink（`pin`）           | 默认本地开发、CI、Preview |
+| `KB_CONTENT_SOURCE=main`    | 构建开始时获取官方文章 `main`，锁定其精确 SHA       | 正式项目日常自动发布      |
+| `KB_ARTICLE_SHA=<完整 SHA>` | 使用已审核官方 `main` 历史中的指定兼容版本（`sha`） | 复现、故障恢复            |
 
 `KB_ARTICLE_SHA` 仅接受小写、完整的 40 位十六进制提交 SHA，不接受分支名或短 SHA，
 并优先于 `KB_CONTENT_SOURCE`。该版本仍需属于官方文章 `main` 历史，且不能早于当前
@@ -100,14 +158,14 @@ GET https://www.nervos.org/api/kb/release
 
 接口只公开版本证据，不公开密钥；主要字段为：
 
-| 字段 | 含义 |
-| --- | --- |
-| `websiteSHA` | 此次网站代码提交 |
-| `articleSHA` | 此次实际构建使用的文章提交 |
-| `articleBaselineSHA` | 网站提交要求的文章兼容基线 |
-| `articleRepository` | 固定的官方文章仓库地址 |
-| `contentSource` | `pin`、`main` 或 `sha` |
-| `workingTree` | 是否包含本地未提交内容；正式部署应为 `false` |
+| 字段                 | 含义                                         |
+| -------------------- | -------------------------------------------- |
+| `websiteSHA`         | 此次网站代码提交                             |
+| `articleSHA`         | 此次实际构建使用的文章提交                   |
+| `articleBaselineSHA` | 网站提交要求的文章兼容基线                   |
+| `articleRepository`  | 固定的官方文章仓库地址                       |
+| `contentSource`      | `pin`、`main` 或 `sha`                       |
+| `workingTree`        | 是否包含本地未提交内容；正式部署应为 `false` |
 
 接口使用不缓存响应。没有可用版本证据时返回 `503`，不要把它理解为自动使用了最新文章。
 网站与文章 SHA 可能不同步变化：仅更新文章时，网站 SHA 可以保持不变，这是正常的。
@@ -173,6 +231,7 @@ GET https://www.nervos.org/api/kb/release
 
 - IndexNow 继续保持关闭，不能因为文章自动发布已接通就自动开启搜索引擎通知。
 - Google／Bing 的站长平台权限、sitemap 提交和收录结果仍由对应负责人处理。
-- 不自动生成分类、精选、译文或 SEO 文案；已有英文／中文入口规则和 UI 不变。
+- 不根据内容自动猜测分类或生成精选、译文、SEO 文案；显式 `hub` 标签只控制归属，
+  已有英文／中文入口规则和 UI 不变。
 - 不把未来日期等同于定时发布；需要后续重建才会重新计算可发布内容。
 - 不把历史内容的精确数量作为日常发文门槛，也不要求运营维护这些历史验收数字。
