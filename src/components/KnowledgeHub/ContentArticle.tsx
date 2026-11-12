@@ -385,7 +385,7 @@ export function ContentArticle({
                 className={styles.discoverSteps}
                 onClick={() => trackDiscover('article_sidebar')}
               >
-                Discover CKB in 5 steps
+                Discover CKB in 5 mins
               </Link>
             </nav>
           </aside>
