@@ -37,7 +37,6 @@ export function homepageStructuredData(): StructuredDataNode[] {
         'https://talk.nervos.org/',
         'https://medium.com/nervosnetwork',
         'https://www.youtube.com/c/NervosNetwork',
-        'https://en.wikipedia.org/wiki/Nervos_Network',
         'https://www.linkedin.com/company/nervos/',
         'https://coinmarketcap.com/currencies/nervos-network/',
         'https://www.coingecko.com/en/coins/nervos-network',

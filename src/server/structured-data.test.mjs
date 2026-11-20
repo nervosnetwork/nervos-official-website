@@ -137,7 +137,7 @@ test('home uses only handoff organization details; contact, language guesses and
   assert.equal(organization['@id'], `${origin}/#org`)
   assert.equal(organization.logo, `${origin}/favicon.svg`)
   assert.deepEqual(organization.alternateName, ['Nervos', 'Nervos CKB', 'CKB'])
-  assert.equal(organization.sameAs.length, 9)
+  assert.equal(organization.sameAs.length, 8)
   for (const key of ['email', 'address', 'telephone', 'contactPoint'])
     assert.equal(Object.hasOwn(organization, key), false)
   assert.equal(website.url, `${origin}/`)
