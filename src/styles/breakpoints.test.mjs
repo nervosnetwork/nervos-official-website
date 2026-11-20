@@ -43,7 +43,7 @@ test('compiled shared navigation, KB and legacy layouts add no other viewport wi
     'components/KnowledgeHub/footer-v2.module.scss',
     'pages/media-kit/index.module.scss',
     'pages/foundation/index.module.scss',
-    'pages/journey/Section.module.scss',
+    'pages/journey/index.module.scss',
   ]) {
     const css = postcss.parse(
       sass.compile(path.join(root, 'src', file), {

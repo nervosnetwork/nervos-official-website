@@ -11,8 +11,7 @@ import { StyledLink } from '../../components/StyledLink'
 import { useBodyClass, useIsMobile } from '../../hooks'
 import styles from './index.module.scss'
 import presets from '../../styles/presets.module.scss'
-import { BadgeLeft, BadgeRight, inprogress, upcoming, achievements, journey } from './icons'
-import { Section } from './Section'
+import { BadgeLeft, BadgeRight, inprogress, journey } from './icons'
 import { Journey } from './Journey'
 
 const Roadmap: NextPage = () => {
@@ -21,130 +20,16 @@ const Roadmap: NextPage = () => {
   const { pathname } = useRouter()
   const isMobile = useIsMobile()
   const isDesktop = !isMobile
-  const sections = [
-    {
-      key: 'in_progress',
-      title: <div className={clsx(styles.sectionTitle, styles.inProgressTitle)}>{t('in_progress.title')}</div>,
-      icon: inprogress,
-      iconSize: {
-        with: '430px',
-        height: '430px',
-      },
-      iconPosition: 'left' as const,
-      subtitle: (
-        <StyledLink href="https://github.com/nervosnetwork/ckb/discussions/3827">
-          {t('in_progress.subtitle')}
-        </StyledLink>
-      ),
-      descriptionText: t('in_progress.description'),
-      descriptionLink: t('in_progress.link'),
-      projects: [
-        { label: t('in_progress.ckb_auth'), url: 'https://github.com/nervosnetwork/ckb-auth' },
-        {
-          label: t('in_progress.perun_channel'),
-          url: 'https://medium.com/perunnetwork/perun-channels-coming-to-nervos-ckb-1d72081ee887',
-        },
-        {
-          label: t('in_progress.open_transactions'),
-          url: 'https://talk.nervos.org/t/exploring-the-ckb-otx-paradigm-accomplishments-and-insights-from-building-a-transaction-streaming-prototype/7346',
-        },
-        {
-          label: t('in_progress.ckb_fiber_network'),
-          url: 'https://github.com/nervosnetwork/cfn-node',
-        },
-      ],
-    },
-    {
-      key: 'upcoming',
-      title: <div className={clsx(styles.sectionTitle, styles.upcomingTitle)}>{t('upcoming.title')}</div>,
-      icon: upcoming,
-      iconSize: {
-        with: '480px',
-        height: '476.24px',
-      },
-      iconPosition: 'right' as const,
-      subtitle: (
-        <StyledLink href="https://github.com/nervosnetwork/ckb/discussions/3827">{t('upcoming.subtitle')}</StyledLink>
-      ),
-      descriptionText: t('upcoming.description'),
-      descriptionLink: t('upcoming.link'),
-      projects: [
-        { label: t('upcoming.utxo_stack_launch'), url: 'https://utxostack.network' },
-        { label: t('upcoming.ckb_fiber_testnet'), url: 'https://github.com/nervosnetwork/cfn-node' },
-      ],
-    },
-    {
-      key: 'achievements',
-      title: <div className={clsx(styles.sectionTitle, styles.achievementsTitle)}>{t('achievements.title')}</div>,
-      icon: achievements,
-      iconSize: {
-        with: '480px',
-        height: '456.98px',
-      },
-      iconPosition: 'left' as const,
-      subtitle: null,
-      descriptionText: t('achievements.description'),
-      descriptionLink: t('achievements.link'),
-      projects: [
-        { label: t('achievements.axon_beta_release'), url: 'https://x.com/AxonWeb3/status/1663898512281735169?s=20' },
-        {
-          label: t('achievements.light_client_testnet_activation'),
-          url: 'https://twitter.com/busyforking/status/1609169117097127937',
-        },
-        {
-          label: t('achievements.quantum_resistant_sphincs'),
-          url: 'https://github.com/cryptape/quantum-resistant-lock-script',
-        },
-        {
-          label: t('achievements.joyid_testnet'),
-          url: 'https://archive.nervos.org/blog/joyid-a-passwordless-web3-wallet-that-will-accelerate-the-mass-adoption-for-nervos',
-        },
-        {
-          label: t('achievements.mirana_hardfork'),
-          url: 'https://archive.nervos.org/blog/nervos-layer-1-a-major-protocol-upgrade-is-rolling-out',
-        },
-        {
-          label: t('achievements.godwoken_v1_ethereum_equivalence'),
-          url: 'https://archive.nervos.org/blog/nervos-network-godwoken-announcement',
-        },
-        {
-          label: t('achievements.taproot_on_ckb'),
-          url: 'https://blog.cryptape.com/enable-bitcoin-taproot-on-ckb-part-ii',
-        },
-        {
-          label: t('achievements.lua_on_ckb'),
-          url: 'https://blog.cryptape.com/enhancing-ergonomics-and-extensibility-of-ckb-contract-development-with-lua',
-        },
-        {
-          label: t('achievements.xudt'),
-          url: 'https://blog.cryptape.com/enhance-sudts-programmability-with-xudt',
-        },
-        { label: t('achievements.bit_launches'), url: 'https://twitter.com/NervosNetwork/status/1416051952908124161' },
-        { label: t('achievements.cota'), url: 'https://token.city/login' },
-        {
-          label: t('achievements.godwoken_launches'),
-          url: 'https://archive.nervos.org/blog/nervos-launches-godwoken-mainnet-beta',
-        },
-        { label: t('achievements.sudt'), url: 'https://decrypt.co/48538/nervos-network-sudt-ethereum-token-erc-20/' },
-        {
-          label: t('achievements.opera_integration'),
-          url: 'https://press.opera.com/2022/02/22/opera-nervos-blockchain-ckb/',
-        },
-        { label: t('achievements.force_bridge_launch'), url: 'https://archive.nervos.org/blog/force-bridge-mainnet' },
-        { label: t('achievements.spore_nft'), url: 'https://www.spore.pro' },
-        { label: t('achievements.light_client'), url: 'https://github.com/nervosnetwork/ckb/issues/4085' },
-        { label: t('achievements.bitcoin_spv'), url: 'https://x.com/utxostack/status/1803024147842511112' },
-        {
-          label: t('achievements.rgbpp_launch'),
-          url: 'https://hackernoon.com/building-on-bitcoin-a-beginners-guide-to-using-the-rgb-protocol',
-        },
-        {
-          label: t('achievements.cobuild'),
-          url: 'https://talk.nervos.org/t/ckb-transaction-cobuild-protocol-overview/7702',
-        },
-      ],
-    },
-  ]
+  // The former "In progress / Upcoming / Achievements" lists went stale quickly and were hard to keep accurate.
+  // Point visitors to Nervos Talk, where roadmap discussions and development updates are always current.
+  const roadmapSectionData = {
+    title: <div className={clsx(styles.sectionTitle, styles.inProgressTitle)}>{t('roadmap.title')}</div>,
+    icon: inprogress,
+    iconPosition: 'left' as const,
+    description: t('roadmap.description'),
+    joinLink: 'https://talk.nervos.org/',
+    joinLinkText: t('roadmap.link_text'),
+  }
 
   const journeySectionData = {
     title: <div className={clsx(styles.sectionTitle)}>{t('journey.title')}</div>,
@@ -221,18 +106,14 @@ const Roadmap: NextPage = () => {
               {t('get_involved.nervos_talk_forum')}
             </StyledLink>
           </div>
-          {sections.map((section, index) => {
-            return (
-              <Section
-                {...section}
-                key={section.key}
-                className={clsx({
-                  // when on desktop, background color for the second section is different
-                  [styles.darkerBg ?? '']: isDesktop && index === 1,
-                })}
-              />
-            )
-          })}
+          <Journey
+            title={roadmapSectionData.title}
+            icon={roadmapSectionData.icon}
+            iconPosition={roadmapSectionData.iconPosition}
+            description={roadmapSectionData.description}
+            joinLink={roadmapSectionData.joinLink}
+            joinLinkText={roadmapSectionData.joinLinkText}
+          />
           <Journey
             title={journeySectionData.title}
             icon={journeySectionData.icon}

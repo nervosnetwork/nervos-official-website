@@ -393,19 +393,6 @@ const SlideGetStarted: FC<ScreenSlideProps> = props => {
             >
               <SwiperSlide>
                 <Card
-                  title={t('axon.title')}
-                  actions={
-                    <a href="https://axonweb3.io/" className={styles.link} target="_blank" rel="noreferrer">
-                      {t('axon.name')} <ObliqueArrowIcon />
-                    </a>
-                  }
-                >
-                  {t('axon.description')}
-                </Card>
-              </SwiperSlide>
-
-              <SwiperSlide>
-                <Card
                   title={t('developers.title')}
                   actions={
                     <Link href="/developers" className={styles.link}>
@@ -448,17 +435,6 @@ const SlideGetStarted: FC<ScreenSlideProps> = props => {
       <div className={styles.slideGetStarted}>
         <div className={clsx(styles.titleText, DISABLE_CGOL_MOUSE_CONTROLLER)}>{t('title')}</div>
         <div className={styles.cards}>
-          <Card
-            title={t('axon.title')}
-            actions={
-              <a href="https://axonweb3.io/" className={styles.link} target="_blank" rel="noreferrer">
-                {t('axon.name')} <ObliqueArrowIcon />
-              </a>
-            }
-          >
-            {t('axon.description')}
-          </Card>
-
           <Card
             title={t('developers.title')}
             actions={

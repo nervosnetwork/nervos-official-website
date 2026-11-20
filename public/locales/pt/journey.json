@@ -11,54 +11,10 @@
     "rfcs": "RFCs",
     "nervos_talk_forum": "Fórum Nervos Talk"
   },
-  "in_progress": {
-    "title": "Em andamento",
-    "subtitle": "Hardfork CKB 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "Saiba mais",
-    "kuai": "Kuai",
-    "force_relay": "ForceRelay",
-    "open_transactions": "Transações Abertas",
-    "ckb_light_client": "Cliente Leve CKB",
-    "ckb_auth": "Autenticação CKB",
-    "perun_channel": "Canais de Pagamento Perun",
-    "ckb_fiber_network": "CKB Fiber (Lightning Network + CKB)"
-  },
-  "upcoming": {
-    "title": "Próximos",
-    "subtitle": "Hardfork CKB 2023",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "utxo_stack_launch": "Lançamento do UTXO Stack",
-    "ckb_fiber_testnet": "Testnet CKB Fiber"
-  },
-  "achievements": {
-    "title": "Conquistas",
-    "subtitle": "SUDT",
-    "description": "__hidden__description__Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore magna aliqua. Find out more",
-    "link": "Saiba mais",
-    "cota": "Token.city (CoTA)",
-    "light_client_soft_fork": "Soft Fork do Cliente Leve",
-    "light_client_implementation": "Implementação do Cliente Leve",
-    "neuron": "Neuron",
-    "axon_beta_release": "Lançamento Beta do Axon",
-    "godwoken_launches": "Lançamentos do Godwoken",
-    "godwoken_v1_ethereum_equivalence": "Equivalência do Godwoken v1 ao Ethereum",
-    "joyid_testnet": "Testnet JoyID",
-    "bit_launches": "Lançamentos .bit",
-    "force_bridge_launch": "Lançamento da Force Bridge",
-    "opera_integration": "Integração com o Opera",
-    "light_client_testnet_activation": "Ativação da Testnet do Cliente Leve",
-    "quantum_resistant_sphincs": "Script de Bloqueio SPHINCS+ Resistente a Quantum",
-    "mirana_hardfork": "Hardfork Mirana",
-    "taproot_on_ckb": "Taproot no CKB",
-    "lua_on_ckb": "Lua no CKB",
-    "xudt": "Tokens Definidos pelo Usuário Extensíveis",
-    "sudt": "Tokens Definidos pelo Usuário Simples (sUDT)",
-    "spore_nft": "Protocolo NFT Spore",
-    "light_client": "Soft Fork do Cliente Leve",
-    "bitcoin_spv": "Verificação SPV do Bitcoin",
-    "rgbpp_launch": "Lançamento do RGB++",
-    "cobuild": "Cobuild"
+  "roadmap": {
+    "title": "Roteiro e progresso",
+    "description": "O Nervos é construído de forma aberta. Propostas, atualizações de desenvolvimento, marcos e os próximos trabalhos das equipes principais e da comunidade são discutidos publicamente no Nervos Talk, o fórum da comunidade. É o melhor lugar para acompanhar o estado atual da rede e partilhar as suas próprias ideias.",
+    "link_text": "visite o Nervos Talk"
   },
   "journey": {
     "title": "Junte-se à jornada",

@@ -27,11 +27,6 @@
   },
   "get_started": {
     "title": "Commencer",
-    "axon": {
-      "name": "AXON",
-      "title": "Lancez votre propre sidechain Nervos avec Axon.",
-      "description": "Besoin d'un haut débit ? Créez votre propre chaîne latérale compatible EVM et déployez-la facilement sur Nervos."
-    },
     "developers": {
       "name": "DÉVELOPPEURS",
       "title": "Construisez sur du hardware, pas sur du software.",

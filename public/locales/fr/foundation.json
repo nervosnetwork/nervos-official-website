@@ -87,10 +87,6 @@
     "build_club": {
       "title": "Build Club",
       "description": "Build Club accompagne les équipes et les particuliers qui souhaitent lancer un nouveau projet sur Nervos."
-    },
-    "start_with_godwoken": {
-      "title": "Commencez par Godwoken",
-      "description": "Documentation axée sur le réseau Godwoken équivalent EVM, le moyen le plus simple de lancer une dApp sur Nervos !"
     }
   },
   "team": {

@@ -15,6 +15,10 @@
       "title": "Nervos Talk",
       "description": "Participate and discuss technical developments on Nervos."
     },
+    "ckb_pulse": {
+      "title": "CKB Pulse",
+      "description": "A live view of who is building on CKB right now, by LusoCryptoLabs."
+    },
     "X": {
       "title": "X",
       "description": "Stay up to date with the latest news and updates in our ecosystem."
