@@ -22,7 +22,7 @@ const approvedIds = [
   [],
 ]
 const approvedTitles = [
-  'What is Nervos CKB?',
+  'What is CKB?',
   'Built Differently',
   'What It Makes Possible',
   'Quantum-Ready via Crypto-Agility',
@@ -169,7 +169,8 @@ test('the first four steps retain their copy and step five restores the resource
     const description = action.props.children[2].props.children
     const expected = guideSteps[4].actions[index]
     assert.equal(description.props.id, action.props['aria-describedby'])
-    assert.equal(description.props.children.join(''), `${expected.title}: ${expected.description}`)
+    assert.equal(renderedText(description), `${expected.title}: ${expected.description}`)
+    assert.ok(nodes(description).some(node => node.type === 'strong' && node.props.children === expected.title))
   })
   actions.forEach(action => action.props.onClick())
   assert.deepEqual(
@@ -273,6 +274,7 @@ test('guide preserves all copy, article destinations and analytics with three ic
     })
     for (const action of step.actions ?? []) {
       assert.ok(tree.some(node => node.type === 'p' && node.props.children === action.description))
+      assert.ok(tree.some(node => node.type === 'strong' && node.props.children === action.title))
       const link = tree.find(node => node.type === 'a' && node.props.href === action.href)
       assert.equal(link.props['aria-label'], action.label)
       assert.ok(nodes(link).some(node => node.type === 'h3' && node.props.children === action.label))

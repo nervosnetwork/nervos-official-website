@@ -12,8 +12,8 @@ type GuideStep = {
 export const guideSteps: GuideStep[] = [
   {
     id: 'step-1',
-    title: 'What is Nervos CKB?',
-    navTitle: 'What is Nervos CKB?',
+    title: 'What is CKB?',
+    navTitle: 'What is CKB?',
     summary:
       "CKB is a blockchain that builds on Bitcoin's principles of decentralization, self-custody, and censorship resistance, and carries them to a broader range of digital assets and applications. It extends Bitcoin's UTXO model with a general-purpose RISC-V virtual machine, giving developers the freedom to define new assets, customize ownership rules, and introduce new cryptographic schemes, including post-quantum ones, without changing the underlying protocol.",
     body: '',

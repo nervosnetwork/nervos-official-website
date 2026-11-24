@@ -318,7 +318,7 @@ export function StepSection({
                 <span className={styles.stepActionLabel}>{action.label}</span>
                 <span className={styles.stepActionDetails}>
                   <span className={styles.stepActionClip} id={`${step.id}-${action.resourceId}-description`}>
-                    {action.title}: {action.description}
+                    <strong>{action.title}</strong>: {action.description}
                   </span>
                 </span>
               </Link>

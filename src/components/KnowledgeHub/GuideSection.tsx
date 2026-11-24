@@ -81,7 +81,9 @@ export function GuideSection({
                 </h3>
                 <div className={clsx(componentStyles.stepActionDetails, styles.actionDetails)}>
                   <div className={componentStyles.stepActionClip} id={`${step.id}-${action.resourceId}-description`}>
-                    <p>{action.title}</p>
+                    <p>
+                      <strong>{action.title}</strong>
+                    </p>
                     <p>{action.description}</p>
                   </div>
                 </div>
