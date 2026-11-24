@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports */
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -20,7 +20,7 @@ test('Start Here preserves the five guide sections and five-minute title', () =>
     [...guideData.matchAll(/id: 'step-(\d+)'/g)].map(match => Number(match[1])),
     [1, 2, 3, 4, 5],
   )
-  assert.match(guideData, /id: 'step-5',\s+title: 'Make your next move',\s+navTitle: 'Try it & build'/)
+  assert.match(guideData, /id: 'step-5',\s+title: 'Make Your Next Move',\s+navTitle: 'Make Your Next Move'/)
 })
 
 test('hero fade progress is clamped across the scroll range', () => {

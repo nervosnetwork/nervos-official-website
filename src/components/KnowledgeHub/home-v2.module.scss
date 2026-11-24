@@ -177,13 +177,10 @@
 }
 
 .resourceCard p {
+  @include tokens.type(body);
+
   margin-top: 11px;
   color: var(--kbMuted);
-  font-weight: 500;
-  font-size: 12px;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.25;
-  letter-spacing: 0.24px;
   transition: color 220ms ease;
   text-box-trim: trim-both;
   text-box-edge: cap alphabetic;
@@ -266,8 +263,9 @@
 }
 
 .page .newsletterCopy input {
+  @include tokens.type(body);
+
   font-weight: 400;
-  font-size: 15px;
   font-family: inherit;
   line-height: 1;
   letter-spacing: 0.75px;
@@ -439,8 +437,7 @@
 }
 
 .resourceCard h3 {
-  font-size: 17px;
-  line-height: 1.15;
+  @include tokens.type(cardTitle);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -601,10 +598,6 @@
     align-items: stretch;
   }
 
-  .newsletterCopy input {
-    font-size: 16px;
-  }
-
   .popularGrid {
     margin-top: 24px;
   }
@@ -653,15 +646,6 @@
 
   .resourceCard {
     min-width: 0;
-  }
-
-  .resourceCard h3 {
-    font-size: 18px;
-  }
-
-  .resourceCard p {
-    font-size: 14px;
-    line-height: 1.5;
   }
 }
 

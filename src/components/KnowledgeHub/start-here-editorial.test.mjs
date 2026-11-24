@@ -23,10 +23,10 @@ const approvedIds = [
 ]
 const approvedTitles = [
   'What is Nervos CKB?',
-  'Why it’s built differently?',
-  'What it makes possible',
-  'Crypto-Agile & Quantum-Ready',
-  'Make your next move',
+  'Built Differently',
+  'What It Makes Possible',
+  'Quantum-Ready via Crypto-Agility',
+  'Make Your Next Move',
 ]
 
 function loadModule(filename, imports = {}, globals = {}) {
@@ -88,14 +88,16 @@ test('Start Here retains five sections with a left table of contents and no numb
   const heading = tree.find(node => node.type === 'h1')
   assert.ok(heading)
   assert.equal(heading.props.children[0] + heading.props.children[1].props.children, 'Understand CKB in 5 minutes')
+  const hero = tree.find(node => node.type === 'header')
+  assert.ok(hero)
   assert.ok(
-    tree.some(
+    nodes(hero).some(
       node => node.type === 'strong' && node.props.children === "Bitcoin's principles. A new world of possibilities.",
     ),
   )
   const description =
     "Discover how CKB builds on Bitcoin's foundations to make blockchains more programmable, flexible, and ready for whatever comes next."
-  assert.ok(tree.some(node => node.type === 'p' && node.props.children === description))
+  assert.ok(nodes(hero).some(node => node.type === 'p' && node.props.children === description))
   assert.equal(tree.find(node => node.type === 'PreviewPage').props.description, description)
 })
 
@@ -138,8 +140,14 @@ test('the first four steps retain their copy and step five restores the resource
     const tree = nodes(StepSection({ step, index, articles: [] }))
     assert.equal(tree.find(node => node.type === 'section').props.id, `step-${index + 1}`)
     assert.equal(tree.find(node => node.type === 'h2').props.children, approvedTitles[index])
-    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.summary))
-    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.body))
+    assert.equal(
+      tree.some(node => node.type === 'p' && node.props.children === step.summary),
+      Boolean(step.summary),
+    )
+    assert.equal(
+      tree.some(node => node.type === 'p' && node.props.children === step.body),
+      Boolean(step.body),
+    )
     assert.equal(tree.filter(node => node.type === 'Link').length, 0)
     assert.equal(tree.filter(node => node.type === 'h3').length, 0)
     assert.ok(!tree.some(node => node.type === 'Icon' && node.props.name === 'topics-imgNumberFiveCircle'))
@@ -155,7 +163,7 @@ test('the first four steps retain their copy and step five restores the resource
   )
   assert.deepEqual(
     actions.map(node => node.props['aria-label']),
-    ['Explore CKB', 'Visit NervosTalk', 'Developer Docs & Quick Start'],
+    ['Explore CKB', 'Visit Nervos Talk', 'Developer Docs & Quick Start'],
   )
   actions.forEach((action, index) => {
     const description = action.props.children[2].props.children
@@ -203,8 +211,14 @@ test('guide preserves all copy, article destinations and analytics with three ic
     assert.equal(section.props.tabIndex, -1)
     assert.equal(section.props.children[0].type, 'h2')
     assert.equal(section.props['aria-labelledby'], `${step.id}-title`)
-    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.summary))
-    assert.ok(tree.some(node => node.type === 'p' && node.props.children === step.body))
+    assert.equal(
+      tree.some(node => node.type === 'p' && node.props.children === step.summary),
+      Boolean(step.summary),
+    )
+    assert.equal(
+      tree.some(node => node.type === 'p' && node.props.children === step.body),
+      Boolean(step.body),
+    )
     assert.ok(!tree.some(node => node.type === 'figure' || node.type === 'svg'))
     const icons = tree.filter(node => node.type === 'Icon' && node.props.size === 28).map(node => node.props)
     icons.push(

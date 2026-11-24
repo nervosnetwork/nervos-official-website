@@ -149,9 +149,8 @@ function loadArticle(activeSection = '') {
     './Components': { ArticleCard: () => null, ArrowButton: ({ children, href }) => element('a', { href }, children) },
     './ArticleLanguageSwitch': { ArticleLanguageSwitch: () => null },
     './ArticleLanguageLink': {
-      ArticleLanguageLink: ({ article: _article, ...props }) => element('a', props),
-      ArticleContentLink: ({ languagesByArticle: _languages, currentLanguage: _language, ...props }) =>
-        element('a', props),
+      ArticleLanguageLink: ({ href, children }) => element('a', { href }, children),
+      ArticleContentLink: ({ href, children }) => element('a', { href }, children),
     },
     './content': { articlePath: article => article.canonicalPath, formatArticleDate: () => 'Existing date' },
     './article-v2.module.scss': { default: styles },
@@ -309,7 +308,7 @@ function declaration(stylesheet, selector, property, media) {
   return value
 }
 
-test('semantic headings neutralize browser defaults without changing the existing typography or margins', () => {
+test('semantic headings preserve page layouts and use the standard article heading scale', () => {
   const header = css('src/components/BaseSeparatePage/Header/index.module.scss')
   assert.equal(declaration(header, '.headerContent .title > h1', 'margin'), '0')
   assert.equal(declaration(header, '.headerContent .title > h1', 'font'), 'inherit')
@@ -323,9 +322,31 @@ test('semantic headings neutralize browser defaults without changing the existin
   assert.equal(declaration(css('src/pages/foundation/index.module.scss'), '.foundationTitle', 'margin'), '0 0 48px')
   assert.equal(declaration(css('src/pages/journey/index.module.scss'), '.title', 'margin'), '200px 0 17px')
   const article = css('src/components/KnowledgeHub/pages-v2.module.scss')
-  const selector = '.page .articleMarkdown > :is(h1, h2)'
-  assert.equal(declaration(article, selector, 'font-size'), '20px')
-  assert.equal(declaration(article, selector, 'font-weight'), '600')
-  assert.equal(declaration(article, selector, 'font-size', '(width <= 1023px)'), '24px')
-  assert.equal(declaration(article, selector, 'line-height', '(width <= 1023px)'), '1.3')
+  for (const [heading, size] of Object.entries({ h1: '40px', h2: '32px', h3: '24px', h4: '20px' })) {
+    const selector = `.page .articleMarkdown ${heading}`
+    assert.equal(declaration(article, selector, 'font-size'), size)
+    assert.equal(declaration(article, selector, 'font-size', '(width <= 1023px)'), undefined)
+    const mobileSizes = { h1: '32px', h2: '28px' }
+    assert.equal(declaration(article, selector, 'font-size', '(width <= 767px)'), mobileSizes[heading])
+  }
+  const bodySelector =
+    '.page .articleMarkdown, .page .articleMarkdown :is(p, ul, ol, li, blockquote, table, th, td, caption, figcaption, dl, dt, dd)'
+  assert.equal(declaration(article, bodySelector, 'font-family'), 'Inter, sans-serif')
+  assert.equal(declaration(article, bodySelector, 'font-size'), '16px')
+  assert.equal(declaration(article, bodySelector, 'font-weight'), '400')
+  assert.equal(declaration(article, bodySelector, 'line-height'), '1.6')
+  assert.equal(declaration(article, bodySelector, 'font-size', '(width <= 767px)'), undefined)
+  assert.equal(
+    declaration(article, '.page .articleMarkdown :is(h1, h2, h3, h4, h5, h6)', 'font-family'),
+    'var(--fontArticulatCF), sans-serif',
+  )
+  assert.match(
+    declaration(article, '.page .articleMarkdown :is(pre, code, kbd, samp)', 'font-family'),
+    /^ui-monospace,/,
+  )
+  assert.equal(declaration(article, '.articleMarkdown table', 'font-size', '(width <= 1023px)'), undefined)
+  const shell = css('src/components/KnowledgeHub/article-v2.module.scss')
+  assert.equal(declaration(shell, '.articleBody h1', 'font-size'), '40px')
+  assert.equal(declaration(shell, '.articleBody h1', 'font-size', '(width <= 1023px)'), undefined)
+  assert.equal(declaration(shell, '.articleBody h1', 'font-size', '(width <= 767px)'), '32px')
 })

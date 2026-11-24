@@ -29,9 +29,7 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  @include tokens.type(h4);
-
-  font-size: 18px;
+  @include tokens.type(cardTitle);
 }
 
 @mixin metadata {

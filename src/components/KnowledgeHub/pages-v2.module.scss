@@ -2,6 +2,22 @@
 @use './tokens' as tokens;
 @import './pages.module';
 
+@font-face {
+  font-weight: 100 900;
+  font-family: Inter;
+  font-style: normal;
+  src: url('/fonts/inter/InterVariable.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-weight: 100 900;
+  font-family: Inter;
+  font-style: italic;
+  src: url('/fonts/inter/InterVariable-Italic.woff2') format('woff2');
+  font-display: swap;
+}
+
 /* Real article content uses the spacing and typography of the approved article shell. */
 .articleCover {
   display: block;
@@ -20,11 +36,39 @@
   margin: 24px 0 0;
 }
 
-.page .articleMarkdown > :is(h1, h2) {
+.page .articleMarkdown,
+.page .articleMarkdown :is(p, ul, ol, li, blockquote, table, th, td, caption, figcaption, dl, dt, dd) {
+  font-weight: 400;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  line-height: 1.6;
+}
+
+.page .articleMarkdown :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--fontArticulatCF), sans-serif;
+}
+
+.page .articleMarkdown :is(pre, code, kbd, samp) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+}
+
+.page .articleMarkdown h1 {
+  @include tokens.type(h1);
+}
+
+.page .articleMarkdown h2 {
+  @include tokens.type(h2);
+}
+
+.page .articleMarkdown h3 {
+  @include tokens.type(h3);
+}
+
+.page .articleMarkdown h4 {
   @include tokens.type(h4);
 }
 
-.page .articleMarkdown > :is(h3, h4, h5, h6) {
+.page .articleMarkdown :is(h5, h6) {
   @include tokens.type(h5);
 }
 
@@ -714,13 +758,10 @@
 @media (width <= #{screens.$tabletMax}) {
   .articleMarkdown {
     min-width: 0;
-    font-size: 16px;
-    line-height: 1.7;
   }
 
   .articleMarkdown pre {
     padding: 16px;
-    font-size: 14px;
     white-space: pre;
     background: var(--kbSubtle);
     border-radius: 8px;
@@ -728,7 +769,6 @@
   }
 
   .articleMarkdown table {
-    font-size: 14px;
     overscroll-behavior-x: contain;
   }
 
@@ -738,13 +778,6 @@
 
   .page .articleMarkdown > :is(h1, h2) {
     margin-top: 32px;
-    font-size: 24px;
-    line-height: 1.3;
-  }
-
-  .page .articleMarkdown > :is(h3, h4, h5, h6) {
-    font-size: 20px;
-    line-height: 1.4;
   }
 }
 
@@ -1123,5 +1156,15 @@
   .startPage .startHero h1 {
     font-size: 32px;
     line-height: 1.15;
+  }
+}
+
+@media (width <= #{screens.$mobileMax}) {
+  .page .articleMarkdown h1 {
+    font-size: 32px;
+  }
+
+  .page .articleMarkdown h2 {
+    font-size: 28px;
   }
 }

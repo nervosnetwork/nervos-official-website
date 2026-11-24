@@ -22,6 +22,7 @@ const fontArticulatCF = localFont({
     { path: '../styles/fonts/ArticulatCF-Bold.woff2', weight: '700' },
     { path: '../styles/fonts/ArticulatCF-ExtraBold.woff2', weight: '800' },
   ],
+  variable: '--fontArticulatCF',
   preload: true,
 })
 
@@ -50,7 +51,7 @@ const App: AppType<{ pageSEO?: PageSEOData }> = ({ Component, pageProps }) => {
       </Head>
       <main
         // Here as redundancy in server-side rendering.
-        className={fontArticulatCF.className}
+        className={`${fontArticulatCF.className} ${fontArticulatCF.variable}`}
       >
         {IS_PROD ? (
           <>

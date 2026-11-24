@@ -28,8 +28,8 @@ export function GuideSection({
       <h2 id={`${step.id}-title`} tabIndex={-1}>
         {step.title}
       </h2>
-      <p className={styles.summary}>{step.summary}</p>
-      <p className={styles.body}>{step.body}</p>
+      {step.summary && <p className={styles.summary}>{step.summary}</p>}
+      {step.body && <p className={styles.body}>{step.body}</p>}
       <ul className={step.actions?.length ? styles.actions : styles.concepts}>
         {step.points.map((point, pointIndex) => {
           const separator = point.indexOf(':')
