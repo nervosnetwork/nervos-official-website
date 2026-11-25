@@ -68,7 +68,7 @@ export function StyleGuide() {
             {[
               'Scaling Fundamentals',
               'Rollups, Data Availability & Sidechains',
-              'What is Nervos CKB?',
+              'What is CKB?',
               'Why it’s built differently',
             ].map((title, index) => (
               <SubjectCard

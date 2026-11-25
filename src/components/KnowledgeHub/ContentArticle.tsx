@@ -385,7 +385,7 @@ export function ContentArticle({
                 className={styles.discoverSteps}
                 onClick={() => trackDiscover('article_sidebar')}
               >
-                Discover CKB in 5 steps
+                Discover CKB in 5 mins
               </Link>
             </nav>
           </aside>
@@ -458,7 +458,7 @@ export function ContentArticle({
                   ],
                 ]}
                 components={{
-                  // The article title owns the page H1; body headings keep the existing H1/H2 styling.
+                  // Keep one page H1; body headings use the site's standard heading scale.
                   h1: ({ children, id }) => <h2 id={id}>{children}</h2>,
                   img: ({ src, alt }) =>
                     renderImage(

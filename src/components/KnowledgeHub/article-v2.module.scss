@@ -142,7 +142,7 @@
 }
 
 .articleBody h1 {
-  @include tokens.type(h3);
+  @include tokens.type(h1);
 
   margin-top: 24px;
 }
@@ -152,6 +152,9 @@
 
   margin-top: 8px !important;
   color: var(--kbMuted);
+  font-weight: 400;
+  font-family: Inter, sans-serif;
+  line-height: 1.6;
 }
 
 .articleBody section {
@@ -159,7 +162,7 @@
 }
 
 .articleBody section > h2 {
-  @include tokens.type(h4);
+  @include tokens.type(h2);
 }
 
 .discoverBanner p,
@@ -421,6 +424,7 @@
   position: relative;
   padding: 8px 0;
   color: var(--kbMuted);
+  line-height: 1;
   transition: color 180ms ease;
 }
 
@@ -693,6 +697,10 @@
   text-align: center;
 }
 
+.moreArticles > a p {
+  @include tokens.type(body);
+}
+
 .allArticlesAction {
   display: flex;
   justify-content: center;
@@ -841,7 +849,7 @@
 
   .inlineContents a {
     color: var(--kbBrand);
-    line-height: 1.6;
+    line-height: 1;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -945,15 +953,6 @@
 
   .articlePage .articleBody [id] {
     scroll-margin-top: calc(var(--articleNavHeight) + 32px);
-  }
-
-  .articleBody h1 {
-    font-size: 28px;
-    line-height: 1.25;
-  }
-
-  .articleBody .subhead {
-    line-height: 1.6;
   }
 
   .articleMeta > div {
@@ -1066,6 +1065,10 @@
 }
 
 @media (width <= #{screens.$mobileMax}) {
+  .articleBody h1 {
+    font-size: 32px;
+  }
+
   .articleBody .discoverBanner {
     padding: 28px 24px;
   }
@@ -1088,16 +1091,6 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
-  }
-
-  .moreArticles > a h3 {
-    font-size: 18px;
-    line-height: 1.4;
-  }
-
-  .moreArticles > a p {
-    font-size: 14px;
-    line-height: 1.6;
   }
 }
 

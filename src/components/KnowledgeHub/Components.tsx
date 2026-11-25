@@ -182,7 +182,7 @@ export function ReadingList({
         <li key={`${title}-${index}`}>
           <ArticleLanguageLink
             article={articles?.[index]}
-            href={articles?.[index] ? articlePath(articles[index]!) : articleHref(title)}
+            href={articles?.[index] ? articlePath(articles[index]) : articleHref(title)}
             onClick={() => {
               const article = articles?.[index]
               if (article && analyticsContext)
@@ -276,8 +276,8 @@ export function StepSection({
           Step <Icon name={`topics-imgNumber${numbers[index] ?? 'One'}Circle`} size={25} />
         </div>
         <h2>{step.title}</h2>
-        <p className={styles.callout}>{step.summary}</p>
-        <p className={styles.stepBody}>{step.body}</p>
+        {step.summary && <p className={styles.callout}>{step.summary}</p>}
+        {step.body && <p className={styles.stepBody}>{step.body}</p>}
         {!!step.points.length && (
           <ul className={styles.points}>
             {step.points.map(point => (
@@ -318,7 +318,7 @@ export function StepSection({
                 <span className={styles.stepActionLabel}>{action.label}</span>
                 <span className={styles.stepActionDetails}>
                   <span className={styles.stepActionClip} id={`${step.id}-${action.resourceId}-description`}>
-                    {action.title}: {action.description}
+                    <strong>{action.title}</strong>: {action.description}
                   </span>
                 </span>
               </Link>

@@ -233,7 +233,7 @@ test('App passes server metadata and route locale to PageSEO without altering vi
     'next/head': () => null,
     'next/router': { useRouter: () => ({ locale: 'es', asPath: '/foundation' }) },
     'next-i18next': { appWithTranslation: component => component },
-    'next/font/local': () => ({ className: 'existing-font' }),
+    'next/font/local': () => ({ className: 'existing-font', variable: 'existing-font-variable' }),
     '../utils': { IS_PROD: false, api: { withTRPC: component => component } },
     '../components/LinkClickTracker': { LinkClickTracker: () => null },
     '../components/ScrollDepthTracker': { ScrollDepthTracker: () => null },
@@ -255,18 +255,19 @@ test('App passes server metadata and route locale to PageSEO without altering vi
   const metadata = tree.props.children[2].props.children.find(child => child.type === PageSEO)
   assert.deepEqual(metadata.props, { seo, fallbackLanguage: 'es', navigationKey: '/foundation' })
   const visible = renderToStaticMarkup(tree)
-  assert.equal(visible, renderToStaticMarkup(PreviousApp(props)))
+  const withoutFontVariable = html => html.replace('existing-font existing-font-variable', 'existing-font')
+  assert.equal(withoutFontVariable(visible), withoutFontVariable(renderToStaticMarkup(PreviousApp(props))))
   assert.equal(
     visible,
-    '<main class="existing-font"><article class="existing-layout">Existing visible content</article></main>',
+    '<main class="existing-font existing-font-variable"><article class="existing-layout">Existing visible content</article></main>',
   )
   const WithStableID = () => {
     const id = React.useId()
     return element('svg', null, element('mask', { id }), element('g', { mask: `url(#${id})` }))
   }
   assert.equal(
-    renderToStaticMarkup(App({ ...props, Component: WithStableID })),
-    renderToStaticMarkup(PreviousApp({ ...props, Component: WithStableID })),
+    withoutFontVariable(renderToStaticMarkup(App({ ...props, Component: WithStableID }))),
+    withoutFontVariable(renderToStaticMarkup(PreviousApp({ ...props, Component: WithStableID }))),
     'Head-only metadata must not move the existing tree or change React-generated SVG mask IDs',
   )
   assert.equal(read('src/components/KnowledgeHub/Home.tsx').includes('rel="canonical"'), false)
