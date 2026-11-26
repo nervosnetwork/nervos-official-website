@@ -7,6 +7,7 @@ import { FooterLinkGroup, FooterLinkGroupProps } from './components/FooterLinkGr
 import styles from './index.module.scss'
 import LogoIcon from './logo.svg'
 import { StyledLink } from '../StyledLink'
+import { InformationLinks } from '../InformationLinks'
 
 export type FooterProps = ComponentProps<'div'> & { limitMaxWidth?: number | false }
 
@@ -105,6 +106,7 @@ export const Footer: FC<FooterProps> = props => {
             All Rights Reserved.
           </div>
         </div>
+        <InformationLinks />
       </div>
     </div>
   )

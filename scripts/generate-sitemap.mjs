@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url'
 import i18nConfig from '../next-i18next.config.js'
 import { coreLanguages, coreNamespaces } from '../config/site-indexing.mjs'
 import { KB_HUBS } from '../config/kb-hubs.mjs'
+import { informationPages } from '../config/information-pages.mjs'
 
 const origin = 'https://www.nervos.org'
 const locales = i18nConfig.i18n.locales
@@ -28,6 +29,7 @@ export function createSitemapEntries({ articles, corePages, now = Date.now() }) 
     }
   }
   for (const route of [
+    ...Object.values(informationPages).map(page => page.path),
     '/knowledge-base',
     '/knowledge-base/start-here',
     ...KB_HUBS.map(hub => `/knowledge-base/topic/${hub.id}`),

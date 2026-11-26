@@ -181,6 +181,32 @@ $defaultHeaderHeight: 64px;
   order: 2;
 }
 
+.header.information {
+  height: 90px;
+  filter: none;
+  mix-blend-mode: normal;
+
+  .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .siteDesktopMenu,
+  .siteMenu {
+    order: -1;
+    margin: 0;
+  }
+  .languagePopover {
+    order: 1;
+    margin: 0 0 0 auto;
+  }
+
+  @media (width <= #{screens.$tabletMax}) {
+    height: 64px;
+  }
+}
+
 .header .siteDesktopMenu .menuPopover {
   margin: 0;
 }

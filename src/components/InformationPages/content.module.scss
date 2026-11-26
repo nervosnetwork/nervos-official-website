@@ -1,0 +1,235 @@
+@use '../../styles/breakpoints' as screens;
+
+.contact {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 35px 30px;
+}
+
+.contactCard {
+  min-width: 0;
+  min-height: 402px;
+  padding: 24px;
+  color: #000;
+  background: #e8eaf2;
+  border: 1px solid #cdb3ff;
+  border-radius: 15px;
+
+  h2 {
+    margin: 24px 0 0;
+    font-weight: 600;
+    font-size: 23px;
+    line-height: 1.1;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.3;
+    letter-spacing: 0.32px;
+  }
+}
+
+.contactIllustration {
+  position: relative;
+  height: 168px;
+  margin: 0 -24px;
+
+  img {
+    position: absolute;
+    left: 50%;
+    max-width: calc(100% - 18px);
+    height: auto;
+    transform: translateX(-50%);
+  }
+}
+
+.newsImage {
+  top: 4px;
+  width: 343px;
+}
+
+.joinImage {
+  top: 3px;
+  width: 348px;
+}
+
+.communityImage {
+  top: 4px;
+  width: 283px;
+}
+
+.developersImage {
+  top: 5px;
+  width: 360px;
+}
+
+.pressImage {
+  top: 8px;
+  width: 343px;
+}
+
+.safetyImage {
+  top: 3px;
+  width: 359px;
+}
+
+.privacy {
+  display: grid;
+  gap: 15px;
+  color: #000;
+}
+
+.privacyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-width: 0;
+  padding: 40px 45px;
+  background: rgb(232 235 243 / 30%);
+  border: 1px solid #cdb3ff;
+  border-radius: 15px;
+
+  h2 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.6;
+  }
+
+  h3 {
+    max-width: 700px;
+    margin: 0;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.6;
+  }
+
+  p,
+  ul {
+    max-width: 1000px;
+    margin: 0;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.45;
+    letter-spacing: 0.32px;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  .narrowParagraph {
+    max-width: 800px;
+  }
+
+  :is(h2, h3, p) {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+}
+
+.privacyGroup {
+  display: grid;
+  gap: 15px;
+}
+
+.privacyParagraphs {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+
+  p {
+    text-box-trim: none;
+  }
+}
+
+.privacyParagraphs p + p {
+  margin-top: 23.2px;
+}
+
+.compactCard {
+  gap: 6.4px;
+}
+
+.privacy .policyList {
+  padding-left: 26px;
+  list-style: '✦  ';
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+
+  li {
+    padding-left: 0;
+  }
+}
+
+.contact .textLink,
+.privacy .textLink,
+.privacy .subtleLink {
+  display: inline;
+  font-weight: inherit;
+  line-height: inherit;
+  overflow-wrap: anywhere;
+  border: 0;
+}
+
+.contact .textLink,
+.privacy .textLink {
+  color: #5700ff;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.privacy .subtleLink {
+  color: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.contact a:focus-visible,
+.privacy a:focus-visible {
+  outline: 2px solid #5700ff;
+  outline-offset: 3px;
+}
+
+@media (width <= #{screens.$tabletMax}) {
+  .contact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .privacyCard {
+    padding: 32px;
+  }
+}
+
+@media (width <= #{screens.$mobileMax}) {
+  .contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contactCard {
+    min-height: 402px;
+  }
+
+  .privacyCard {
+    gap: 24px;
+    padding: 24px 20px;
+
+    h2 {
+      font-size: 24px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      font-size: 19px;
+      line-height: 1.4;
+    }
+  }
+
+  .compactCard {
+    gap: 16px;
+  }
+}

@@ -11,6 +11,7 @@ import { createSitemapEntries, loadSitemapEntries, renderSitemap, escapeXml } fr
 import hubs from './fixtures/load-kb-hubs.mjs'
 import * as siteIndexing from '../config/site-indexing.mjs'
 import i18nConfig from '../next-i18next.config.js'
+import { informationPages } from '../config/information-pages.mjs'
 
 const origin = 'https://www.nervos.org'
 const catalog = JSON.parse(fs.readFileSync('public/education_hub_articles/metadata/catalog.json', 'utf8'))
@@ -102,7 +103,14 @@ test('every generated URL and alternate matches the real page SEO policy', () =>
     assert(!paths.has(`${prefix}/knowledge-base/articles?page=${pages + 1}`), 'No out-of-range archive page')
     if (pages === 0) assert(!paths.has(`${prefix}/knowledge-base/articles`), 'No fabricated empty-language archive')
   }
-  assert.equal(entries.length, published.length + coreCount + archiveCount + 2 + hubs.KB_HUBS.length)
+  assert.equal(
+    entries.length,
+    published.length + coreCount + archiveCount + 2 + hubs.KB_HUBS.length + Object.keys(informationPages).length,
+  )
+  for (const page of Object.values(informationPages)) {
+    assert(paths.has(page.path))
+    for (const language of ['zh', 'es', 'fr']) assert(!paths.has(`/${language}${page.path}`))
+  }
   for (const hub of hubs.KB_HUBS) assert(paths.has(hubs.kbHubPath(hub.id)))
   for (const excluded of [
     '/home',

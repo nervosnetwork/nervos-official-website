@@ -5,6 +5,7 @@ import Logo from '../Footer/logo.svg'
 import { trackKBEvent } from './analytics'
 import { useNewsletterSignup } from './useNewsletterSignup'
 import styles from './footer-v2.module.scss'
+import { InformationLinks } from '../InformationLinks'
 
 type FooterGroup = {
   title: string
@@ -43,9 +44,7 @@ const groups: FooterGroup[] = [
   {
     title: 'Learn',
     href: '/learn',
-    links: [
-      ['Knowledge Base', '/knowledge-base'],
-    ],
+    links: [['Knowledge Base', '/knowledge-base']],
   },
 ]
 const socials = [
@@ -241,6 +240,16 @@ export function KnowledgeFooter() {
           {chinese ? ' 资助的开源项目。保留所有权利。' : '. All Rights Reserved.'}
         </p>
       </div>
+      <InformationLinks
+        onNavigate={link =>
+          trackKBEvent('kb_footer_link_click', {
+            group: 'information',
+            link_id: link.id,
+            link_text: link.label,
+            link_url: link.href,
+          })
+        }
+      />
     </footer>
   )
 }

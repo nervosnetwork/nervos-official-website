@@ -24,7 +24,7 @@ const headerHeightVarName = (styles.headerHeightVarName ?? '').replaceAll('"', '
 const defaultHeaderHeight = parseFloat((styles.defaultHeaderHeight ?? '').replace('px', ''))
 
 export type HeaderProps = ComponentProps<'div'> & {
-  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle'
+  variant?: 'default' | 'knowledgeHub' | 'knowledgeArticle' | 'information'
   readingProgress?: number
   articleLanguage?: KBArticle
   headerRef?: RefObject<HTMLDivElement>
@@ -59,15 +59,28 @@ export const Header: FC<HeaderProps> = props => {
   }
 
   return (
-    <div className={clsx(styles.header, variant === 'knowledgeHub' && styles.knowledgeHub, className)} {...divProps}>
+    <div
+      className={clsx(
+        styles.header,
+        variant === 'knowledgeHub' && styles.knowledgeHub,
+        variant === 'information' && styles.information,
+        className,
+      )}
+      {...divProps}
+    >
       <NavigationMenu className={clsx(styles.siteMenu, DISABLE_CGOL_MOUSE_CONTROLLER)} />
       <div className={clsx(styles.siteDesktopMenu, styles.knowledgeDesktopMenu)}>
-        {!singleColumn && <MenuPopover alignRight uiLanguage={variant === 'knowledgeHub' ? 'en' : undefined} />}
+        {!singleColumn && (
+          <MenuPopover
+            alignRight={variant !== 'information'}
+            uiLanguage={variant === 'knowledgeHub' || variant === 'information' ? 'en' : undefined}
+          />
+        )}
       </div>
       <Link
         className={clsx(styles.logo, DISABLE_CGOL_MOUSE_CONTROLLER)}
         href="/"
-        locale={variant === 'knowledgeHub' ? 'en' : undefined}
+        locale={variant === 'knowledgeHub' || variant === 'information' ? 'en' : undefined}
       >
         <LogoIcon />
       </Link>
