@@ -64,11 +64,6 @@
   letter-spacing: 0.6px;
 }
 
-.privacyPage .introduction p {
-  max-width: 866px;
-  margin: 0 auto;
-}
-
 .community {
   display: flex;
   gap: 40px;
@@ -90,6 +85,11 @@
   letter-spacing: 0.7px;
 }
 
+.privacyPage .introduction p {
+  max-width: 866px;
+  margin: 0 auto;
+}
+
 .contributors {
   flex-shrink: 0;
   padding: 7px 10px;
@@ -108,6 +108,7 @@
   display: flex;
   gap: 24px;
   align-items: center;
+  max-width: 100%;
   font-size: 12px;
 }
 
@@ -192,6 +193,10 @@
   }
 }
 @media (width <= 767px) {
+  .page .informationFooter div input[type] {
+    font-size: 16px;
+  }
+
   .hero {
     padding-top: 144px;
   }

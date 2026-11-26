@@ -9,11 +9,11 @@ import LogoIcon from './logo.svg'
 import { StyledLink } from '../StyledLink'
 import { InformationLinks } from '../InformationLinks'
 
-export type FooterProps = ComponentProps<'div'> & { limitMaxWidth?: number | false }
+export type FooterProps = ComponentProps<'div'> & { limitMaxWidth?: number | false; darkSocialIcons?: boolean }
 
 export const Footer: FC<FooterProps> = props => {
   const [t] = useTranslation('common', { keyPrefix: 'navigation' })
-  const { limitMaxWidth = 1200, className, ...divProps } = props
+  const { limitMaxWidth = 1200, darkSocialIcons = false, className, ...divProps } = props
 
   const footerLinkGroups: FooterLinkGroupProps[] = [
     {
@@ -95,7 +95,7 @@ export const Footer: FC<FooterProps> = props => {
           </div>
 
           <div className={styles.guideMedias}>
-            <FooterMedia />
+            <FooterMedia darkSocialIcons={darkSocialIcons} />
           </div>
         </div>
 

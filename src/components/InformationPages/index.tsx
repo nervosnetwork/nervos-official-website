@@ -120,7 +120,7 @@ export function InformationPage({ kind, updatedAt }: { kind: InformationPageKind
               </div>
             </div>
           </section>
-          {renderFooter()}
+          {renderFooter({ darkSocialIcons: true, className: styles.informationFooter })}
         </>
       )}
     </Page>
