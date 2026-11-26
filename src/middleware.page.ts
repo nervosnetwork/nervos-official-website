@@ -18,6 +18,17 @@ export function requestPagePath(request: NextRequest): string {
   return pagePath === '/index' ? '/' : pagePath
 }
 
+// Approved information documents are English-only. Use middleware rather than
+// config redirects so Next client/data navigation follows the same policy.
+export function informationPageDestination(request: NextRequest): URL | null {
+  if (!request.nextUrl.locale || request.nextUrl.locale === 'en') return null
+  const pathname = requestPagePath(request)
+  if (!['/about', '/privacy', '/contact'].includes(pathname)) return null
+  const destination = new URL(request.url)
+  destination.pathname = pathname
+  return destination
+}
+
 // D-07 applies only to the retired listing, never to article URLs or the new
 // /articles pagination. A combined page + sort_by URL goes to the archive in
 // one hop; old page numbers do not map to the redesigned listing's page sizes.
@@ -120,6 +131,8 @@ export function missingKBArticlePath(pathname: string, locale = 'en', now = Date
 }
 
 export function middleware(request: NextRequest) {
+  const informationDestination = informationPageDestination(request)
+  if (informationDestination) return NextResponse.redirect(informationDestination, 308)
   // Vercel prefixes canonical English requests with /en before middleware.
   // The raw URL cannot distinguish that internal rewrite from a public alias;
   // redirect only real migrations, never the presence of the default locale.
@@ -186,5 +199,5 @@ export function middleware(request: NextRequest) {
 // terminal parameter would consume that group as its constraint, so use a
 // catch-all here and keep the exact single-segment check in migratedArticlePath.
 export const config = {
-  matcher: ['/', '/education_hub_articles/:path*', '/knowledge-base/:path*'],
+  matcher: ['/', '/about', '/privacy', '/contact', '/education_hub_articles/:path*', '/knowledge-base/:path*'],
 }
