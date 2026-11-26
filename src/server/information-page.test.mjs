@@ -41,13 +41,19 @@ const seo = load('src/server/page-seo.ts', {
 })
 const translationCalls = []
 const gitCalls = []
+const touchHash = 'a'.repeat(40)
+const touchRevision = `${touchHash} 2026-11-26T09:30:00+08:00\n`
+const missingShallowFile = () => {
+  throw Object.assign(new Error('There is no shallow boundary file'), { code: 'ENOENT' })
+}
 const props = load('src/server/information-page.ts', {
   'node:child_process': {
     execFileSync: (...args) => {
       gitCalls.push(args)
-      return '2026-11-26T09:30:00+08:00\n'
+      return args[1][0] === 'log' ? touchRevision : '.git/shallow\n'
     },
   },
+  'node:fs': { readFileSync: missingShallowFile },
   'next-i18next/serverSideTranslations': {
     serverSideTranslations: async (...args) => {
       translationCalls.push(args)
@@ -80,18 +86,19 @@ test('approved information pages render English with one canonical and no fabric
 
 test('information revision dates come from the relevant content commit and never the build clock', () => {
   assert.equal(props.informationPageUpdatedAt('privacy'), '2026-11-26T01:30:00.000Z')
-  assert.deepEqual(gitCalls.at(-1).slice(0, 2), [
+  assert.deepEqual(gitCalls.findLast(call => call[1][0] === 'log').slice(0, 2), [
     'git',
-    ['log', '-1', '--format=%cI', '--', 'src/components/InformationPages/PrivacyContent.tsx'],
+    ['log', '-1', '--format=%H %cI', '--', 'src/components/InformationPages/PrivacyContent.tsx'],
   ])
   const make = execFileSync =>
     load('src/server/information-page.ts', {
       'node:child_process': { execFileSync },
+      'node:fs': { readFileSync: missingShallowFile },
       'next-i18next/serverSideTranslations': {},
       '../../config/information-pages.mjs': { informationPages },
       './page-seo': {},
     })
-  for (const value of ['', 'not-a-date', '2026-99-99T25:00:00+00:00'])
+  for (const value of ['', 'not-a-date', `${touchHash} 2026-99-99T25:00:00+00:00`])
     assert.equal(make(() => value).informationPageUpdatedAt('contact'), null)
   assert.equal(
     make(() => {
@@ -99,6 +106,38 @@ test('information revision dates come from the relevant content commit and never
     }).informationPageUpdatedAt('about'),
     null,
   )
+})
+
+test('a shallow boundary is not mistaken for the content revision, while a verified in-range touch keeps its date', () => {
+  const make = (boundaries, readError) => {
+    const calls = []
+    const api = load('src/server/information-page.ts', {
+      'node:child_process': {
+        execFileSync: (command, args) => {
+          calls.push([command, args])
+          return args[0] === 'log' ? touchRevision : '.git/shallow\n'
+        },
+      },
+      'node:fs': {
+        readFileSync: filename => {
+          assert.equal(filename, path.resolve('.git/shallow'))
+          if (readError) throw readError
+          return boundaries
+        },
+      },
+      'next-i18next/serverSideTranslations': {},
+      '../../config/information-pages.mjs': { informationPages },
+      './page-seo': {},
+    })
+    return { api, calls }
+  }
+  const boundary = make(`${'b'.repeat(40)}\n${touchHash}\n`)
+  assert.equal(boundary.api.informationPageUpdatedAt('privacy'), null)
+  assert.deepEqual(boundary.calls.at(-1), ['git', ['rev-parse', '--git-path', 'shallow']])
+  const completeTouch = make(`${'b'.repeat(40)}\n`)
+  assert.equal(completeTouch.api.informationPageUpdatedAt('privacy'), '2026-11-26T01:30:00.000Z')
+  const unreadable = make('', Object.assign(new Error('Boundary file cannot be read'), { code: 'EACCES' }))
+  assert.equal(unreadable.api.informationPageUpdatedAt('privacy'), null)
 })
 
 test('page routes pass their actual document identity and unique title and description to SSR', () => {

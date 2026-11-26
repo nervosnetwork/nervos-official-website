@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { StyledLink } from '../StyledLink'
 import styles from './content.module.scss'
 
@@ -62,7 +63,7 @@ export function PrivacyContent() {
         </p>
       </section>
 
-      <section className={`${styles.privacyCard} ${styles.compactCard}`} aria-labelledby="privacy-retention">
+      <section className={clsx(styles.privacyCard, styles.compactCard)} aria-labelledby="privacy-retention">
         <h2 id="privacy-retention">How long we keep it</h2>
         <ul className={styles.policyList}>
           <li>Google Analytics data: 2 months.</li>
@@ -71,7 +72,7 @@ export function PrivacyContent() {
         </ul>
       </section>
 
-      <section className={`${styles.privacyCard} ${styles.compactCard}`} aria-labelledby="privacy-choices">
+      <section className={clsx(styles.privacyCard, styles.compactCard)} aria-labelledby="privacy-choices">
         <h2 id="privacy-choices">Your choices and rights</h2>
         <ul className={styles.policyList}>
           <li>

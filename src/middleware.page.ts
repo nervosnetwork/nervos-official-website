@@ -132,7 +132,26 @@ export function missingKBArticlePath(pathname: string, locale = 'en', now = Date
 
 export function middleware(request: NextRequest) {
   const informationDestination = informationPageDestination(request)
-  if (informationDestination) return NextResponse.redirect(informationDestination, 308)
+  if (informationDestination) {
+    // A relative middleware redirect keeps Next's selected locale and can
+    // recursively request the same alias. An absolute, terminal data response
+    // makes the client navigate to the English URL with fresh router state.
+    // Omit Location so Next's adapter does not relativize this header again.
+    const response = request.headers.has('x-nextjs-data')
+      ? new NextResponse(null, {
+          status: 200,
+          headers: {
+            'x-nextjs-redirect': informationDestination.href,
+            'x-middleware-cache': 'no-cache',
+          },
+        })
+      : NextResponse.redirect(informationDestination, 308)
+    response.headers.set('Cache-Control', 'private, no-store')
+    response.headers.set('CDN-Cache-Control', 'no-store')
+    response.headers.set('Vercel-CDN-Cache-Control', 'no-store')
+    response.headers.set('Vary', 'x-nextjs-data')
+    return response
+  }
   // Vercel prefixes canonical English requests with /en before middleware.
   // The raw URL cannot distinguish that internal rewrite from a public alias;
   // redirect only real migrations, never the presence of the default locale.

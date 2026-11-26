@@ -3,7 +3,6 @@ import { ComponentProps, FC } from 'react'
 import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
 import { StyledLink } from 'src/components/StyledLink'
-import { InformationLinks } from '../../components/InformationLinks'
 import { FooterMedia } from 'src/components/Footer/components/FooterMedia'
 import { FooterLinkGroup, FooterLinkGroupProps } from 'src/components/Footer/components/FooterLinkGroup'
 import {
@@ -15,6 +14,7 @@ import {
   YoutubeIcon,
   TIcon,
 } from 'src/components/Footer/components/FooterMedia/icons'
+import { InformationLinks } from '../../components/InformationLinks'
 import IconFoundationWhiteLogo from './icons/foundationWhiteLogo.svg'
 import styles from './index.module.scss'
 

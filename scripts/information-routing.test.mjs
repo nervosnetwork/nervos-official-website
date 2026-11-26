@@ -37,30 +37,52 @@ new Function('require', 'module', 'exports', compiled)(
   module.exports,
 )
 const { informationPageDestination, middleware } = module.exports
-const request = (path, origin = 'https://www.nervos.org') =>
-  new NextRequest(origin + path, { nextConfig: { i18n }, headers: { 'x-nextjs-data': '1' } })
+const request = (path, origin = 'https://www.nervos.org', clientData = false) =>
+  new NextRequest(origin + path, { nextConfig: { i18n }, headers: clientData ? { 'x-nextjs-data': '1' } : {} })
 
 test('information locale aliases redirect HTML and raw Next data to the canonical English document in one hop', () => {
   for (const origin of ['https://www.nervos.org', 'http://localhost:3001']) {
     for (const locale of i18n.locales) {
       for (const page of Object.values(informationPages)) {
-        for (const path of [`/${locale}${page.path}`, `/_next/data/build/${locale}${page.path}.json`]) {
-          const incoming = request(path + '?utm_source=test&tag=one&tag=two', origin)
+        for (const { path, clientData } of [
+          { path: `/${locale}${page.path}`, clientData: false },
+          { path: `/_next/data/build/${locale}${page.path}.json`, clientData: false },
+          { path: `/_next/data/build/${locale}${page.path}.json`, clientData: true },
+          { path: `/${locale}${page.path}`, clientData: true },
+        ]) {
+          const incoming = request(path + '?utm_source=test&tag=one&tag=two', origin, clientData)
           const before = incoming.url
           const destination = informationPageDestination(incoming)
           if (locale === 'en') {
             assert.equal(destination, null)
-            assert.equal(middleware(incoming).headers.get('location'), null)
+            const result = middleware(incoming)
+            assert.equal(result.headers.get('location'), null)
+            assert.equal(result.headers.get('x-nextjs-redirect'), null)
           } else {
             assert.equal(destination.origin, origin)
             assert.equal(destination.pathname, page.path)
             assert.equal(destination.search, incoming.nextUrl.search)
             const result = middleware(incoming)
-            assert.equal(result.status, 308)
-            assert.equal(result.headers.get('location'), destination.href)
-            const english = request(destination.pathname + destination.search, origin)
+            if (clientData) {
+              assert.equal(result.status, 200)
+              assert.equal(result.headers.get('x-nextjs-redirect'), destination.href)
+              assert.equal(new URL(result.headers.get('x-nextjs-redirect')).origin, origin)
+              assert.equal(result.headers.get('location'), null, 'The adapter must not relativize the redirect')
+              assert.equal(result.headers.get('x-middleware-cache'), 'no-cache')
+              assert.equal(result.body, null)
+            } else {
+              assert.equal(result.status, 308)
+              assert.equal(result.headers.get('location'), destination.href)
+              assert.equal(result.headers.get('x-nextjs-redirect'), null)
+            }
+            assert.equal(result.headers.get('cache-control'), 'private, no-store')
+            assert.equal(result.headers.get('cdn-cache-control'), 'no-store')
+            assert.equal(result.headers.get('vercel-cdn-cache-control'), 'no-store')
+            assert.equal(result.headers.get('vary'), 'x-nextjs-data')
+            const english = request(destination.pathname + destination.search, origin, clientData)
             assert.equal(informationPageDestination(english), null, 'The destination cannot redirect again')
             assert.equal(middleware(english).headers.get('location'), null)
+            assert.equal(middleware(english).headers.get('x-nextjs-redirect'), null)
           }
           assert.equal(incoming.url, before, 'Do not mutate the incoming request')
         }
