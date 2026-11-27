@@ -17,8 +17,9 @@ function articlePublisher(): StructuredDataNode {
   }
 }
 
-// The organization details below are supplied in handoff tab 13. Contact
-// details are deliberately absent until the owner confirms them.
+// The organization details below are supplied in handoff tab 13. The contact
+// points repeat only what the published /contact and /privacy pages state.
+// No postal address or telephone number is published, so none is declared.
 export function homepageStructuredData(): StructuredDataNode[] {
   return [
     {
@@ -40,6 +41,23 @@ export function homepageStructuredData(): StructuredDataNode[] {
         'https://www.linkedin.com/company/nervos/',
         'https://coinmarketcap.com/currencies/nervos-network/',
         'https://www.coingecko.com/en/coins/nervos-network',
+      ],
+      // Product terms that appear in the home page copy.
+      knowsAbout: ['Common Knowledge Base', 'Nervos CKB', 'Proof-of-Work', 'RISC-V', 'UTXO'],
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          contactType: 'general enquiries',
+          url: `${PRODUCTION_SITE_ORIGIN}/contact`,
+          availableLanguage: 'en',
+        },
+        {
+          '@type': 'ContactPoint',
+          contactType: 'privacy requests',
+          email: 'media@nervos.org',
+          url: `${PRODUCTION_SITE_ORIGIN}/privacy`,
+          availableLanguage: 'en',
+        },
       ],
     },
     {

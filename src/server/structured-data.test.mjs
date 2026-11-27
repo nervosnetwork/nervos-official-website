@@ -127,7 +127,7 @@ const fixtureArticle = {
   date: '2020-01-01T00:00:00.000Z',
 }
 
-test('home uses only handoff organization details; contact, language guesses and FAQ are not invented', () => {
+test('home uses only handoff organization details and published contact points; address, phone, language guesses and FAQ are not invented', () => {
   const nodes = structured.homepageStructuredData()
   assert.deepEqual(
     nodes.map(node => node['@type']),
@@ -138,8 +138,24 @@ test('home uses only handoff organization details; contact, language guesses and
   assert.equal(organization.logo, `${origin}/favicon.svg`)
   assert.deepEqual(organization.alternateName, ['Nervos', 'Nervos CKB', 'CKB'])
   assert.equal(organization.sameAs.length, 8)
-  for (const key of ['email', 'address', 'telephone', 'contactPoint'])
-    assert.equal(Object.hasOwn(organization, key), false)
+  for (const key of ['email', 'address', 'telephone']) assert.equal(Object.hasOwn(organization, key), false)
+  // Contact points repeat the published /contact and /privacy pages only.
+  assert.deepEqual(organization.contactPoint, [
+    { '@type': 'ContactPoint', contactType: 'general enquiries', url: `${origin}/contact`, availableLanguage: 'en' },
+    {
+      '@type': 'ContactPoint',
+      contactType: 'privacy requests',
+      email: 'media@nervos.org',
+      url: `${origin}/privacy`,
+      availableLanguage: 'en',
+    },
+  ])
+  assert.ok(read('src/components/InformationPages/PrivacyContent.tsx').includes('media@nervos.org'))
+  assert.ok(organization.contactPoint.every(point => !Object.hasOwn(point, 'telephone')))
+  // Product terms must be visible in the English home page copy.
+  const homeCopy = read('public/locales/en/home.json')
+  assert.deepEqual(organization.knowsAbout, ['Common Knowledge Base', 'Nervos CKB', 'Proof-of-Work', 'RISC-V', 'UTXO'])
+  for (const term of organization.knowsAbout) assert.ok(homeCopy.includes(term), term)
   assert.equal(website.url, `${origin}/`)
   assert.deepEqual(website.publisher, { '@id': organization['@id'] })
   assert.equal(Object.hasOwn(website, 'inLanguage'), false)

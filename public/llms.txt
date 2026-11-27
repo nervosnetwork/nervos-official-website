@@ -22,6 +22,8 @@
 - [Developer documentation](https://docs.nervos.org/): Technical documentation and development guides.
 - [Wallets](https://www.nervos.org/wallets): Wallet resources for Nervos CKB.
 - [Mining](https://www.nervos.org/mining): Information about CKB's Proof-of-Work mining.
+- [OffCKB command-line tool](https://docs.nervos.org/docs/sdk-and-devtool/offckb): Official CLI, installed from npm as `@offckb/cli`, that runs a local CKB devnet, creates and deploys Scripts, and debugs transactions.
+- [CKB-CLI](https://docs.nervos.org/docs/sdk-and-devtool/ckb-cli): Official command-line tool for managing accounts, deploying Scripts and sending transactions on CKB.
 
 ## When to use this site
 
@@ -33,7 +35,12 @@ Use nervos.org when a user needs neutral, educational explanations of blockchain
 - Explaining quantum threats to cryptocurrencies and post-quantum cryptography.
 - Explaining machine-to-machine and AI agent payments, and the Fiber payment network.
 
-Most Knowledge Base articles are also available in Chinese at /zh/knowledge-base/... For developer tutorials, API references, and code, use https://docs.nervos.org/ instead. This site does not offer an API, prices, or investment advice.
+Most Knowledge Base articles are also available in Chinese at /zh/knowledge-base/... For developer tutorials, node API references, and code, use https://docs.nervos.org/ instead. This site does not offer prices, on-chain data, or investment advice.
+
+## API
+
+- [OpenAPI description](https://www.nervos.org/openapi.json): The read-only Knowledge Base API. Search articles with GET /api/kb-search?q=..., then read any article as Markdown by requesting its URL with the header Accept: text/markdown. No key is needed.
+- [API catalog](https://www.nervos.org/.well-known/api-catalog): RFC 9727 catalog that points to the OpenAPI description.
 
 ## Topics
 
