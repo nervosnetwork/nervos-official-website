@@ -18,6 +18,11 @@
   z-index: 2;
 }
 
+.page .informationFooter {
+  --footerCopyright: #6b6477;
+  --footerInformationText: #3d3845;
+}
+
 .hero {
   position: relative;
   padding-top: 251px;

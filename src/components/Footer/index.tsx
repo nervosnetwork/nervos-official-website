@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import Image from 'next/image'
 import { ComponentProps, FC } from 'react'
 import { useTranslation } from 'next-i18next'
 import { FooterMedia } from './components/FooterMedia'
@@ -100,13 +101,27 @@ export const Footer: FC<FooterProps> = props => {
         </div>
 
         <div className={styles.bottom}>
-          <LogoIcon />
-          <div className={styles.copyright}>
-            ©Nervos is an open-source project initiated by the <span className={styles.bold}>Nervos Foundation</span>.
-            All Rights Reserved.
+          <div className={styles.brand}>
+            <div className={styles.brandLogo}>
+              {darkSocialIcons ? (
+                <Image
+                  src="/images/information-pages/footer-logo.svg"
+                  width={115.385}
+                  height={20}
+                  alt="Nervos"
+                  unoptimized
+                />
+              ) : (
+                <LogoIcon />
+              )}
+            </div>
+            <div className={styles.copyright}>
+              ©Nervos is an open-source project initiated by the <span className={styles.bold}>Nervos Foundation</span>
+              . All Rights Reserved.
+            </div>
           </div>
+          <InformationLinks footerBottom />
         </div>
-        <InformationLinks />
       </div>
     </div>
   )

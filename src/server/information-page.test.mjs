@@ -174,7 +174,7 @@ test('footer information links always target approved English routes and preserv
     links.map(link => [link.props.children, link.props.href, link.props.locale]),
     [
       ['About us', '/about', 'en'],
-      ['Privacy policy', '/privacy', 'en'],
+      ['Privacy Policy', '/privacy', 'en'],
       ['Contact us', '/contact', 'en'],
     ],
   )

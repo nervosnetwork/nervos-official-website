@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import Logo from '../Footer/logo.svg'
 import { trackKBEvent } from './analytics'
 import { useNewsletterSignup } from './useNewsletterSignup'
 import styles from './footer-v2.module.scss'
@@ -233,23 +232,34 @@ export function KnowledgeFooter() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <Logo />
-        <p>
-          {chinese ? '©Nervos 是由 ' : '©Nervos is an open-source project funded by the '}
-          <span className={styles.textPrimary}>Nervos Foundation</span>
-          {chinese ? ' 资助的开源项目。保留所有权利。' : '. All Rights Reserved.'}
-        </p>
+        <div className={styles.brand}>
+          <div className={styles.brandLogo}>
+            <Image
+              src="/images/information-pages/footer-logo.svg"
+              width={115.385}
+              height={20}
+              alt="Nervos"
+              unoptimized
+            />
+          </div>
+          <p>
+            {chinese ? '©Nervos 是由 ' : '©Nervos is an open-source project funded by the '}
+            <span className={styles.textPrimary}>Nervos Foundation</span>
+            {chinese ? ' 资助的开源项目。保留所有权利。' : '. All Rights Reserved.'}
+          </p>
+        </div>
+        <InformationLinks
+          footerBottom
+          onNavigate={link =>
+            trackKBEvent('kb_footer_link_click', {
+              group: 'information',
+              link_id: link.id,
+              link_text: link.label,
+              link_url: link.href,
+            })
+          }
+        />
       </div>
-      <InformationLinks
-        onNavigate={link =>
-          trackKBEvent('kb_footer_link_click', {
-            group: 'information',
-            link_id: link.id,
-            link_text: link.label,
-            link_url: link.href,
-          })
-        }
-      />
     </footer>
   )
 }

@@ -10,7 +10,7 @@ export function PrivacyContent() {
         <div className={styles.privacyGroup}>
           <h3>When you browse the site</h3>
           <p>
-            We use one analytics tools to understand which pages people read and how they find them, so we can improve
+            We use two analytics tools to understand which pages people read and how they find them, so we can improve
             the content.
           </p>
         </div>
@@ -22,6 +22,15 @@ export function PrivacyContent() {
               and the site that sent you here. It sets cookies in your browser so it can tell a returning visitor from a
               new one. Google processes this data on its servers, which may be outside your country.
             </p>
+          </div>
+        </div>
+        <div className={styles.privacyGroup}>
+          <h3>Umami</h3>
+          <div className={styles.privacyParagraphs}>
+            <p>
+              We also use Umami to understand how the website is used. The site sends it page paths and selected usage
+              events.
+            </p>
             <p>
               Both tools also record a small number of actions on the Knowledge Base, such as clicking a footer link or
               switching an article&apos;s language, so we can see which features people use. These records don&apos;t
@@ -32,9 +41,9 @@ export function PrivacyContent() {
         <div className={styles.privacyGroup}>
           <h3>When you sign up for the newsletter</h3>
           <p>
-            If you enter your email address in a newsletter form, we send it to Mailchimp, which stores our mailing list
-            and sends the emails. We use your address only to send you occasional emails regarding CKB updates. Every
-            email has an unsubscribe link, and unsubscribing takes you off the list.
+            If you enter your email address in a newsletter form, we send it to SendGrid to add you to our mailing list.
+            If you provide your first name, we send that too. We use your address only to send you occasional emails
+            regarding CKB updates. Every email has an unsubscribe link, and unsubscribing takes you off the list.
           </p>
         </div>
         <div className={styles.privacyGroup}>
