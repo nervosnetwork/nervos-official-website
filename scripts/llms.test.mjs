@@ -47,11 +47,27 @@ test('llms.txt website links identify published canonical pages rather than lega
   const canonical = new Set(loadSitemapEntries().map(entry => entry.loc))
   for (const { href } of links) {
     if (
-      href === 'https://docs.nervos.org/' ||
+      new URL(href).origin === 'https://docs.nervos.org' ||
       href === 'https://www.nervos.org/sitemap.xml' ||
-      href === 'https://www.nervos.org/llms-full.txt'
+      href === 'https://www.nervos.org/llms-full.txt' ||
+      href === 'https://www.nervos.org/openapi.json' ||
+      href === 'https://www.nervos.org/.well-known/api-catalog'
     )
       continue
     assert.ok(canonical.has(href), `Resource is missing from the published canonical sitemap: ${href}`)
   }
+})
+
+test('llms.txt points agents to the API description and the official command-line tools', () => {
+  assert.ok(/^## API$/m.test(llms))
+  const hrefs = new Set(links.map(link => link.href))
+  for (const href of [
+    'https://www.nervos.org/openapi.json',
+    'https://www.nervos.org/.well-known/api-catalog',
+    'https://docs.nervos.org/docs/sdk-and-devtool/offckb',
+    'https://docs.nervos.org/docs/sdk-and-devtool/ckb-cli',
+  ])
+    assert.ok(hrefs.has(href), href)
+  assert.ok(llms.includes('@offckb/cli'))
+  assert.ok(!/does not offer an API/.test(llms), 'The site guide must not deny the documented API')
 })

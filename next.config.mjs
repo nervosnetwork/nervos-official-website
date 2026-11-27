@@ -144,6 +144,27 @@ const config = {
       locale: false,
       headers: [{ key: 'Content-Type', value: 'application/xml; charset=utf-8' }],
     },
+    // Machine-readable description of the public read-only Knowledge Base
+    // endpoints, and its RFC 9727 catalog. Both are static public files and,
+    // like /llms.txt, need Next's normal locale matching to get their headers.
+    {
+      source: '/openapi.json',
+      headers: [
+        { key: 'Content-Type', value: 'application/json; charset=utf-8' },
+        { key: 'Access-Control-Allow-Origin', value: '*' },
+      ],
+    },
+    {
+      source: '/.well-known/api-catalog',
+      headers: [
+        {
+          key: 'Content-Type',
+          value: 'application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"',
+        },
+        { key: 'Link', value: '</.well-known/api-catalog>; rel="api-catalog"' },
+        { key: 'Access-Control-Allow-Origin', value: '*' },
+      ],
+    },
     {
       source: '/:path*',
       locale: false,

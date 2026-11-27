@@ -76,6 +76,30 @@ test('llms.txt has a plain-text header on its canonical root URL without a redir
   assert.equal(llms[0].locale, undefined, 'Next must match its internally inferred default locale')
 })
 
+test('the API description and its RFC 9727 catalog get their media types on the root URLs without a redirect', async () => {
+  for (const host of ['localhost:3999', 'preview.vercel.app', 'www.nervos.org']) {
+    const description = await route('/openapi.json', host)
+    assert.equal(description.statusCode, undefined, host)
+    assert.equal(description.resHeaders['Content-Type'], 'application/json; charset=utf-8', host)
+    assert.equal(description.resHeaders['Access-Control-Allow-Origin'], '*', host)
+    const catalog = await route('/.well-known/api-catalog', host)
+    assert.equal(catalog.statusCode, undefined, host)
+    assert.equal(
+      catalog.resHeaders['Content-Type'],
+      'application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"',
+      host,
+    )
+    assert.equal(catalog.resHeaders.Link, '</.well-known/api-catalog>; rel="api-catalog"', host)
+    assert.equal(catalog.resHeaders['Access-Control-Allow-Origin'], '*', host)
+  }
+  // Ordinary pages and other public files do not acquire the API headers.
+  for (const path of ['/', '/knowledge-base', '/llms.txt', '/api/kb-search']) {
+    const { resHeaders } = await route(path)
+    assert.equal(resHeaders['Access-Control-Allow-Origin'], undefined, path)
+    assert.equal(resHeaders.Link, undefined, path)
+  }
+})
+
 test('D-19 baseline security headers cover pages/assets; HSTS is scoped to the exact production hostname', async () => {
   for (const path of [
     '/',

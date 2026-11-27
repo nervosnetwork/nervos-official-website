@@ -1,0 +1,374 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Nervos Knowledge Base API",
+    "version": "1.0.0",
+    "summary": "Read-only search and Markdown retrieval for the Nervos Knowledge Base.",
+    "description": "Public, read-only access to the educational articles published at https://www.nervos.org/knowledge-base. Search the articles, then fetch any result as Markdown. No authentication, API key or account is needed. Nothing here writes data, and the API offers no prices, balances or on-chain data. For developer tooling and node RPC references use https://docs.nervos.org/.",
+    "contact": {
+      "name": "Nervos Network",
+      "url": "https://www.nervos.org/contact"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.nervos.org",
+      "description": "Production"
+    }
+  ],
+  "externalDocs": {
+    "description": "Site guide for AI tools (llms.txt)",
+    "url": "https://www.nervos.org/llms.txt"
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "Knowledge Base",
+      "description": "Search and read published Knowledge Base articles."
+    }
+  ],
+  "paths": {
+    "/api/kb-search": {
+      "get": {
+        "operationId": "searchKnowledgeBase",
+        "tags": ["Knowledge Base"],
+        "summary": "Search Knowledge Base articles",
+        "description": "Full-text search over the published Knowledge Base articles in one language. Every search term must appear in an article's title, subtitle, topic names, tags or body. Returns the five best matches, most relevant first, as article summaries without body text. The `X-Total-Count` header gives the number of all matches. To read a result, request its `canonicalPath` with `Accept: text/markdown` (see `getKnowledgeBaseArticle`).",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search terms, for example `payment channels` or `RISC-V`. Longer values are cut to 200 characters. An empty value returns an empty list.",
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "examples": ["payment channels"]
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "description": "Language of the articles to search. Articles are currently published in `en`, `zh` and `es`; the other site languages return an empty list.",
+            "schema": {
+              "type": "string",
+              "enum": ["en", "zh", "es", "fr", "tr", "ko", "pt"],
+              "default": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Up to five matching article summaries, most relevant first. An empty array means nothing matched.",
+            "headers": {
+              "X-Total-Count": {
+                "description": "Number of all matching articles, which can be more than the five returned.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "Cache-Control": {
+                "description": "Results may be cached for 60 seconds.",
+                "schema": {
+                  "type": "string",
+                  "examples": ["public, max-age=60"]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "maxItems": 5,
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleSummary"
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "A method other than GET was used. The response has no body."
+          }
+        }
+      }
+    },
+    "/knowledge-base/{slug}": {
+      "get": {
+        "operationId": "getKnowledgeBaseArticle",
+        "tags": ["Knowledge Base"],
+        "summary": "Read an English article as Markdown",
+        "description": "Returns the full text of one published English Knowledge Base article as Markdown. This is the same URL as the article's web page; the `Accept: text/markdown` header selects the Markdown representation.",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "Article identifier: the `id` of a search result, which is also the last segment of its `canonicalPath`. Example: `what_is_fiber`.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$",
+              "examples": ["what_is_fiber"]
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "description": "Send `text/markdown` to receive the article as Markdown. Without it the same URL returns the HTML page.",
+            "schema": {
+              "type": "string",
+              "enum": ["text/markdown"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The article as Markdown. It starts with the title, then `Source`, `Language` and `Published` lines, then the article body.",
+            "headers": {
+              "Vary": {
+                "description": "Always includes `Accept`, because HTML and Markdown share this URL.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "308": {
+            "description": "The article identifier was renamed. Follow `Location` to the current URL.",
+            "headers": {
+              "Location": {
+                "description": "Site-relative path of the current article URL. Request it with the same Accept header.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No published article has this identifier. The body is a short Markdown notice that links to the site guide and sitemap; it is not JSON.",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{locale}/knowledge-base/{slug}": {
+      "get": {
+        "operationId": "getTranslatedKnowledgeBaseArticle",
+        "tags": ["Knowledge Base"],
+        "summary": "Read a translated article as Markdown",
+        "description": "Returns the published translation of an article as Markdown. Use the `canonicalPath` of a search result made with the same `locale`, or check `availableLanguages` first.",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "path",
+            "required": true,
+            "description": "Language of the translation.",
+            "schema": {
+              "type": "string",
+              "enum": ["zh", "es"]
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "Article identifier: the `id` of a search result, which is also the last segment of its `canonicalPath`. Example: `what_is_fiber`.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$",
+              "examples": ["what_is_fiber"]
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "description": "Send `text/markdown` to receive the article as Markdown. Without it the same URL returns the HTML page.",
+            "schema": {
+              "type": "string",
+              "enum": ["text/markdown"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The article as Markdown. It starts with the title, then `Source`, `Language` and `Published` lines, then the article body.",
+            "headers": {
+              "Vary": {
+                "description": "Always includes `Accept`, because HTML and Markdown share this URL.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "308": {
+            "description": "The article has no published translation in this language, or its identifier was renamed. Follow `Location` to the English or current URL.",
+            "headers": {
+              "Location": {
+                "description": "Site-relative path of the current article URL. Request it with the same Accept header.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No published article has this identifier. The body is a short Markdown notice that links to the site guide and sitemap; it is not JSON.",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArticleSummary": {
+        "type": "object",
+        "description": "Metadata of one published Knowledge Base article in one language. The article body is not included.",
+        "required": [
+          "id",
+          "language",
+          "availableLanguages",
+          "canonicalPath",
+          "title",
+          "subtitle",
+          "date",
+          "coverImage",
+          "authors",
+          "hub",
+          "subjects",
+          "internalTags",
+          "readingMinutes",
+          "relatedArticleIds",
+          "excludedFromRecommendations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable article identifier, shared by all translations.",
+            "examples": ["what_is_fiber"]
+          },
+          "language": {
+            "type": "string",
+            "enum": ["en", "zh", "es", "fr", "tr", "ko", "pt"],
+            "description": "Language of this version of the article."
+          },
+          "availableLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["en", "zh", "es", "fr", "tr", "ko", "pt"]
+            },
+            "description": "Languages in which this article is published."
+          },
+          "canonicalPath": {
+            "type": "string",
+            "description": "Site-relative URL path of this version. Prefix it with https://www.nervos.org to get the page URL.",
+            "examples": ["/knowledge-base/what_is_fiber"]
+          },
+          "title": {
+            "type": "string",
+            "description": "Article title."
+          },
+          "subtitle": {
+            "type": "string",
+            "description": "One-sentence summary shown under the title. May be empty."
+          },
+          "description": {
+            "type": "string",
+            "description": "Search-result description. Present only when the article defines one."
+          },
+          "date": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Publication date in UTC."
+          },
+          "coverImage": {
+            "type": ["string", "null"],
+            "description": "Site-relative path of the cover image."
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Author handles."
+          },
+          "hub": {
+            "type": ["string", "null"],
+            "enum": [
+              "nervos-ckb",
+              "blockchain-architecture",
+              "blockchain-scalability",
+              "blockchain-cryptography",
+              "blockchain-vms-risc-v",
+              "quantum-computing-blockchain-security",
+              null
+            ],
+            "description": "Topic the article belongs to, or null when it is not yet assigned. Topic pages are at /knowledge-base/topic/{hub}."
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Identifiers of the sub-topics within the hub."
+          },
+          "internalTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Editorial keywords used by search."
+          },
+          "readingMinutes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Estimated reading time in minutes."
+          },
+          "relatedArticleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Identifiers of editorially related articles."
+          },
+          "excludedFromRecommendations": {
+            "type": "boolean",
+            "description": "True when the article is left out of the site's recommendation lists."
+          }
+        }
+      }
+    }
+  }
+}
