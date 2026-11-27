@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import i18nConfig from '../next-i18next.config.js'
 import { coreNamespaces } from '../config/site-indexing.mjs'
+import { informationPages } from '../config/information-pages.mjs'
 import { KB_HUBS } from '../config/kb-hubs.mjs'
 import { loadSitemapEntries } from './generate-sitemap.mjs'
 
@@ -13,6 +14,7 @@ const ORIGIN = 'https://www.nervos.org'
 const SHA256 = /^[a-f0-9]{64}$/
 const REVISION = /^[a-f0-9]{40}$/
 const ASSET = /\.(?:avif|bmp|gif|ico|jpe?g|png|svg|webp|apng|woff2?|ttf|otf|pdf|mp4|webm)(?:[?#].*)?$/i
+const INFORMATION_PATHS = new Set(Object.values(informationPages).map(page => page.path))
 const excluded = name => name.startsWith('.') || /(?:^|[.-])(?:test|spec|fixtures?)(?:[.-]|$)/i.test(name)
 
 function stableJSON(value) {
@@ -89,6 +91,7 @@ function validUrl(value) {
   if (locale) route = route.slice(locale.length + 1) || '/'
   assert(!url.pathname.endsWith('/') || url.pathname === '/', 'Canonical URLs have no trailing slash')
   const core = Object.hasOwn(coreNamespaces, route) && route !== '/home'
+  const information = INFORMATION_PATHS.has(route)
   const kbLanding =
     route === '/knowledge-base' ||
     route === '/knowledge-base/start-here' ||
@@ -97,8 +100,9 @@ function validUrl(value) {
   const article =
     /^\/knowledge-base\/[A-Za-z0-9_-]+$/.test(route) &&
     !['search', 'topic', 'start-here'].includes(route.split('/').at(-1))
-  assert(core || kbLanding || archive || article, 'Unexpected canonical route in manifest')
+  assert(core || information || kbLanding || archive || article, 'Unexpected canonical route in manifest')
   assert(!(locale && kbLanding), 'KB landing pages are English only')
+  assert(!(locale && information), 'Information pages are English only')
   assert(
     !url.search || (archive && /^\?page=(?:[2-9]|[1-9]\d+)$/.test(url.search)),
     'Unexpected canonical query parameters',
@@ -237,7 +241,14 @@ export function createIndexNowManifest({ repository = process.cwd(), revision, n
       if (/^https:\/\/www\.nervos\.org\//.test(candidate)) candidate = new URL(candidate).pathname
       else if (/^(?:[a-z]+:|\/\/|#)/i.test(candidate)) continue
       candidate = candidate.replace(/[?#].*$/, '')
-      if (!ASSET.test(candidate)) continue
+      // A whole filename can come from a finite component data array, including
+      // its extension (e.g. /images/information-pages/${resource.icon}). Expand
+      // only explicit resource directories, never generic page/route templates.
+      const dynamicAssetFilename =
+        candidate.includes('${') &&
+        !path.dirname(candidate).includes('${') &&
+        /^(?:\/(?:images|assets|education_hub_articles)\/|(?:\.\/)?images\/)/.test(candidate)
+      if (!ASSET.test(candidate) && !dynamicAssetFilename) continue
       let decoded
       try {
         decoded = decodeURIComponent(candidate)
@@ -263,7 +274,7 @@ export function createIndexNowManifest({ repository = process.cwd(), revision, n
               .join('[^/]*')}$`,
           )
           for (const item of fs.readdirSync(directory))
-            if (pattern.test(item)) result.add(safePath(publicRoot, path.join(directory, item)))
+            if (pattern.test(item) && ASSET.test(item)) result.add(safePath(publicRoot, path.join(directory, item)))
         }
       } else result.add(filename)
     }

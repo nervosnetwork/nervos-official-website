@@ -56,24 +56,30 @@
 
   .bottom {
     display: flex;
-    align-items: center;
+    gap: 32px;
+    align-items: flex-end;
     justify-content: space-between;
     margin-top: 100px;
 
-    .copyright {
-      $fontSize: 11px;
-      $scale: $fontSize / 12px;
+    .brand {
+      min-width: 0;
+    }
 
-      color: #6a7072;
-      font-weight: 400;
+    .brandLogo {
+      display: flex;
+      align-items: center;
+      height: 43px;
+    }
+
+    .copyright {
+      color: var(--footerCopyright, #6a7072);
+      font-weight: 500;
       font-size: 12px;
-      letter-spacing: 0.03em;
-      transform: scale($scale);
-      transform-origin: right;
+      line-height: 1.3;
 
       .bold {
         color: var(--colorPrimary);
-        font-weight: 500;
+        font-weight: 700;
       }
     }
 

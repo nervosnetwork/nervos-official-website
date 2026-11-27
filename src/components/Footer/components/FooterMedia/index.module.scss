@@ -36,6 +36,20 @@
     }
   }
 
+  .medias.darkSocials {
+    align-items: center;
+
+    a {
+      display: flex;
+      align-items: center;
+      min-height: 21px;
+    }
+
+    img {
+      display: block;
+    }
+  }
+
   .formWrap {
     display: flex;
     flex-direction: column;

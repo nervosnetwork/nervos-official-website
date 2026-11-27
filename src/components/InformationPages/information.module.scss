@@ -1,0 +1,276 @@
+.page {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: clip;
+  color: #000;
+  background: #fff;
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #5700ff;
+    outline-offset: 4px;
+  }
+}
+
+.page .header {
+  position: absolute;
+  z-index: 2;
+}
+
+.page .informationFooter {
+  --footerCopyright: #6b6477;
+  --footerInformationText: #3d3845;
+}
+
+.hero {
+  position: relative;
+  padding-top: 251px;
+}
+
+.hero h1 {
+  position: relative;
+  margin: 0;
+  font-weight: 700;
+  font-size: 65px;
+  line-height: 0.9;
+  letter-spacing: -1.625px;
+  text-align: center;
+}
+
+.heroDecoration {
+  position: absolute;
+  top: -511px;
+  left: calc(50% - 85px);
+  width: 2048px;
+  max-width: none;
+  height: 1063px;
+  transform: rotate(180deg);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.introduction {
+  position: relative;
+  width: min(1200px, calc(100% - 48px));
+  margin: 139px auto 0;
+  padding: 40px 84px;
+  color: #fff;
+  text-align: center;
+  background: #000;
+  border-radius: 35px;
+}
+
+.introduction p {
+  margin: 0;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.6;
+  letter-spacing: 0.6px;
+}
+
+.community {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1200px, calc(100% - 48px));
+  min-height: 86px;
+  margin: 61px auto 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #d7d7d7;
+}
+
+.community p {
+  max-width: 450px;
+  margin: 0;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.7px;
+}
+
+.privacyPage .introduction p {
+  max-width: 866px;
+  margin: 0 auto;
+}
+
+.contributors {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.05;
+  letter-spacing: 1.32px;
+  text-transform: uppercase;
+  background: #ede3ff;
+  border: 1px solid #000;
+  border-radius: 3px;
+  box-shadow: 1px 1px 0 #5700ff;
+}
+
+.revision {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  max-width: 100%;
+  font-size: 12px;
+}
+
+.content {
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 70px 0;
+}
+
+.learn {
+  padding: 74px 24px 94px;
+  background: #eceaff;
+}
+
+.learnInner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.learn h2 {
+  margin: 0 0 35px;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.35;
+}
+
+.resources {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.resource {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 203px;
+  padding: 21px;
+  color: #000;
+  background: #fff;
+  border-radius: 15px;
+  transition: box-shadow 180ms ease;
+}
+
+.resource:first-child {
+  color: #fff;
+  background: #000;
+}
+
+.resource img {
+  align-self: flex-end;
+  transform: rotate(-90deg);
+}
+
+.resource span {
+  max-width: 185px;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.resource:hover {
+  box-shadow: 0 0 0 2px #5700ff;
+}
+@media (width <= 1023px) {
+  .hero {
+    padding-top: 180px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+  }
+
+  .introduction {
+    margin-top: 100px;
+    padding: 32px;
+  }
+
+  .resources {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (width <= 767px) {
+  .page .informationFooter div input[type] {
+    font-size: 16px;
+  }
+
+  .hero {
+    padding-top: 144px;
+  }
+
+  .hero h1 {
+    padding: 0 24px;
+    font-size: 40px;
+    line-height: 1.05;
+    letter-spacing: -1px;
+  }
+
+  .heroDecoration {
+    top: -320px;
+    left: calc(50% - 40px);
+    width: 1250px;
+    height: auto;
+  }
+
+  .introduction {
+    margin-top: 80px;
+    padding: 28px 24px;
+    border-radius: 24px;
+  }
+
+  .introduction p {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .community {
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start;
+    margin-top: 40px;
+    padding-bottom: 32px;
+  }
+
+  .revision {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .content {
+    padding: 40px 0;
+  }
+
+  .learn {
+    padding: 48px 24px;
+  }
+
+  .learn h2 {
+    font-size: 28px;
+  }
+
+  .resources {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resource {
+    min-height: 180px;
+    padding: 18px;
+  }
+
+  .resource span {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .resource {
+    transition: none;
+  }
+}

@@ -194,29 +194,35 @@
 .bottom {
   display: flex;
   gap: 32px;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   min-height: 43px;
   margin-top: 60px;
+  font-family: var(--fontArticulatCF), sans-serif;
 }
 
-.bottom > svg {
-  width: 116px;
-  height: 20px;
+.brand {
+  min-width: 0;
+}
+
+.brandLogo {
+  display: flex;
+  align-items: center;
+  height: 43px;
 }
 
 .footer .bottom p {
   margin: 0;
-  color: var(--kbPlaceholder);
+  color: var(--kbMuted);
   font-weight: 500;
-  font-size: 11px;
-  line-height: 1.4;
-  letter-spacing: 0.33px;
-  text-align: right;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
 }
 
 .textPrimary {
   color: var(--kbText);
+  font-weight: 700;
 }
 
 @media (width <= #{screens.$tabletMax}) {

@@ -13,6 +13,7 @@ import {
   validateManifest,
 } from './indexnow-manifest.mjs'
 import { loadSitemapEntries } from './generate-sitemap.mjs'
+import { informationPages } from '../config/information-pages.mjs'
 
 const ORIGIN = 'https://www.nervos.org'
 const REVISION = 'a'.repeat(40)
@@ -73,6 +74,15 @@ function fixture(t) {
   write('public/locales/en/home.json', { title: 'Home' })
   write('public/locales/en/common.json', { menu: 'Menu' })
   write('src/components/Page.tsx', 'export const icon = "/images/shared.svg"')
+  for (const [kind, page] of Object.entries(informationPages)) {
+    write(`src/pages${page.path}/index.page.tsx`, `export default function Page() { return "${kind}" }`)
+  }
+  write(
+    'src/components/InformationPages/index.tsx',
+    'const hero = "/images/information-pages/hero.png"; const icon = `/images/information-pages/${resource.icon}`',
+  )
+  write('public/images/information-pages/hero.png', Buffer.from([4, 5, 6]))
+  write('public/images/information-pages/learn-start.svg', '<svg>learn</svg>')
   write('src/styles/global.scss', 'body { color: black; }')
   write('public/images/shared.svg', '<svg/>')
   save()
@@ -105,6 +115,69 @@ test('snapshot uses validated sitemap and excludes drafts, future content and no
   assert(!manifest.entries.some(item => /future|draft|\/es\/knowledge-base\/example/.test(item.url)))
   assert(manifest.entries.every(item => Object.keys(item).sort().join(',') === 'hash,url'))
   assert(!JSON.stringify(manifest).includes('Editorial description'))
+})
+
+test('information pages use only their approved English canonical URLs and remain outside KB scope', t => {
+  const f = fixture(t)
+  f.article()
+  const manifest = f.manifest()
+  const urls = Object.values(informationPages).map(page => `${ORIGIN}${page.path}`)
+  for (const url of urls) {
+    assert(
+      manifest.entries.some(entry => entry.url === url),
+      url,
+    )
+    assert(
+      scopedEntries(manifest, 'site').some(entry => entry.url === url),
+      url,
+    )
+    assert(!scopedEntries(manifest, 'kb').some(entry => entry.url === url), url)
+  }
+  const sitePlan = planIndexNow({ manifest, scope: 'site' })
+  assert(urls.every(url => sitePlan.changes.added.includes(url)))
+  for (const url of [
+    `${ORIGIN}/zh/about`,
+    `${ORIGIN}/es/privacy`,
+    `${ORIGIN}/fr/contact`,
+    `${ORIGIN}/en/about`,
+    `${ORIGIN}/about?source=footer`,
+    `${ORIGIN}/privacy/`,
+    `${ORIGIN}/contact#press`,
+    `${ORIGIN}/about-us`,
+    `${ORIGIN}/information/not-approved`,
+  ]) {
+    const value = withDigest({ ...manifest, entries: [{ url, hash: 'a'.repeat(64) }] })
+    assert.throws(() => validateManifest(value), undefined, url)
+  }
+})
+
+test('information page sources, shared content and referenced image bytes invalidate their snapshots', t => {
+  const f = fixture(t)
+  f.article()
+  const urls = new Set(Object.values(informationPages).map(page => `${ORIGIN}${page.path}`))
+  let before = f.manifest()
+  for (const [filename, value] of [
+    ['src/pages/contact/index.page.tsx', 'export default function Page() { return "Updated contact" }'],
+    ['src/components/InformationPages/ContactContent.tsx', 'export const copy = "New contact copy"'],
+    ['public/images/information-pages/hero.png', Buffer.from([8, 9, 10])],
+    ['public/images/information-pages/learn-start.svg', '<svg>new learn-more arrow</svg>'],
+  ]) {
+    f.write(filename, value)
+    const after = f.manifest()
+    for (const url of urls) {
+      assert.notEqual(
+        after.entries.find(entry => entry.url === url).hash,
+        before.entries.find(entry => entry.url === url).hash,
+        `${url}: ${filename}`,
+      )
+    }
+    before = after
+  }
+  // Whole-filename templates stay confined to the explicit asset directory and
+  // asset types; an unrelated directory or text file is not rendering input.
+  f.write('public/images/information-pages/readme.txt', 'not an image')
+  f.write('public/images/unrelated/new.svg', '<svg>unrelated</svg>')
+  assert.deepEqual(f.manifest().entries, before.entries)
 })
 
 test('entry hashes are independent of revision, publication clock, audit metadata and unrelated public assets', t => {

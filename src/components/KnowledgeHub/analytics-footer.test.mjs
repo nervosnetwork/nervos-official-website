@@ -25,6 +25,7 @@ function renderFooter(newsletter = {}, locale = 'en') {
     'next/image': { default: 'img' },
     'next/router': { useRouter: () => ({ locale }) },
     '../Footer/logo.svg': { default: 'svg' },
+    '../InformationLinks': { InformationLinks: 'InformationLinks' },
     './footer-v2.module.scss': { default: {} },
     './analytics': {
       trackKBEvent: (name, data) => events.push({ name, data: { ...data } }),
@@ -140,20 +141,9 @@ test('Chinese KB footer translates generic labels and newsletter copy while pres
     enLinks.map(link => link.props.href),
   )
   const labels = zhLinks.map(link => link.props.children[0])
-  for (const label of [
-    '挖矿',
-    '钱包',
-    '媒体资料',
-    '开发者',
-    '开发文档',
-    '区块浏览器',
-    '社区',
-    '学习',
-    '知识库',
-  ])
+  for (const label of ['挖矿', '钱包', '媒体资料', '开发者', '开发文档', '区块浏览器', '社区', '学习', '知识库'])
     assert.ok(labels.includes(label), label)
-  for (const name of ['CKB', 'Nervos Talk Forum', 'Community Fund DAO'])
-    assert.ok(labels.includes(name), name)
+  for (const name of ['CKB', 'Nervos Talk Forum', 'Community Fund DAO']) assert.ok(labels.includes(name), name)
   for (let index = 0; index < zhLinks.length; index++) {
     enLinks[index].props.onClick()
     zhLinks[index].props.onClick()
@@ -176,6 +166,19 @@ test('Chinese KB footer translates generic labels and newsletter copy while pres
   assert.equal(input.props['aria-label'], '订阅邮箱地址')
   assert.equal(nodes(chinese.tree).find(node => node.type === 'button').props['aria-label'], '订阅通讯')
   assert.ok(nodes(chinese.tree).some(node => node.type === 'h2' && node.props.children === '与我们一同前行。'))
+})
+
+test('footer information links report the real destination without changing existing navigation groups', () => {
+  const { tree, events } = renderFooter()
+  const information = nodes(tree).find(node => node.type === 'InformationLinks')
+  assert.ok(information)
+  information.props.onNavigate({ id: 'privacy', label: 'Privacy policy', href: '/privacy' })
+  assert.deepEqual(events, [
+    {
+      name: 'kb_footer_link_click',
+      data: { group: 'information', link_id: 'privacy', link_text: 'Privacy policy', link_url: '/privacy' },
+    },
+  ])
 })
 
 test('footer social links include the selected network and real URL without changing destinations', () => {

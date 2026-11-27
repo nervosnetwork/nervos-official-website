@@ -14,6 +14,7 @@ import {
   YoutubeIcon,
   TIcon,
 } from 'src/components/Footer/components/FooterMedia/icons'
+import { InformationLinks } from '../../components/InformationLinks'
 import IconFoundationWhiteLogo from './icons/foundationWhiteLogo.svg'
 import styles from './index.module.scss'
 
@@ -148,6 +149,7 @@ export const Footer: FC<FooterProps> = props => {
             ))}
           </div>
         </div>
+        <InformationLinks />
       </div>
     </div>
   )
